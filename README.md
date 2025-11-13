@@ -1,0 +1,1 @@
+1. Beggining of app h aving troubles with getting tabs on the app without errors. Tried to organize screens right off the bat and keep out of App.js but kept getting errors. so kept screens inside App.js until later in dev process.
