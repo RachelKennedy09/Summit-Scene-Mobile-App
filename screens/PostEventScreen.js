@@ -5,7 +5,9 @@ export default function PostEventScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Post Event</Text>
-      <Text style={styles.subtitle}>Business owners can post events here.</Text>
+      <Text style={styles.subtitle}>
+        Business owners can post and manage events here.
+      </Text>
     </View>
   );
 }

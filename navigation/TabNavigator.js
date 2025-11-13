@@ -9,8 +9,6 @@ import PostEventScreen from "../screens/PostEventScreen";
 import CommunityScreen from "../screens/CommunityScreen";
 import AccountScreen from "../screens/AccountScreen";
 
-console.log("HubScreen is:", HubScreen);
-
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {

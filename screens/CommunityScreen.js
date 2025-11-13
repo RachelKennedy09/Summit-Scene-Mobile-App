@@ -6,7 +6,7 @@ export default function CommunityScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Community</Text>
       <Text style={styles.subtitle}>
-        Community posts and past event reviews will live here.
+        Community posts, ideas, and past event highlights will live here.
       </Text>
     </View>
   );

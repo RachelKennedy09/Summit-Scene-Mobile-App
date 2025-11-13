@@ -6,7 +6,7 @@ export default function AccountScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Account</Text>
       <Text style={styles.subtitle}>
-        Log in, manage your profile, and settings.
+        Log in, manage your profile, and notification preferences.
       </Text>
     </View>
   );

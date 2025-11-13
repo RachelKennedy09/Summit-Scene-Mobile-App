@@ -1,1 +1,1 @@
-1. Beggining of app h aving troubles with getting tabs on the app without errors. Tried to organize screens right off the bat and keep out of App.js but kept getting errors. so kept screens inside App.js until later in dev process.
+1. Beggining of app h aving troubles with getting tabs on the app without errors. Tried to organize screens right off the bat and keep out of App.js but kept getting errors. I had Co -pilot navigate and do the files myself and some how fixed the errors after fighting with it for a long time.??
