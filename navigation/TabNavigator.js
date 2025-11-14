@@ -18,11 +18,23 @@ export default function TabNavigator() {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="Hub" component={HubScreen} />
-      <Tab.Screen name="Map" component={MapScreen} />
-      <Tab.Screen name="Post" component={PostEventScreen} />
-      <Tab.Screen name="Community" component={CommunityScreen} />
-      <Tab.Screen name="Account" component={AccountScreen} />
+      <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
+      <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
+      <Tab.Screen
+        name="Post"
+        component={PostEventScreen}
+        options={{ title: "Post" }}
+      />
+      <Tab.Screen
+        name="Community"
+        component={CommunityScreen}
+        options={{ title: "Community" }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{ title: "Account" }}
+      />
     </Tab.Navigator>
   );
 }
