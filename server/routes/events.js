@@ -2,14 +2,29 @@
 // small mini app for event endpoints
 
 import express from "express";
-import { getAllEvents, createEvent } from "../controllers/eventController.js";
+import {
+  getAllEvents,
+  createEvent,
+  getEventById,
+  updateEvent,
+  deleteEvent,
+} from "../controllers/eventController.js";
 
 const router = express.Router();
 
-// GET /api/events
+// GET /api/events (all events)
 router.get("/", getAllEvents);
 
-// POST /api/events
+// GET single event
+router.get("/:id", getEventById);
+
+// POST /api/events (post event)
 router.post("/", createEvent);
+
+// UPDATE event
+router.put("/:id", updateEvent);
+
+// DELETE event
+router.delete("/:id", deleteEvent);
 
 export default router;

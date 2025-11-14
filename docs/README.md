@@ -21,3 +21,5 @@ Expo app = frontend client.
 - used modern ES module for server side. 
 
 using thunderclient for db testing easier to use than postman and right at my fingertips.
+
+- early on in my projectonce i got to backend, the hubscreen file was already at 400 lines of code, i started seperating into components right away. I am gglad for this as now it is a habbit at the beginning instead of the end. (Thank you to my professor)
