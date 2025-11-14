@@ -9,7 +9,7 @@ import Event from "../models/Event.js";
 export async function getAllEvents(req, res) {
   try {
     // Find all events, sort by date (ascending)
-    const events = (await Event.find()).toSorted({ date: 1 });
+    const events = await Event.find().sort({ date: 1 });
 
     res.json(events); //200 OK by default
   } catch (error) {

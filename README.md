@@ -19,3 +19,5 @@ Expo app = frontend client.
 - - wasnt as organized with my commits as I usually am. files were a bit mixxed together when commiting
 
 - used modern ES module for server side. 
+
+using thunderclient for db testing easier to use than postman and right at my fingertips.

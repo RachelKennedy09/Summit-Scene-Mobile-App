@@ -3,6 +3,7 @@
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
+import eventRoutes from "./routes/events.js";
 
 // create the express app
 const app = express();
@@ -17,6 +18,9 @@ app.get("/", (req, res) => {
     message: "summitScene API is running (ESM)",
   });
 });
+
+// events routes for anything starting with /api/events
+app.use("/api/events", eventRoutes);
 
 // port for the backend
 const PORT = process.env.PORT || 4000;
