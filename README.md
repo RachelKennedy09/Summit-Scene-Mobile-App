@@ -17,3 +17,5 @@ Expo app = frontend client.
 
 - challenge: I thought I should put all files into an app folder and then all into a server folder, but it caused a lot of errors and was going into unknown territory. I later learned the way I had it was correct and still a normal way to build an app.
 - - wasnt as organized with my commits as I usually am. files were a bit mixxed together when commiting
+
+- used modern ES module for server side. 
