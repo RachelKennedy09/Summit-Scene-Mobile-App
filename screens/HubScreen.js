@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { fetchEvents } from "../services/eventsApi";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 import EventCard from "../components/EventCard";
 import CategoryChips from "../components/CategoryChips";
@@ -40,6 +41,7 @@ const MOCK_EVENTS = [
     date: "Nov 20, 2025",
     time: "5:00 PM",
     category: "Market",
+    imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
   },
   {
     id: "2",
@@ -49,6 +51,7 @@ const MOCK_EVENTS = [
     date: "Dec 6, 2025",
     time: "10:00 AM",
     category: "Market",
+    imageUrl: "https://images.unsplash.com/photo-1542831371-d531d36971e6",
   },
 
   // WELLNESS
@@ -60,6 +63,7 @@ const MOCK_EVENTS = [
     date: "Nov 22, 2025",
     time: "7:30 AM",
     category: "Wellness",
+    imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
   },
   {
     id: "4",
@@ -69,6 +73,7 @@ const MOCK_EVENTS = [
     date: "Dec 3, 2025",
     time: "6:00 PM",
     category: "Wellness",
+    imageUrl: "https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62",
   },
 
   // MUSIC
@@ -80,6 +85,7 @@ const MOCK_EVENTS = [
     date: "Nov 23, 2025",
     time: "8:00 PM",
     category: "Music",
+    imageUrl: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
   },
   {
     id: "6",
@@ -89,6 +95,7 @@ const MOCK_EVENTS = [
     date: "Dec 1, 2025",
     time: "2:00 PM",
     category: "Music",
+    imageUrl: "https://images.unsplash.com/photo-1511379938547-c1f69419868d",
   },
 
   // WORKSHOP
@@ -100,6 +107,7 @@ const MOCK_EVENTS = [
     date: "Nov 25, 2025",
     time: "6:00 PM",
     category: "Workshop",
+    imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
   },
   {
     id: "8",
@@ -109,6 +117,7 @@ const MOCK_EVENTS = [
     date: "Dec 5, 2025",
     time: "6:30 PM",
     category: "Workshop",
+    imageUrl: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
   },
 
   // FAMILY
@@ -120,6 +129,7 @@ const MOCK_EVENTS = [
     date: "Dec 10, 2025",
     time: "6:00 PM",
     category: "Family",
+    imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
   },
 
   // RETAIL
@@ -131,6 +141,7 @@ const MOCK_EVENTS = [
     date: "Dec 12, 2025",
     time: "9:00 AM",
     category: "Retail",
+    imageUrl: "https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62",
   },
   {
     id: "12",
@@ -140,6 +151,7 @@ const MOCK_EVENTS = [
     date: "Dec 4, 2025",
     time: "10:00 AM",
     category: "Retail",
+    imageUrl: "https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62",
   },
 
   // OUTDOORS
@@ -151,6 +163,7 @@ const MOCK_EVENTS = [
     date: "Nov 28, 2025",
     time: "6:00 AM",
     category: "Outdoors",
+    imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
   },
   {
     id: "14",
@@ -160,6 +173,7 @@ const MOCK_EVENTS = [
     date: "Dec 2, 2025",
     time: "1:00 PM",
     category: "Outdoors",
+    imageUrl: "https://images.unsplash.com/photo-1455218873509-8097305ee378",
   },
 
   // FOOD
@@ -171,6 +185,7 @@ const MOCK_EVENTS = [
     date: "Dec 8, 2025",
     time: "10:00 AM",
     category: "Food",
+    imageUrl: "https://images.unsplash.com/photo-1484980972926-edee96e0960d",
   },
   {
     id: "16",
@@ -180,6 +195,7 @@ const MOCK_EVENTS = [
     date: "Nov 30, 2025",
     time: "All Day",
     category: "Food",
+    imageUrl: "https://images.unsplash.com/photo-1484980972926-edee96e0960d",
   },
 
   // ART
@@ -191,6 +207,7 @@ const MOCK_EVENTS = [
     date: "Dec 6, 2025",
     time: "1:00 PM",
     category: "Art",
+    imageUrl: "https://images.unsplash.com/photo-1458535836701-3af20e25f22c",
   },
   {
     id: "18",
@@ -200,15 +217,17 @@ const MOCK_EVENTS = [
     date: "Dec 9, 2025",
     time: "2:00 PM",
     category: "Art",
+    imageUrl: "https://images.unsplash.com/photo-1458535836701-3af20e25f22c",
   },
 ];
 
 // Main HubScreen component
 export default function HubScreen() {
+  const navigation = useNavigation();
+
   const [selectedCategory, setSelectedCategory] = useState("All"); // which event type is active?
   const [selectedTown, setSelectedTown] = useState("All"); //which town tab is active?
-
-  // events coem form state instead of mock_events
+  // events come form state instead of mock_events
   const [events, setEvents] = useState(MOCK_EVENTS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -286,7 +305,16 @@ export default function HubScreen() {
         data={eventsToShow}
         keyExtractor={(item) => item._id || item.id} // mock uses .id and source(live) uses _id, this will support both without crashing
         contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => <EventCard event={item} />}
+        renderItem={({ item }) => (
+          <EventCard
+            event={item}
+            onPress={() =>
+              navigation.navigate("EventDetail", {
+                event: item,
+              })
+            }
+          />
+        )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             No events found for this category.

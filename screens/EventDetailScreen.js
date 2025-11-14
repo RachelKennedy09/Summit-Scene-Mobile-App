@@ -2,40 +2,43 @@
 
 import React from "react";
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EventDetailScreen({ route }) {
   const { event } = route.params; // event was passed in navigate(..., {event})
   return (
-    <ScrollView style={styles.container}>
-      {/* hero image */}
-      {event.imageUrl ? (
-        <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
-      ) : null}
-      <View style={styles.content}>
-        <Text style={styles.category}>{event.category}</Text>
-        <Text style={styles.title}>{event.title}</Text>
-
-        <Text style={styles.meta}>
-          {event.town} • {event.date}
-          {event.time ? ` • ${event.time}` : ""}
-        </Text>
-
-        {event.location ? (
-          <Text style={styles.location}>📍 {event.location}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        {event.imageUrl ? (
+          <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
         ) : null}
 
-        {event.description ? (
-          <>
-            <Text style={styles.sectionHeading}>About this event</Text>
-            <Text style={styles.description}>{event.description}</Text>
-          </>
-        ) : (
-          <Text style={styles.description}>
-            No detailed description added yet. Check back soon!
+        <View style={styles.content}>
+          <Text style={styles.category}>{event.category}</Text>
+          <Text style={styles.title}>{event.title}</Text>
+
+          <Text style={styles.meta}>
+            {event.town} • {event.date}
+            {event.time ? ` • ${event.time}` : ""}
           </Text>
-        )}
-      </View>
-    </ScrollView>
+
+          {event.location ? (
+            <Text style={styles.location}>📍 {event.location}</Text>
+          ) : null}
+
+          {event.description ? (
+            <>
+              <Text style={styles.sectionHeading}>About this event</Text>
+              <Text style={styles.description}>{event.description}</Text>
+            </>
+          ) : (
+            <Text style={styles.description}>
+              No detailed description added yet.
+            </Text>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -44,6 +47,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0b1724",
   },
+  safeArea: {
+  flex: 1,
+  backgroundColor: "#0b1724",
+},
+
   heroImage: {
     width: "100%",
     height: 220,
