@@ -99,9 +99,5 @@ Date: November 14th
 - Gained experience with backend (MongoDB, Thunderclient) and successfully routed and did CRUD operations.
 - Better at error handling and ensuring mock vs real data helped me visual the app.
 
-
-
-
-
 "Connected to Mongo succesfully as of Nov 14th"
 ![alt text](image-7.png)

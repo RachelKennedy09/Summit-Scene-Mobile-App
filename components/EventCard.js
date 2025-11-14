@@ -2,33 +2,48 @@
 // visual component
 
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 
-export default function EventCard({ event }) {
+export default function EventCard({ event, onPress }) {
   return (
-    <View style={styles.card}>
-      {event.category ? (
-        <Text style={styles.category}>{event.category}</Text>
-      ) : null}
-      <Text style={styles.title}>{event.title}</Text>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.cardWrapper,
+        pressed && styles.cardPressed,
+      ]}
+    >
+      <View style={styles.card}>
+        {event.category ? (
+          <Text style={styles.category}>{event.category}</Text>
+        ) : null}
+        <Text style={styles.title}>{event.title}</Text>
 
-      {event.location ? (
-        <Text style={styles.location}>{event.location}</Text>
-      ) : null}
+        {event.location ? (
+          <Text style={styles.location}>{event.location}</Text>
+        ) : null}
 
-      <Text style={styles.datetime}>
-        {event.date} {event.date ? `• ${event.time}` : ""}
-      </Text>
-    </View>
+        <Text style={styles.datetime}>
+          {event.date} {event.date ? `• ${event.time}` : ""}
+        </Text>
+      </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
+  cardWrapper: {
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  cardPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.99 }],
+  },
   card: {
     backgroundColor: "#152238",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#243b53",
   },
