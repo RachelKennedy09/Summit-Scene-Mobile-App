@@ -8,7 +8,6 @@ import MapScreen from "../screens/MapScreen";
 import PostEventScreen from "../screens/PostEventScreen";
 import CommunityScreen from "../screens/CommunityScreen";
 import AccountScreen from "../screens/AccountScreen";
-import EventDetailScreen from "../screens/EventDetailScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -20,11 +19,7 @@ export default function TabNavigator() {
       }}
     >
       <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
-      <Tab.Screen
-        name="EventDetail"
-        component={EventDetailScreen}
-        options={{ title: "Event details" }}
-      />
+
       <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
       <Tab.Screen
         name="Post"

@@ -9,6 +9,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { fetchEvents } from "../services/eventsApi";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -229,36 +230,55 @@ export default function HubScreen() {
   const [selectedTown, setSelectedTown] = useState("All"); //which town tab is active?
   // events come form state instead of mock_events
   const [events, setEvents] = useState(MOCK_EVENTS);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //inital load
+  const [refreshing, setRefreshing] = useState(false); //pull to refresh
   const [error, setError] = useState("");
 
-  //Load events from backend when screen mounts (once)
-  useEffect(() => {
-    async function loadEvents() {
-      try {
+  // refresh function
+  async function loadEvents({ isRefresh = false } = {}) {
+    const startTime = Date.now();
+    const MIN_REFRESH_DURATION = isRefresh ? 800 : 0;
+
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
         setLoading(true);
-        setError("");
+      }
 
-        const data = await fetchEvents();
+      setError("");
 
-        if (Array.isArray(data) && data.length > 0) {
-          // Combine mocks + live events so the list is nice and full
-          const combined = [...MOCK_EVENTS, ...data];
-          setEvents(combined);
-        } else {
-          // If no data from API, stick with mocks
-          setEvents(MOCK_EVENTS);
-        }
-      } catch (err) {
-        console.log("Error loading events in HubScreen:", err.message);
-        setError("Could not load live events. Showing sample events instead.");
+      const data = await fetchEvents();
+
+      if (Array.isArray(data) && data.length > 0) {
+        // dev mode: combine mock + live events
+        const combined = [...MOCK_EVENTS, ...data];
+        setEvents(combined);
+      } else {
         setEvents(MOCK_EVENTS);
-      } finally {
+      }
+    } catch (err) {
+      console.log("Error loading events in HubScreen:", err.message);
+      setError("Could not load live events. Showing sample events instead.");
+      setEvents(MOCK_EVENTS);
+    } finally {
+      const elapsed = Date.now() - startTime;
+      const remaining = MIN_REFRESH_DURATION - elapsed;
+
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining));
+      }
+
+      if (isRefresh) {
+        setRefreshing(false);
+      } else {
         setLoading(false);
       }
     }
-
-    loadEvents();
+  }
+  //Load events from backend when screen mounts (once)
+  useEffect(() => {
+    loadEvents(); // initial load (not a refresh)
   }, []);
 
   const eventsToShow = useMemo(() => {
@@ -277,7 +297,7 @@ export default function HubScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color="#ffffff" />
           <Text style={styles.loadingText}>Loading events...</Text>
         </View>
       </SafeAreaView>
@@ -300,34 +320,46 @@ export default function HubScreen() {
         onSelectCategory={setSelectedCategory}
       />
 
-      {/* Event list */}
       <FlatList
         data={eventsToShow}
-        keyExtractor={(item) => item._id || item.id} // mock uses .id and source(live) uses _id, this will support both without crashing
+        keyExtractor={(item) => item._id || item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <EventCard
             event={item}
-            onPress={() =>
-              navigation.navigate("EventDetail", {
-                event: item,
-              })
-            }
+            onPress={() => navigation.navigate("EventDetail", { event: item })}
           />
         )}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => loadEvents({ isRefresh: true })}
+            tintColor="transparent"
+            titleColor="transparent"
+            colors={["transparent"]}
+            progressBackgroundColor="transparent"
+          />
+        }
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             No events found for this category.
           </Text>
         }
       />
+
+      {refreshing && (
+        <View style={styles.refreshOverlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0b1724",
+    backgroundColor: "#090d11ff",
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -342,6 +374,22 @@ const styles = StyleSheet.create({
     color: "#b0c4de",
     marginBottom: 12,
   },
+  refreshHeader: {
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  refreshOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(9, 13, 17, 0.6)", // dim the background a bit
+  },
+
   errorText: {
     color: "#ffb3b3",
     marginBottom: 8,

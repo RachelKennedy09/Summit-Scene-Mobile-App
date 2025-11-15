@@ -31,7 +31,7 @@ Date: October 24th - November 13th
 
 #### Photos of Progress Sprint 1
 
-##### Trello
+##### Trello Sprint
 
 ![alt text](image.png)
 
@@ -75,6 +75,8 @@ Date: November 14th
 6. Connect HubScreen to API (fetch events from backend)hubscreen with mock events
 7. Loading and error states for event feed
 8. Show events by town
+9. See event details
+10. pull to refresh
 
 #### 🔥 Challenges + How I Solved Them
 
@@ -83,6 +85,11 @@ Date: November 14th
 
 - Issue: HubScreen.js was at 400 lines of code.
 - Fix: Created components (EventCard.js, TownChips.js and CategoryChips.js) to condense
+
+- Issue: I mistakingly did EventDetails as a screen/tab instead of a stack. I realized it would cause errors and I dont need it as a tab. Especially why would you click it what type of event would you even see?
+- Fix: I quickly fixed that and made it a stack instead of being in my tab navigator.
+- Issue: I was struggling with why my refresher loading spinner was black and I couldnt change the color to white.
+- Fix: Had to show my own white spinner over the expo go native spinner because it wouldnt go away.
 
 ### 🌟 Wins + Breakthroughs
 
@@ -98,6 +105,13 @@ Date: November 14th
 - How to connect to MongoDB Atlas from a mobile app backend
 - Gained experience with backend (MongoDB, Thunderclient) and successfully routed and did CRUD operations.
 - Better at error handling and ensuring mock vs real data helped me visual the app.
+- I struggled with understanding how to organize my App.js vs TabNavigator vs Rootnavigator when making eventdetaiscreen stack. This was a big learning curve for me.
 
+#### Photos of Progress Sprint 2
+
+##### Trello Sprint
+![alt text](image-8.png)
+
+##### MongoDB successfull conenction
 "Connected to Mongo succesfully as of Nov 14th"
 ![alt text](image-7.png)
