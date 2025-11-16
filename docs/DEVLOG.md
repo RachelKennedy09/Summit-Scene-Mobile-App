@@ -1,117 +1,575 @@
-### 📅 Sprint #1 Foundations and Events
+# Sprint #1 Foundations and Events (Nov 13 - Oct 14)
 
-Date: October 24th - November 13th
-
-#### 🎯 Sprint Goals
+### 🎯 Sprint Goals
 
 1. Set up Expo project + folder structure
-2. Install React navigation/Bottom tabs
-3. create bottom tabs with placeholders (Hub, Map, Community, Account)
-4. Add town filters
-5. Design basic event card
-6. Create static hubscreen with mock events
-7. add category filters
+2. Install React navigation + Bottom tabs
+3. Create placeholder screens for: Hub, Map, Community, Account
+4. Add tri-town filter tabs (Banff, Canmore, Lake Louise)
+5. Design the first Event Card
+6. Build static HubScreen with mock events
+7. Add category filter chips
 
-#### 🔥 Challenges + How I Solved Them
+### 🔥 Challenges + How I Solved Them
 
-- Issue: File structure confusion when splitting app folder & server folder.
-- Fix: Reorganized project using only /server for API. Confirmed both run separately (npx expo start + node server/index.js).
+<b>Issue: App folder vs. server folder confusion</b>
 
-- Issue: started of with expo router and tsx files without having enough practice with them.
-- Fix: Deleted them when I went back to my app 3 weeks later and kept with what i know (js)
+<b>Fix:</b> Reorganized project using only /server for API. Confirmed both run separately (npx expo start + node server/index.js).
 
-#### 🌟 Wins + Breakthroughs
+<b> Issue: Started with Expo Router + TSX without enough practice</b>
+<b>Fix:</b>Removed the experimental TSX pages and returned to standard React Native + JS. This made the project easier to maintain.
 
-- Few errors, Completed sprint 1 in one day.
+### 🌟 Wins + Breakthroughs
 
-#### 📚 What I Learned This Week
+- Very few errors — completed Sprint 1 in a single day.
 
-- Keeping the UI simple but with mock placeholders and events, so I can have a visual of the app before having to get real data.
-- Installing correct dependencies
+- Clearer understanding of mobile-first folder structure.
 
-#### Photos of Progress Sprint 1
+- Realized building static UI with mock events early helps visualize the final product.
 
-##### Trello Sprint
+### 📚 What I Learned This Sprint
+
+- How to keep UI simple while still designing meaningful placeholders.
+
+- Importance of installing the correct navigation + safe-area dependencies early.
+
+- Planning UI first makes backend integration much smoother later.
+
+---
+
+### Photos of Progress - Sprint 1
+
+#### Trello Sprint
 
 ![alt text](image.png)
 
-##### Github commits
+#### Github commits
 
 ![alt text](image-1.png)
 
-##### HubScreen.js
+#### Screens (Hub, Map, Post, Community, Account)
 
 ![alt text](image-2.png)
 
-##### MapScreen.js
-
 ![alt text](image-3.png)
-
-##### PostEventScreen.js
 
 ![alt text](image-4.png)
 
-##### CommunityScreen.js
-
 ![alt text](image-5.png)
-
-##### AccountScreen.js
 
 ![alt text](image-6.png)
 
 ---
 
-### 📅 Sprint #2 Backend and Events api
+---
 
-Date: November 14th
+## 📅 Sprint #2 Backend and Events api ( November 14th)
 
-#### 🎯 Sprint Goals
+### 🎯 Sprint Goals
 
-1. Set up Node + Express + Mongodb
-2. Connect to MongoDB
-3. Define event model (town, category, dates, title, description, location, lat/lng, imagEUrl)
-4. seed example events for Banff/Canmore/Lake Louise
-5. Add full CRUD for events
-6. Connect HubScreen to API (fetch events from backend)hubscreen with mock events
-7. Loading and error states for event feed
-8. Show events by town
-9. See event details
-10. pull to refresh
+1. Set up Node + Express + MongodbSet up Node + Express + MongoDB
+2. Connect to MongoDB Atlas
+3. Define Event model (title, description, town, category, date, time, location, lat/lng, imageUrl)
+4. Seed example events for Banff/Canmore/Lake Louise
+5. Implement full CRUD (Create, Read, Update, Delete)
+6. Connect HubScreen to backend (fetch events)
+7. Add loading & error states
+8. Filter events by town
+9. Create full Event Details Screen
+10. Add pull-to-refresh behavior
 
-#### 🔥 Challenges + How I Solved Them
+---
 
-- Issue: MongoDB authentication error: bad auth.
-- Fix: Updated .env connection string, ensured app user had correct permissions, and enabled IP access from “0.0.0.0/0”.
+### 🔥 Challenges + How I Solved Them
 
-- Issue: HubScreen.js was at 400 lines of code.
-- Fix: Created components (EventCard.js, TownChips.js and CategoryChips.js) to condense
+<b>Issue: MongoDB “bad auth” authentication error</b>
 
-- Issue: I mistakingly did EventDetails as a screen/tab instead of a stack. I realized it would cause errors and I dont need it as a tab. Especially why would you click it what type of event would you even see?
-- Fix: I quickly fixed that and made it a stack instead of being in my tab navigator.
-- Issue: I was struggling with why my refresher loading spinner was black and I couldnt change the color to white.
-- Fix: Had to show my own white spinner over the expo go native spinner because it wouldnt go away.
+<b>Fix:</b>
+
+- Updated .env with correct connection string
+- Ensured database user permissions were correct
+- Enabled IP Access: 0.0.0.0/0
+- Successfully connected after rewriting connection code in ESM format
+
+---
+
+<b>Issue: HubScreen.js ballooned to 400+ lines</b>
+
+<b>Fix:</b>
+Refactored into smaller components:
+
+- EventCard.js
+- TownChips.js
+- CategoryChips.js
+
+This improved readability, maintainability, and overall organization.
+
+---
+
+<b>Issue: EventDetails was mistakenly added as a Tab</b>
+
+<b>Fix:</b> Moved EventDetailScreen into a Stack Navigator instead of the tab bar.
+Tabs now handle main navigation; details are pushed on top.
+Navigation behavior is now correct and professional.
+
+---
+
+<b>Issue: Pull-to-refresh spinner appeared black in Expo Go</b>
+<b>Fix:</b>Native spinner ignored color props → created my own custom white spinner overlay for a consistent experience and added a small minimum delay for smoother UX.
+
+---
 
 ### 🌟 Wins + Breakthroughs
 
-- First successful API call from mobile app to my Express server
-- Successfully displayed real event data using Axios
-- Learned how to fix Expo Safe Area View installation
-- Navigation works smoothly between Home -> Event Details
-- App loads correctly on my phone using Expo Go + LAN
-- API documentation started
+- First successful API call from mobile app → Express server 🎉
+
+- Displayed real MongoDB events inside the Hub feed
+
+- Implemented combined mock + live data for strong development flow
+
+- Navigation between Hub → Event Details works perfectly
+
+- App loads smoothly on Expo Go through LAN
+
+- Began proper API documentation
+
+- Built a polished Event Detail screen with hero image + scroll layout
+
+---
 
 ### 📚 What I Learned This Week
 
-- How to connect to MongoDB Atlas from a mobile app backend
-- Gained experience with backend (MongoDB, Thunderclient) and successfully routed and did CRUD operations.
-- Better at error handling and ensuring mock vs real data helped me visual the app.
-- I struggled with understanding how to organize my App.js vs TabNavigator vs Rootnavigator when making eventdetaiscreen stack. This was a big learning curve for me.
+- How to connect Express to a MongoDB Atlas database securely
 
-#### Photos of Progress Sprint 2
+- How to test endpoints in Thunder Client and verify CRUD functionality
+
+- A much deeper understanding of structuring:
+
+  - App.js
+  - TabNavigator
+  - RootNavigator
+  - and how stacks + tabs work together
+
+- Better error handling around network requests and fallback mock data
+
+- How to improve UI performance with loading states + pull-to-refresh
+
+---
+
+#### Photos of Progress - Sprint 2
 
 ##### Trello Sprint
+
 ![alt text](image-8.png)
 
-##### MongoDB successfull conenction
-"Connected to Mongo succesfully as of Nov 14th"
+##### MongoDB Connected Successfully
+
+"Connected to Mongo as of Nov 14th"
 ![alt text](image-7.png)
+
+##### Github Commits
+
+![alt text](image-9.png)
+
+##### CRUD Thunderclient
+
+POST
+![alt text](image-10.png)
+GET ALL
+![alt text](image-11.png)
+GET BY ID
+![alt text](image-12.png)
+UPDATE
+![alt text](image-13.png)
+DELETE
+![alt text](image-14.png)
+
+---
+
+## 📅 Sprint #3 (November 16th)
+
+### 🎯 Sprint Goals
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+<b>Fix:</b>
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+### 📚 What I Learned This Week
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+#### Photos of Progress - Sprint 3
+
+---
+
+## 📅 Sprint #4 ()
+
+### 🎯 Sprint Goals
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+<b>Fix:</b>
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+### 📚 What I Learned This Week
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+#### Photos of Progress - Sprint 4
+
+---
+
+## 📅 Sprint #5 ()
+
+### 🎯 Sprint Goals
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+<b>Fix:</b>
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+### 📚 What I Learned This Week
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+#### Photos of Progress - Sprint 5
+
+---
+
+## 📅 Sprint #6 ()
+
+### 🎯 Sprint Goals
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+<b>Fix:</b>
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+### 📚 What I Learned This Week
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+#### Photos of Progress - Sprint 6
+
+---
+
+## 📅 Sprint #7 (November 16th)
+
+### 🎯 Sprint Goals
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+<b>Fix:</b>
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+### 📚 What I Learned This Week
+
+-
+
+-
+
+-
+
+-
+
+-
+
+---
+
+#### Photos of Progress - Sprint 7
