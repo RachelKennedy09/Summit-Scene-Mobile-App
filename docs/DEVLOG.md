@@ -205,9 +205,9 @@ DELETE
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: I realized I pushed my .env file to github accidentally.</b>
 
-<b>Fix:</b>
+<b>Fix: I deleted the .env and ensured it wouldnt keep getting pushed to my github. And then I re-created a mongoDB cluster so no one could attack.</b>
 
 ---
 
@@ -242,27 +242,29 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 ### 📚 What I Learned This Week
 
--
+- Wrapping head around security details and ensuring yout hit every one can be draining. There are so many ways to get around security so you need to make sure you are thinking critically through the login/register process. Even ensuring you use the right words in your error messages.
+
+- Choosing a 24 hour token expiry over 7 days. I wanted a more realistic app feel. It is more secure than 7 days and less annoying than 15 minutes. Especially for my professor while they are grading. That is why i chose 24hrs
 
 -
 
 -
 
--
-
--
-
----
+- ***
 
 #### Photos of Progress - Sprint 3
 
----
+#### POSt /auth/login
+
+![alt text](image-15.png)
+
+#### POST /auth/register
+
+## ![alt text](image-16.png)
 
 ## 📅 Sprint #4 ()
 
@@ -320,9 +322,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 ### 📚 What I Learned This Week
 
@@ -334,9 +334,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 #### Photos of Progress - Sprint 4
 
@@ -398,9 +396,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 ### 📚 What I Learned This Week
 
@@ -412,9 +408,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 #### Photos of Progress - Sprint 5
 
@@ -476,9 +470,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 ### 📚 What I Learned This Week
 
@@ -490,9 +482,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 #### Photos of Progress - Sprint 6
 
@@ -554,9 +544,7 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 ### 📚 What I Learned This Week
 
@@ -568,8 +556,6 @@ DELETE
 
 -
 
--
-
----
+- ***
 
 #### Photos of Progress - Sprint 7

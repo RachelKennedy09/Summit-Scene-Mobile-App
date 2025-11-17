@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
 import eventRoutes from "./routes/events.js";
+import authRouter from "./routes/auth.js";
 
 // create the express app
 const app = express();
@@ -21,6 +22,9 @@ app.get("/", (req, res) => {
 
 // events routes for anything starting with /api/events
 app.use("/api/events", eventRoutes);
+
+// auth routes
+app.use("/api/auth", authRouter);
 
 // port for the backend
 const PORT = process.env.PORT || 4000;
