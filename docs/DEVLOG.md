@@ -186,7 +186,7 @@ DELETE
 
 ---
 
-## 📅 Sprint #3 (November 16th)
+## 📅 Sprint #3 (November 16th-)
 
 ### 🎯 Sprint Goals
 
@@ -337,6 +337,10 @@ DELETE
 - ***
 
 #### Photos of Progress - Sprint 4
+
+(November 16th finished LoginScreen.js, RegisterScreen.js, AuthContext, User model, and auth routes)
+Github commit
+
 
 ---
 
