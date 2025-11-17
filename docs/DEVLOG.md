@@ -230,7 +230,7 @@ DELETE
 
 ### 🌟 Wins + Breakthroughs
 
--
+- understanding get /auth/me and expired tokens.
 
 -
 

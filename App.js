@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import TabNavigator from "./navigation/TabNavigator";
 import EventDetailScreen from "./screens/EventDetailScreen";
+import { AuthProvider } from "./context/AuthContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -34,9 +35,11 @@ function RootNavigator() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

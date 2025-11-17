@@ -30,7 +30,7 @@ export default function AccountScreen() {
         </View>
       </View>
 
-      {/* Settings placeholder */}
+      {/* Settings placeholder, will add on to this as I go and come up with ideas */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Settings</Text>
         <Text style={styles.cardText}>In a later sprint, ill be able to:</Text>
