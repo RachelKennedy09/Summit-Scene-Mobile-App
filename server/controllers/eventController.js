@@ -25,6 +25,7 @@ export async function getAllEvents(req, res) {
 // Create a new event , reads data from req.body, validates required fields, saves to MongoDB, and returns saved event.
 export async function createEvent(req, res) {
   try {
+    const userId = req.user.userId; //from auth middleware
     const {
       title,
       description,
@@ -52,14 +53,15 @@ export async function createEvent(req, res) {
       time,
       location,
       imageUrl,
+      createdBy: userId,
     });
 
     const savedEvent = await event.save();
 
-    res.status(201).json(savedEvent); // 201 success created
+    return res.status(201).json(savedEvent); // 201 success created
   } catch (error) {
     console.error("Error creating event:", error.message);
-    res.status(500).json;
+    return res.status(500).json;
     ({
       message: "Error creating event",
       error: error.message,
@@ -89,20 +91,32 @@ export async function getEventById(req, res) {
 
 export async function updateEvent(req, res) {
   try {
-    const updated = await Event.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true } // return updated version
-    );
+    const userId = req.user.userId;
+    const { id } = req.params;
 
-    if (!updated) {
+    //find the event
+    const event = await Event.findById(id);
+    if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    res.json(updated);
+    // check owndership
+    if (event.createdBy.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to edit this event." });
+    }
+
+    // apply updates from req.body
+    Object.assign(event, req.body);
+
+    // save updated document
+    const updated = await event.save();
+
+    return res.json(updated);
   } catch (error) {
     console.error("Error updating event:", error.message);
-    res
+    return res
       .status(500)
       .json({ message: "Error updating event", error: error.message });
   }
@@ -111,16 +125,27 @@ export async function updateEvent(req, res) {
 // DELETE /api/events/:id - Delete event
 export async function deleteEvent(req, res) {
   try {
-    const deleted = await Event.findByIdAndDelete(req.params.id);
+    const userId = req.user.userId;
+    const { id } = req.params;
 
-    if (!deleted) {
+    //find the event
+    const event = await Event.findById(id);
+    if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    res.json({ message: "Event deleted successfully" });
+    //Check ownership
+    if (event.createdBy.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to delete this event." });
+    }
+    await event.deleteOne();
+
+    return res.json({ message: "Event deleted successfully" });
   } catch (error) {
     console.error("Error deleting event:", error.message);
-    res
+    return res
       .status(500)
       .json({ message: "Error deleting event", error: error.message });
   }

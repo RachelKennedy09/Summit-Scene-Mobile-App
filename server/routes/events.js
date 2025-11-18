@@ -16,16 +16,14 @@ const router = express.Router();
 
 // Public: anyone can see all events
 router.get("/", getAllEvents);
-
 // Public: anyone can see one event
 router.get("/:id", getEventById);
 
+
 // Protected: only logged-in users can create events
 router.post("/", authMiddleware, createEvent);
-
 // Protected: only the creator can update (checked in controller)
 router.put("/:id", authMiddleware, updateEvent);
-
 // Protected: only the creator can delete (checked in controller)
 router.delete("/:id", authMiddleware, deleteEvent);
 

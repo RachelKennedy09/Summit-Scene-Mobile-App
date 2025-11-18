@@ -37,6 +37,11 @@ const eventSchema = new mongoose.Schema(
       type: String, //optional poster image URL
       trim: true,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true, // adds CreateAt and updatedat automatically
