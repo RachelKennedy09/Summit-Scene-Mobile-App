@@ -47,7 +47,7 @@ function LoginScreen() {
   return (
     // KeyboardAvoidingView stops the keyboard from covering inputs
     <KeyboardAvoidingView
-      style={StyleSheet.container}
+      style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* dismiss keyboard when tapping outside inputs */}
@@ -77,7 +77,7 @@ function LoginScreen() {
             <Text style={styles.label}>Password</Text>
             <TextInput
               style={styles.input}
-              vlue={password}
+              value={password}
               onChangeText={setPassword}
               placeholder="••••••••"
               secureTextEntry
@@ -99,14 +99,7 @@ function LoginScreen() {
           </Pressable>
 
           {/* Nav link...later will wire to registerscreen */}
-          <Pressable
-            onPress={() => {
-              Alert.alert(
-                "Go to register",
-                "Will navigate to the sign up screen later"
-              );
-            }}
-          >
+          <Pressable onPress={() => navigation.navigate("Register")}>
             <Text style={styles.linkText}>Don’t have an account? Sign up</Text>
           </Pressable>
         </View>
@@ -117,7 +110,6 @@ function LoginScreen() {
 
 export default LoginScreen;
 
-// Basic styling – we can refine later to match your Summit Scene vibe
 const styles = StyleSheet.create({
   container: {
     flex: 1,

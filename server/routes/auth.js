@@ -1,38 +1,42 @@
 // Register and Login
-// Lets clients create accounts and receive JWT tokens for secure requeets
+// WHAT: Auth routes for Summit Scene
+// WHY: Let clients create accounts and receive JWT tokens for secure requests
 
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import User from "../models/User.js";
+
+// Load environment variables (if not already loaded in index.js)
+dotenv.config();
 
 const router = express.Router();
 
-//Helper to create a JWT token
+// Helper to create a JWT token
 function createToken(userId) {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error("JWT_SECRET is not set in env variables");
+    throw new Error("JWT_SECRET is not set in environment variables");
   }
-  return jwt.sign(
-    { userId },
-    secret,
-    { expiresIn: "24h" } // good for 24 hours then has to log in;
-  );
+
+  return jwt.sign({ userId }, secret, { expiresIn: "24h" });
 }
 
 /*
- POST /api/auth/register
- BODY: { email, password, name? }
- FLOW:
- 1) Check if user already exists
- 2) Hash password
- 3) Save user
- 4) Return token + minimal user info
- */
+  POST /api/auth/register
+  BODY: { email, password, name? }
+
+  FLOW:
+  1) Validate required fields
+  2) Check if user already exists
+  3) Hash password
+  4) Save user
+  5) Return token + minimal user info
+*/
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name } = req.body || {};
 
     // Basic validation
     if (!email || !password) {
@@ -41,10 +45,10 @@ router.post("/register", async (req, res) => {
         .json({ message: "Email and password are required." });
     }
 
-    // check if email already exists
+    // Check if email already exists
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(409).json({ message: "Email is aleady registered." });
+      return res.status(409).json({ message: "Email is already registered." });
     }
 
     // Hash password
@@ -61,7 +65,7 @@ router.post("/register", async (req, res) => {
     // Create token
     const token = createToken(user._id.toString());
 
-    //Send minimal info back (not passwordHash)
+    // Send minimal info back (not passwordHash)
     res.status(201).json({
       token,
       user: {
@@ -78,17 +82,18 @@ router.post("/register", async (req, res) => {
 });
 
 /*
- POST /api/auth/login
- BODY: { email, password }
- FLOW:
- 1) Find user by email
- 2) Compare passwords
- 3) Return token + user if valid
- */
+  POST /api/auth/login
+  BODY: { email, password }
 
+  FLOW:
+  1) Validate required fields
+  2) Find user by email
+  3) Compare passwords
+  4) Return token + user if valid
+*/
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       return res
@@ -98,7 +103,7 @@ router.post("/login", async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password. " });
+      return res.status(401).json({ message: "Invalid email or password." });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
@@ -119,7 +124,7 @@ router.post("/login", async (req, res) => {
     });
   } catch (error) {
     console.error("Error in /login:", error);
-    res.status(500).json({ message: "server error during login." });
+    res.status(500).json({ message: "Server error during login." });
   }
 });
 

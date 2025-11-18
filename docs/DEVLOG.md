@@ -211,7 +211,7 @@ DELETE
 
 ---
 
-<b>Issue: </b>
+<b>Issue: After doing my authstack and appstack i was getting nework request failed. </b>
 
 <b>Fix:</b>
 
@@ -258,6 +258,11 @@ DELETE
 
 #### Photos of Progress - Sprint 3
 
+November 16th - finished LoginScreen.js, RegisterScreen.js, AuthContext, User model, and auth routes
+
+Github commit
+![alt text](image-17.png)
+
 #### POSt /auth/login
 
 ![alt text](image-15.png)
@@ -265,6 +270,10 @@ DELETE
 #### POST /auth/register
 
 ## ![alt text](image-16.png)
+
+---
+
+November 17th - Auth stack, appstack
 
 ## 📅 Sprint #4 ()
 
@@ -337,10 +346,6 @@ DELETE
 - ***
 
 #### Photos of Progress - Sprint 4
-
-(November 16th finished LoginScreen.js, RegisterScreen.js, AuthContext, User model, and auth routes)
-Github commit
-
 
 ---
 

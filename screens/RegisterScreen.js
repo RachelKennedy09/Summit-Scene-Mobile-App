@@ -115,14 +115,7 @@ function RegisterScreen() {
           </Pressable>
 
           {/* will wire navigation later */}
-          <Pressable
-            onPress={() => {
-              Alert.alert(
-                "Go to Login",
-                "This will navigate back to Login once AuthStack is configured."
-              );
-            }}
-          >
+          <Pressable onPress={() => navigation.navigate("Login")}>
             <Text style={styles.linkText}>Already have an account? Log in</Text>
           </Pressable>
         </View>

@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null); // JWT from the backend
   const [isAuthLoading, setIsAuthLoading] = useState(true); // true while resorting session
 
-  const API_BASE_URL = "http://localhost:4000/api";
+  const API_BASE_URL = "http://172.28.248.13:4000/api";
 
   // on app start, tries to restore a saved session from AsyncStorage
   useEffect(() => {
@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
-          "Content-Tye": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
       });
