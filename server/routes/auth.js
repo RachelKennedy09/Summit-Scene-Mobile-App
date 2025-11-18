@@ -8,7 +8,9 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import User from "../models/User.js";
 
-// Load environment variables (if not already loaded in index.js)
+import authMiddleware from "../middleware/auth.js";
+
+//load environment variables
 dotenv.config();
 
 const router = express.Router();
@@ -20,7 +22,7 @@ function createToken(userId) {
     throw new Error("JWT_SECRET is not set in environment variables");
   }
 
-  return jwt.sign({ userId }, secret, { expiresIn: "24h" });
+  return jwt.sign({ userId }, secret, { expiresIn: "30s" });
 }
 
 /*
@@ -37,6 +39,13 @@ function createToken(userId) {
 router.post("/register", async (req, res) => {
   try {
     const { email, password, name } = req.body || {};
+
+    // 1) validate
+    // 2) check if email already exists
+    // 3) hash the password
+    // 4) save user to Mongo
+    // 5) create a token
+    // 6) return token + user info
 
     // Basic validation
     if (!email || !password) {
@@ -125,6 +134,34 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Error in /login:", error);
     res.status(500).json({ message: "Server error during login." });
+  }
+});
+
+// GET /api/auth/me
+// return the curent logged in users info
+// restore sessions from a stored token
+
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    // auth middleware puts { userID } on req.user
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId).select("-passwordHash -__v"); //exclude passwordHash and version field
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // send user in same shape as register/login for consistancy
+    res.json({
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    console.error("Error in /auth/me:", error);
+    res.status(500).json({ message: "Server error while fetching user." });
   }
 });
 

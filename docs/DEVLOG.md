@@ -250,7 +250,7 @@ DELETE
 
 - Choosing a 24 hour token expiry over 7 days. I wanted a more realistic app feel. It is more secure than 7 days and less annoying than 15 minutes. Especially for my professor while they are grading. That is why i chose 24hrs
 
--
+- Protecting the event routes so that only logged in users and user who posted the event can modify it. 
 
 -
 

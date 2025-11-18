@@ -10,21 +10,23 @@ import {
   deleteEvent,
 } from "../controllers/eventController.js";
 
+import authMiddleware from "../middleware/auth.js";
+
 const router = express.Router();
 
-// GET /api/events (all events)
+// Public: anyone can see all events
 router.get("/", getAllEvents);
 
-// GET single event
+// Public: anyone can see one event
 router.get("/:id", getEventById);
 
-// POST /api/events (post event)
-router.post("/", createEvent);
+// Protected: only logged-in users can create events
+router.post("/", authMiddleware, createEvent);
 
-// UPDATE event
-router.put("/:id", updateEvent);
+// Protected: only the creator can update (checked in controller)
+router.put("/:id", authMiddleware, updateEvent);
 
-// DELETE event
-router.delete("/:id", deleteEvent);
+// Protected: only the creator can delete (checked in controller)
+router.delete("/:id", authMiddleware, deleteEvent);
 
 export default router;
