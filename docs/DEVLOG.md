@@ -293,7 +293,9 @@ Summary of November 17th Progress
 4. Fixed multiple register/login issues.
 5. Achieved deep understanding of JWT flows, middleware, and server-client communication.
    
-  
+
+   Github commit
+  ![alt text](image-18.png)
 ---
 
 November 17th - Auth stack, appstack
