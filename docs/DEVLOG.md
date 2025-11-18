@@ -186,7 +186,13 @@ DELETE
 
 ---
 
-## 📅 Sprint #3 (November 16th-)
+## 📅 Sprint #3 (November 16th-
+Summary of November 17th Progress
+1. Completed full backend auth (JWT + bcrypt + middleware).
+2. Integrated authentication into the app with persistent sessions.
+3. Added a polished, functional Account screen.
+4. Fixed multiple register/login issues.
+5. Achieved deep understanding of JWT flows, middleware, and server-client communication.)
 
 ### 🎯 Sprint Goals
 
@@ -213,13 +219,13 @@ DELETE
 
 <b>Issue: After doing my authstack and appstack i was getting nework request failed. </b>
 
-<b>Fix:</b>
+<b>Fix: it was jsut a typo!!!</b>
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Not sending JSON corrected</b>
 
-<b>Fix:</b>
+<b>Fix: added a debug log in the server, verified request formatting, and removed debug logs once fixed</b>
 
 ---
 
@@ -232,11 +238,14 @@ DELETE
 
 - understanding get /auth/me and expired tokens.
 
--
+- fully implemented JWT authentication
+    - added register, login, auto-login, and logout flows
+    - authContext now handles token storage, auto session restore, and logout transitions smoothly.
 
--
+- 
 
--
+- connected backend auth to frontend
+    - login and register screens now communicate fully with the server
 
 -
 
@@ -252,13 +261,18 @@ DELETE
 
 - Protecting the event routes so that only logged in users and user who posted the event can modify it. 
 
--
+- gained more knowledge on how auth middleware works
 
 - ***
 
 #### Photos of Progress - Sprint 3
 
-November 16th - finished LoginScreen.js, RegisterScreen.js, AuthContext, User model, and auth routes
+Summary of November 16th progress 
+1. finished LoginScreen.js, 
+2. RegisterScreen.js, 
+3. AuthContext, 
+4. User model, 
+5. and auth routes
 
 Github commit
 ![alt text](image-17.png)
@@ -271,6 +285,15 @@ Github commit
 
 ## ![alt text](image-16.png)
 
+
+Summary of November 17th Progress
+1. Completed full backend auth (JWT + bcrypt + middleware).
+2. Integrated authentication into the app with persistent sessions.
+3. Added a polished, functional Account screen.
+4. Fixed multiple register/login issues.
+5. Achieved deep understanding of JWT flows, middleware, and server-client communication.
+   
+  
 ---
 
 November 17th - Auth stack, appstack

@@ -1,120 +1,148 @@
+// screens/AccountScreen.js
+// Shows logged-in user's account info + logout
+// Gives users a clear place to see who is logged in and to sign out
+
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../context/AuthContext";
 
-export default function AccountScreen() {
+function AccountScreen() {
+  const { user, logout, isAuthLoading } = useAuth();
+
+  // Safeguard: in theory AccountScreen is only shown when user != null,
+  // but we handle the "just in case" situation gracefully.
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Account</Text>
+          <Text style={styles.subtitle}>
+            You are not logged in. Please log in to view your account.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Format joined date nicely
+  let joinedText = "Unknown";
+  if (user.createdAt) {
+    const date = new Date(user.createdAt);
+    joinedText = date.toLocaleDateString();
+  }
+
+  const displayName = user.name || user.email;
+
+  async function handleLogout() {
+    await logout();
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <Text style={styles.heading}>Account</Text>
-      <Text style={styles.subheading}>
-        Manage your profile, preferences, and saved events in future sprints.
-      </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Account</Text>
 
-      {/* Profile summary placeholder */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Signed in as Guest</Text>
-        <Text style={styles.cardText}>
-          Authentication and user profiles aret implemented yet. For now, Summit
-          Scene runs in guest mode.
-        </Text>
+        <View style={styles.card}>
+          <Text style={styles.greeting}>Hi, {displayName}</Text>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Saved events</Text>
-          <Text style={styles.infoValue}>Coming Soon</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{user.email}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Member since:</Text>
+            <Text style={styles.value}>{joinedText}</Text>
+          </View>
         </View>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Location</Text>
-          <Text style={styles.infoValue}>Banff / Canmore / Lake Louise</Text>
-        </View>
-      </View>
-
-      {/* Settings placeholder, will add on to this as I go and come up with ideas */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Settings</Text>
-        <Text style={styles.cardText}>In a later sprint, ill be able to:</Text>
-        <Text style={styles.bullet}>Turn on/off notifications</Text>
-        <Text style={styles.bullet}>Choose my home town</Text>
-        <Text style={styles.bullet}>Manage saved events</Text>
-
-        <Pressable style={styles.button} disabled>
+        <Pressable
+          style={[styles.button, isAuthLoading && styles.buttonDisabled]}
+          onPress={handleLogout}
+          disabled={isAuthLoading}
+        >
           <Text style={styles.buttonText}>
-            Account Features Locked (Future Sprint)
+            {isAuthLoading ? "Logging out..." : "Log Out"}
           </Text>
         </Pressable>
+
+        <Text style={styles.helperText}>
+          Logging out will clear your session on this device.{"\n"}
+          You can log back in anytime to post and manage events.
+        </Text>
       </View>
     </SafeAreaView>
   );
 }
 
+export default AccountScreen;
+
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#0b1522", // match screen background
+  },
   container: {
     flex: 1,
-    backgroundColor: "#050b12",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 16,
   },
-  heading: {
-    fontSize: 24,
+  title: {
+    fontSize: 26,
     fontWeight: "700",
     color: "#ffffff",
-    marginBottom: 4,
-  },
-  subheading: {
-    fontSize: 14,
-    color: "#b0c4de",
     marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#cbd5e1",
   },
   card: {
-    backgroundColor: "#0c1624",
-    borderRadius: 16,
+    backgroundColor: "#111827",
+    borderRadius: 12,
     padding: 16,
+    marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#243b53",
-    marginBottom: 16,
+    borderColor: "#1f2937",
   },
-  cardTitle: {
+  greeting: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 6,
+    fontWeight: "600",
+    color: "#e5e7eb",
+    marginBottom: 12,
   },
-  cardText: {
-    fontSize: 14,
-    color: "#c0d0f0",
+  row: {
+    flexDirection: "row",
     marginBottom: 8,
   },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 4,
-  },
-  infoLabel: {
+  label: {
+    width: 110,
+    color: "#9ca3af",
     fontSize: 14,
-    color: "#9fb3c8",
   },
-  infoValue: {
+  value: {
+    flex: 1,
+    color: "#e5e7eb",
     fontSize: 14,
-    color: "#d1e0ff",
-    fontWeight: "500",
-  },
-  bullet: {
-    fontSize: 14,
-    color: "#bfc9dbff",
-    marginBottom: 2,
   },
   button: {
-    marginTop: 16,
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: "#243b53",
+    backgroundColor: "#ef4444",
+    paddingVertical: 14,
+    borderRadius: 10,
     alignItems: "center",
+  },
+  buttonDisabled: {
     opacity: 0.7,
   },
   buttonText: {
-    color: "#c0d0f0",
-    fontSize: 14,
-    fontWeight: "600",
+    color: "#f9fafb",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  helperText: {
+    marginTop: 12,
+    color: "#9ca3af",
+    fontSize: 12,
   },
 });
