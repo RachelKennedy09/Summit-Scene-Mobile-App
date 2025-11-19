@@ -186,8 +186,10 @@ DELETE
 
 ---
 
-## 📅 Sprint #3 (November 16th-
+## 📅 Sprint #3 (November 16th-17)
+
 Summary of November 17th Progress
+
 1. Completed full backend auth (JWT + bcrypt + middleware).
 2. Integrated authentication into the app with persistent sessions.
 3. Added a polished, functional Account screen.
@@ -239,13 +241,15 @@ Summary of November 17th Progress
 - understanding get /auth/me and expired tokens.
 
 - fully implemented JWT authentication
-    - added register, login, auto-login, and logout flows
-    - authContext now handles token storage, auto session restore, and logout transitions smoothly.
 
-- 
+  - added register, login, auto-login, and logout flows
+  - authContext now handles token storage, auto session restore, and logout transitions smoothly.
+
+-
 
 - connected backend auth to frontend
-    - login and register screens now communicate fully with the server
+
+  - login and register screens now communicate fully with the server
 
 -
 
@@ -259,7 +263,7 @@ Summary of November 17th Progress
 
 - Choosing a 24 hour token expiry over 7 days. I wanted a more realistic app feel. It is more secure than 7 days and less annoying than 15 minutes. Especially for my professor while they are grading. That is why i chose 24hrs
 
-- Protecting the event routes so that only logged in users and user who posted the event can modify it. 
+- Protecting the event routes so that only logged in users and user who posted the event can modify it.
 
 - gained more knowledge on how auth middleware works
 
@@ -267,11 +271,12 @@ Summary of November 17th Progress
 
 #### Photos of Progress - Sprint 3
 
-Summary of November 16th progress 
-1. finished LoginScreen.js, 
-2. RegisterScreen.js, 
-3. AuthContext, 
-4. User model, 
+Summary of November 16th progress
+
+1. finished LoginScreen.js,
+2. RegisterScreen.js,
+3. AuthContext,
+4. User model,
 5. and auth routes
 
 Github commit
@@ -285,22 +290,22 @@ Github commit
 
 ## ![alt text](image-16.png)
 
-
 Summary of November 17th Progress
+
 1. Completed full backend auth (JWT + bcrypt + middleware).
 2. Integrated authentication into the app with persistent sessions.
 3. Added a polished, functional Account screen.
 4. Fixed multiple register/login issues.
 5. Achieved deep understanding of JWT flows, middleware, and server-client communication.
-   
 
    Github commit
-  ![alt text](image-18.png)
+   ![alt text](image-18.png)
+
 ---
 
 November 17th - Auth stack, appstack
 
-## 📅 Sprint #4 ()
+## 📅 Sprint #4 (November 18-)
 
 ### 🎯 Sprint Goals
 
@@ -319,40 +324,64 @@ November 17th - Auth stack, appstack
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: Login/Register fields not typing on Web (Pressable conflict)</b> On the web version, all text inputs inside <Pressable> stopped responding and I couldn’t type at all.
 
-<b>Fix:</b>
-
----
-
-<b>Issue: </b>
-
-<b>Fix:</b>
+<b>Fix:</b> I decided to defer Web debugging until the end of the Capstone.
+This sprint is focused on the Expo Go mobile version, so I kept my attention on mobile-first functionality and will revisit Web later.
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Date Picker showed wrong date (one day ahead)</b>React Native’s DateTimePicker was returning UTC-converted dates, causing the displayed date to shift ahead by one day.
 
-<b>Fix:</b>
+<b>Fix:</b>I switched to manual local formatting, extracting year/month/day from the selected Date object instead of using .toISOString().
+This ensured the displayed date matched the user’s local timezone.
 
 ---
 
-<b>Issue: </b>
-<b>Fix:</b>
+<b>Issue: iOS “pill” compact picker UI was confusing</b>The default iOS picker uses a compact “pill” display, requiring two taps (pill → full calendar). The UI felt clunky and unclear.
+
+<b>Fix:</b>I explicitly set
+
+- display="inline" for calendar on iOS
+
+- display="spinner" for time on iOS
+
+- and native calendar/clock modes on Android
+- This made the date/time picker open instantly when the input is pressed.
+
+---
+
+<b>Issue: Picker dropdowns for town/category looked inconsistent </b>The default Picker component UI didn’t match the rest of the app’s design.
+<b>Fix:</b>I replaced them with custom modal-driven dropdowns for Town and Category, matching the SummitScene dark theme.
+This gives users a smooth, branded experience that fits the rest of the app.
+
+---
+
+<b>Issue: Understanding how the Post Event form connects to backend</b>This was my first real mobile → backend → database flow. It took me time to understand how the frontend request, server route, controller function, and database model all work together.
+<b>Fix:</b>I broke it down step-by-step with help:
+
+- Frontend sends POST /api/events with token
+
+- Backend verifies JWT
+
+- Controller creates an Event in MongoDB
+
+- Saved Event is returned to the app
+  Learning how all these pieces talk to each other was a big backend breakthrough.
 
 ---
 
 ### 🌟 Wins + Breakthroughs
 
--
+- Successfully built a fully working Post Event form from scratch
 
--
+- Designed custom dropdown modals that look clean and fit the app’s visual style
 
--
+- Understood how controllers validate incoming event data on the backend
 
--
+- Cleaned up the form UX to avoid double dropdowns and user errors
 
--
+- Built accurate mobile date/time picking with zero timezone issues
 
 -
 
@@ -360,17 +389,33 @@ November 17th - Auth stack, appstack
 
 ### 📚 What I Learned This Week
 
--
+- How to build polished mobile dropdowns using:
 
--
+  - @react-native-community/datetimepicker
+  - Modal
+  - Custom Pressable dropdown selectors
 
--
+- How authenticated fetch requests work with JWT tokens
 
--
+- How important UX consistency is, especially for forms
 
-- ***
+- How to coordinate frontend + backend changes during feature development
+
+- How to avoid design conflicts between web and mobile by focusing on mobile-first flow
 
 #### Photos of Progress - Sprint 4
+
+November 18th
+Success on creating POST /api/events and MongoDB receiving. Frontend Backend connected
+![alt text](image-19.png)
+
+---
+
+## ![alt text](image-20.png)
+
+## ![alt text](image-21.png)
+
+![alt text](image-22.png)
 
 ---
 
