@@ -417,6 +417,8 @@ Success on creating POST /api/events and MongoDB receiving. Frontend Backend con
 
 ![alt text](image-22.png)
 
+![alt text](image-23.png)
+
 ---
 
 ## 📅 Sprint #5 ()
