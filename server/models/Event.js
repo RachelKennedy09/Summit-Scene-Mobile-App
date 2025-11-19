@@ -17,6 +17,7 @@ const eventSchema = new mongoose.Schema(
       type: String, // Banff, Canmore, Lake Louise
       required: true,
       trim: true,
+      enum: ["Banff", "Canmore", "Lake Louise"],
     },
     category: {
       type: String, // Live music, Market, Family

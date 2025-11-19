@@ -12,9 +12,10 @@ export default function authMiddleware(req, res, next) {
       .json({ message: "No authorization header provided." });
   }
 
-  const [type, token] = authHeader.split("");
+  // Expect format: "Bearer <token>"
+  const [type, token] = authHeader.split(/\s+/);
 
-  if (type !== "Bearer" || token) {
+  if (!type || type.toLowerCase() !== "bearer" || !token) {
     return res.status(401).json({ message: "Invalid authorization format." });
   }
 

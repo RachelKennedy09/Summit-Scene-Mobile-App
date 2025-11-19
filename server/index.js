@@ -13,6 +13,9 @@ const app = express();
 app.use(cors()); // allow requests from expo app
 app.use(express.json()); //allow JSON in request bodies
 
+// auth routes
+app.use("/api/auth", authRouter);
+
 //simple test route
 app.get("/", (req, res) => {
   res.json({
@@ -22,9 +25,6 @@ app.get("/", (req, res) => {
 
 // events routes for anything starting with /api/events
 app.use("/api/events", eventRoutes);
-
-// auth routes
-app.use("/api/auth", authRouter);
 
 // port for the backend
 const PORT = process.env.PORT || 4000;

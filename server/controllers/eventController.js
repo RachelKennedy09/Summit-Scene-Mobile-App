@@ -23,9 +23,15 @@ export async function getAllEvents(req, res) {
 
 // POST /api/events
 // Create a new event , reads data from req.body, validates required fields, saves to MongoDB, and returns saved event.
+// POST /api/events
+// Create a new event
 export async function createEvent(req, res) {
   try {
-    const userId = req.user.userId; //from auth middleware
+    const userId = req.user.userId; // from auth middleware
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: no user ID" });
+    }
+
     const {
       title,
       description,
@@ -37,10 +43,10 @@ export async function createEvent(req, res) {
       imageUrl,
     } = req.body;
 
-    // Basic required field check
-    if (!title || !town || !date) {
+    // Basic validation
+    if (!title || !town || !category || !date) {
       return res.status(400).json({
-        message: "title, town, and date are required",
+        message: "title, town, category and date are required",
       });
     }
 
@@ -58,11 +64,10 @@ export async function createEvent(req, res) {
 
     const savedEvent = await event.save();
 
-    return res.status(201).json(savedEvent); // 201 success created
+    return res.status(201).json(savedEvent);
   } catch (error) {
     console.error("Error creating event:", error.message);
-    return res.status(500).json;
-    ({
+    return res.status(500).json({
       message: "Error creating event",
       error: error.message,
     });

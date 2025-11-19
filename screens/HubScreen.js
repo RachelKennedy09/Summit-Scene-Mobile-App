@@ -28,7 +28,7 @@ const CATEGORIES = [
   "Family",
   "Retail",
   "Outdoors",
-  "Food",
+  "Food & Drink",
   "Art",
 ];
 

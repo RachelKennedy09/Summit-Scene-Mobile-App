@@ -22,7 +22,7 @@ function createToken(userId) {
     throw new Error("JWT_SECRET is not set in environment variables");
   }
 
-  return jwt.sign({ userId }, secret, { expiresIn: "30s" });
+  return jwt.sign({ userId }, secret, { expiresIn: "1h" });
 }
 
 /*
