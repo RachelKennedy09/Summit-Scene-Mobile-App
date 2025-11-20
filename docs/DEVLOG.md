@@ -305,7 +305,7 @@ Summary of November 17th Progress
 
 November 17th - Auth stack, appstack
 
-## 📅 Sprint #4 (November 18-)
+## 📅 Sprint #4 (November 18-19)
 
 ### 🎯 Sprint Goals
 
@@ -383,7 +383,7 @@ This gives users a smooth, branded experience that fits the rest of the app.
 
 - Built accurate mobile date/time picking with zero timezone issues
 
--
+- Wired HubScreen to real events from backend
 
 - ***
 
@@ -420,6 +420,12 @@ Success on creating POST /api/events and MongoDB receiving. Frontend Backend con
 ![alt text](image-23.png)
 
 ---
+November 19th 
+
+Trello Card (finished)
+![alt text](image-24.png)
+
+Github commit (Wired hubscreen to only real events instead of mock)
 
 ## 📅 Sprint #5 ()
 
