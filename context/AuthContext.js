@@ -110,7 +110,7 @@ export function AuthProvider({ children }) {
   }
 
   // REGISTER: call backend /auth/register, asve token and user
-  async function register({ name, email, password }) {
+  async function register({ name, email, password, role }) {
     try {
       setIsAuthLoading(true);
 
@@ -119,7 +119,7 @@ export function AuthProvider({ children }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }),
       });
       const data = await response.json();
 
