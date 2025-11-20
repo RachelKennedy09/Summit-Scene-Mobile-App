@@ -141,6 +141,16 @@ export default function MyEventsScreen({ navigation }) {
       <Text style={styles.screenSubtitle}>
         Events created by {user?.name || user?.email}
       </Text>
+      {/* 🔹 Quick shortcut to Post Event tab */}
+
+      {isBusiness && (
+        <Pressable
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate("tabs", { screen: "Post" })}
+        >
+          <Text style={styles.primaryButtonText}>Post a new event</Text>
+        </Pressable>
+      )}
 
       <FlatList
         data={events}
