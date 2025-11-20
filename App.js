@@ -12,6 +12,8 @@ import TabNavigator from "./navigation/TabNavigator";
 import EventDetailScreen from "./screens/EventDetailScreen";
 import LoginScreen from "./screens/LoginScreen.js";
 import RegisterScreen from "./screens/RegisterScreen.js";
+import MyEventsScreen from "./screens/MyEventsScreen.js";
+import PostEventScreen from "./screens/PostEventScreen.js";
 
 // AuthProver and useAuth for context
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -48,7 +50,12 @@ function RootNavigator() {
             component={TabNavigator}
             options={{ headerShown: false }}
           />
-
+          {/* My Events Screen */}
+          <Stack.Screen
+            name="MyEvents"
+            component={MyEventsScreen}
+            options={{ title: "My Events" }}
+          />
           {/* Screen to navigate to from HubScreen when tapping an event
            */}
 
@@ -59,7 +66,7 @@ function RootNavigator() {
           />
         </>
       ) : (
-        // AUTH STACK: no user -> show login and REgister screens
+        // AUTH STACK: no user -> show login and Register screens
         <>
           <Stack.Screen
             name="Login"

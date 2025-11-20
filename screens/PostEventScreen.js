@@ -58,30 +58,24 @@ export default function PostEventScreen() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   const handleDateChange = (event, selectedDate) => {
-    // close modal on any interaction
     setShowDatePicker(false);
-
     if (!selectedDate) return;
 
     setDateObj(selectedDate);
 
-    // Build YYYY-MM-DD using LOCAL date parts
     const year = selectedDate.getFullYear();
     const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
     const day = String(selectedDate.getDate()).padStart(2, "0");
-
     const formatted = `${year}-${month}-${day}`;
     setDate(formatted);
   };
 
   const handleTimeChange = (event, selectedTime) => {
     setShowTimePicker(false);
-
     if (!selectedTime) return;
 
     setTimeObj(selectedTime);
 
-    // Format as h:mm AM/PM
     let hours = selectedTime.getHours();
     const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
     const isPM = hours >= 12;
@@ -110,7 +104,7 @@ export default function PostEventScreen() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, //send JWT
+          Authorization: `Bearer ${token}`, // send JWT
         },
         body: JSON.stringify({
           title,
@@ -132,23 +126,27 @@ export default function PostEventScreen() {
       const createdEvent = await response.json();
       console.log("Event created:", createdEvent);
 
+      //  Show success alert, then go to "MyEvents" screen instead of goBack
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
-          onPress: () => navigation.goBack(), // back to previous screen
+          onPress: () => {
+            // clear the form BEFORE navigating
+            setTitle("");
+            setDescription("");
+            setLocation("");
+            setDate("");
+            setTime("");
+            setTown(TOWNS[0]);
+            setCategory(FORM_CATEGORIES[0]);
+            setDateObj(new Date());
+            setTimeObj(new Date());
+
+            // Navigate to MyEvents so the user can confirm it's listed
+            navigation.navigate("MyEvents");
+          },
         },
       ]);
-
-      // Clear form
-      setTitle("");
-      setDescription("");
-      setLocation("");
-      setDate("");
-      setTime("");
-      setTown(TOWNS[0]);
-      setCategory(FORM_CATEGORIES[0]);
-      setDateObj(new Date());
-      setTimeObj(new Date());
     } catch (error) {
       console.error("Error posting event:", error);
       Alert.alert("Error", error.message);

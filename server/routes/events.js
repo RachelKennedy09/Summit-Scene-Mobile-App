@@ -8,6 +8,7 @@ import {
   getEventById,
   updateEvent,
   deleteEvent,
+  getMyEvents,
 } from "../controllers/eventController.js";
 
 import authMiddleware from "../middleware/auth.js";
@@ -17,6 +18,9 @@ const router = express.Router();
 
 // Public: anyone can see all events
 router.get("/", getAllEvents);
+
+//Protected: logged-in business users can see their own events
+router.get("/mine", authMiddleware, getMyEvents);
 // Public: anyone can see one event
 router.get("/:id", getEventById);
 

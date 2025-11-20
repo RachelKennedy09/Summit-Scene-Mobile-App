@@ -155,3 +155,25 @@ export async function deleteEvent(req, res) {
       .json({ message: "Error deleting event", error: error.message });
   }
 }
+
+// GET /api/events/mine
+// Return only events created by the currently logged-in user
+export async function getMyEvents(req, res) {
+  try {
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: no user ID" });
+    }
+
+    // Find events where createdBy matches this user
+    const events = await Event.find({ createdBy: userId }).sort({ date: 1 });
+    return res.json(events);
+  } catch (error) {
+    console.error("Error fetching my events:", error.message);
+    return res.status(500).json({
+      message: "Error fetching your events",
+      error: error.message,
+    });
+  }
+}

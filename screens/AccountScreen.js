@@ -6,9 +6,13 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 function AccountScreen() {
   const { user, logout, isAuthLoading } = useAuth();
+  const navigation = useNavigation();
+
+  const isBusiness = user?.role === "business";
 
   // Safeguard: in theory AccountScreen is only shown when user != null,
   // but we handle the "just in case" situation gracefully.
@@ -56,6 +60,15 @@ function AccountScreen() {
             <Text style={styles.value}>{joinedText}</Text>
           </View>
         </View>
+
+        {isBusiness && (
+          <Pressable
+            style={styles.accountButton}
+            onPress={() => navigation.navigate("MyEvents")}
+          >
+            <Text style={styles.accountButtonText}>View My Events</Text>
+          </Pressable>
+        )}
 
         <Pressable
           style={[styles.button, isAuthLoading && styles.buttonDisabled]}
@@ -126,6 +139,21 @@ const styles = StyleSheet.create({
     color: "#e5e7eb",
     fontSize: 14,
   },
+
+  // 🔽 NEW styles for "View My Events" button
+  accountButton: {
+    backgroundColor: "#e2a59bff",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  accountButtonText: {
+    color: "#0f172a",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
   button: {
     backgroundColor: "#ef4444",
     paddingVertical: 14,

@@ -8,10 +8,16 @@ import MapScreen from "../screens/MapScreen";
 import PostEventScreen from "../screens/PostEventScreen";
 import CommunityScreen from "../screens/CommunityScreen";
 import AccountScreen from "../screens/AccountScreen";
+import { useAuth } from "../context/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+  const { user } = useAuth();
+
+  // Treat missing user or missing roles as non-business
+  const isBusiness = user?.role === "business";
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -21,11 +27,16 @@ export default function TabNavigator() {
       <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
 
       <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
-      <Tab.Screen
-        name="Post"
-        component={PostEventScreen}
-        options={{ title: "Post" }}
-      />
+
+      {/*  Only show if user is a business */}
+      {isBusiness && (
+        <Tab.Screen
+          name="Post"
+          component={PostEventScreen}
+          options={{ title: "Post Event" }}
+        />
+      )}
+
       <Tab.Screen
         name="Community"
         component={CommunityScreen}
