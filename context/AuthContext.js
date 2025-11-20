@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
       }
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: "GET",
-        header: {
+        headers: {
           Authorization: `Bearer ${savedToken}`,
         },
       });

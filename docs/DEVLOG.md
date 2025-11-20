@@ -449,9 +449,9 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: ![alt text](TCErrorBusinessPostEvent.png)</b>Error when businessToken didnt work
 
-<b>Fix:</b>
+<b>Fix: </b>Restarted server, pasted a new JWT token in Headers: Authorization bearer ![alt text](TCSucessPostAsBusiness.png)
 
 ---
 
@@ -505,6 +505,9 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 success POST /api/auth/register with new role "local" or "business"
 
 ![alt text](devlogimages/TCPostRoleSucess.png)
+
+success POST as Business role
+![alt text](TCSucessPostAsBusiness.png)
 
 ---
 
