@@ -309,16 +309,14 @@ November 17th - Auth stack, appstack
 
 ### 🎯 Sprint Goals
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
+1. Build Post event form UI
+2. Wire form - post route
+3. Show success and error mesasge
+4. add loading state
+5. add validation (date, category, town, title, etc)
+6. add pull-to-refresh for myevents
+7. clean up UI and final testing - dropdown menus, user firendly for less error
+8. Hook HubScreen to real GET /api/events data instead of mock data
 
 ---
 
@@ -435,7 +433,7 @@ Trello Card (finished)
 Github commit for November 19th (Wired hubscreen to only real events instead of mock)
 ![alt text](image-25.png)
 
-## 📅 Sprint #5 ()
+## 📅 Sprint #5 (November 20th)
 
 ### 🎯 Sprint Goals
 
