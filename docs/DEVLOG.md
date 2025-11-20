@@ -515,6 +515,12 @@ success create local user
 success business role in MONGODB
 ![alt text](MONGODBsuccessbusinessroleuser.png)
 
+APP photo of new "View My Events" on account screen
+![alt text](devlogimages/APPviewmyeventsscreen.png)
+
+APP photo of new "MyEvents" screen
+![alt text](APPmyeventsscreen.png)
+
 ---
 
 ## 📅 Sprint #6 ()
