@@ -407,25 +407,33 @@ This gives users a smooth, branded experience that fits the rest of the app.
 
 November 18th
 Success on creating POST /api/events and MongoDB receiving. Frontend Backend connected
+
+Console-log of event posted
 ![alt text](image-19.png)
 
----
+MongoDB event poseted
 
 ## ![alt text](image-20.png)
 
+App photo
+
 ## ![alt text](image-21.png)
 
+App photo
 ![alt text](image-22.png)
 
+Github Commit for November 18th
 ![alt text](image-23.png)
 
 ---
-November 19th 
+
+November 19th
 
 Trello Card (finished)
 ![alt text](image-24.png)
 
-Github commit (Wired hubscreen to only real events instead of mock)
+Github commit for November 19th (Wired hubscreen to only real events instead of mock)
+![alt text](image-25.png)
 
 ## 📅 Sprint #5 ()
 
