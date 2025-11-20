@@ -65,6 +65,10 @@ function RegisterScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
           <Text style={styles.title}>Create your Summit Scene account </Text>
+          <Text style={styles.subtitle}>
+            Sign up to post, save, and/or explore local events in your mountain
+            town.
+          </Text>
 
           {/* Name */}
           <View style={styles.inputGroup}>
@@ -74,6 +78,7 @@ function RegisterScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Your name"
+              placeholderTextColor="#64748b"
             />
           </View>
 
@@ -85,6 +90,7 @@ function RegisterScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="you@example.com"
+              placeholderTextColor="#64748b"
               autoCapitalize="none"
               keyboardType="email-address"
             />
@@ -98,6 +104,7 @@ function RegisterScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="Create a password"
+              placeholderTextColor="#64748b"
               secureTextEntry
             />
           </View>
@@ -145,15 +152,23 @@ function RegisterScreen() {
 
           {/* Sign up button*/}
 
-          <Pressable style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Create Account</Text>
+          <Pressable
+            style={[
+              styles.button,
+              (isSubmitting || isAuthLoading) && styles.buttonDisabled,
+            ]}
+            onPress={handleRegister}
+            disabled={isSubmitting || isAuthLoading}
+          >
+            <Text style={styles.buttonText}>
+              {isSubmitting || isAuthLoading
+                ? "Creating account..."
+                : "Create Account"}
+            </Text>
           </Pressable>
-
-          <Pressable onPress={() => navigation.goBack()}>
+          <Pressable onPress={() => navigation.navigate("Login")}>
             <Text style={styles.linkText}>Already have an account? Log in</Text>
           </Pressable>
-
-          {/* will wire navigation later */}
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -165,27 +180,46 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    justifyContent: "center",
+    backgroundColor: "#0b1522", // dark mountain-night background
+  },
+  inner: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 80,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "600",
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#ffffff",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#cbd5e1",
+    marginBottom: 24,
+  },
+  inputGroup: {
     marginBottom: 16,
-    textAlign: "center",
+  },
+  label: {
+    color: "#e2e8f0",
+    marginBottom: 6,
+    fontSize: 14,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
+    backgroundColor: "#1e293b",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    marginBottom: 12,
+    color: "#e2e8f0",
+    borderWidth: 1,
+    borderColor: "#334155",
   },
   sectionLabel: {
     marginTop: 8,
     marginBottom: 8,
     fontWeight: "500",
+    color: "#e2e8f0",
   },
   roleColumn: {
     gap: 10,
@@ -193,38 +227,46 @@ const styles = StyleSheet.create({
   },
   roleOption: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#334155",
     borderRadius: 10,
     padding: 10,
+    backgroundColor: "#020617",
   },
   roleOptionSelected: {
-    borderColor: "#1B4D3E", // mountain-y deep green vibe (roughly)
-    backgroundColor: "#E6F2ED",
+    borderColor: "#22c55e",
+    backgroundColor: "#022c22",
   },
   roleTitle: {
     fontWeight: "600",
     marginBottom: 4,
+    color: "#e2e8f0",
   },
   roleTitleSelected: {
-    color: "#1B4D3E",
+    color: "#bbf7d0",
   },
   roleSubtitle: {
     fontSize: 12,
-    color: "#555",
+    color: "#94a3b8",
   },
   button: {
-    backgroundColor: "#1B4D3E",
-    paddingVertical: 12,
+    marginTop: 8,
+    backgroundColor: "#22c55e",
+    paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
-    marginBottom: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: "#0f172a",
+    fontWeight: "700",
+    fontSize: 16,
   },
   linkText: {
+    marginTop: 16,
+    color: "#38bdf8",
     textAlign: "center",
-    marginTop: 8,
+    fontSize: 14,
   },
 });
