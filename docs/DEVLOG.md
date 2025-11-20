@@ -41,23 +41,23 @@
 
 #### Trello Sprint
 
-![alt text](image.png)
+![alt text](devlogimages/Sprint1.png)
 
 #### Github commits
 
-![alt text](image-1.png)
+![alt text](devlogimages/CommitNov13.png)
 
 #### Screens (Hub, Map, Post, Community, Account)
 
-![alt text](image-2.png)
+![alt text](devlogimages/WebHubScreen.png)
 
-![alt text](image-3.png)
+![alt text](devlogimages/WebExplorebyMapScreen.png)
 
-![alt text](image-4.png)
+![alt text](devlogimages/WebAddNewEventScreen.png)
 
-![alt text](image-5.png)
+![alt text](devlogimages/WebCommunityScreen.png)
 
-![alt text](image-6.png)
+![alt text](devlogimages/WebAccountScreen.png)
 
 ---
 
@@ -160,29 +160,30 @@ Navigation behavior is now correct and professional.
 
 ##### Trello Sprint
 
-![alt text](image-8.png)
+![alt text](devlogimages/Sprint2.png)
 
 ##### MongoDB Connected Successfully
 
 "Connected to Mongo as of Nov 14th"
-![alt text](image-7.png)
+
+![alt text](devlogimages/MONGODBConnectionSuccess.png)
 
 ##### Github Commits
 
-![alt text](image-9.png)
+![alt text](devlogimages/CommitsNov14.png)
 
 ##### CRUD Thunderclient
 
 POST
-![alt text](image-10.png)
+![alt text](devlogimages/TCPostEventSucess.png)
 GET ALL
-![alt text](image-11.png)
+![alt text](devlogimages/TCGetAllEventsSucess.png)
 GET BY ID
-![alt text](image-12.png)
+![alt text](devlogimages/TCGetEventByIdSuccess.png)
 UPDATE
-![alt text](image-13.png)
+![alt text](devlogimages/TCUpdateEventSuccess.png)
 DELETE
-![alt text](image-14.png)
+![alt text](devlogimages/TCDeleteEventSucess.png)
 
 ---
 
@@ -280,17 +281,17 @@ Summary of November 16th progress
 5. and auth routes
 
 Github commit
-![alt text](image-17.png)
+![alt text](devlogimages/CommitNov16.png)
 
 #### POSt /auth/login
 
-![alt text](image-15.png)
+![alt text](devlogimages/TCloginusersuccess.png)
 
 #### POST /auth/register
 
-## ![alt text](image-16.png)
+![alt text](devlogimages/TCregistersusersuccess.png)
 
-Summary of November 17th Progress
+Summary of November 17th Progress auth stack App Stack
 
 1. Completed full backend auth (JWT + bcrypt + middleware).
 2. Integrated authentication into the app with persistent sessions.
@@ -299,11 +300,10 @@ Summary of November 17th Progress
 5. Achieved deep understanding of JWT flows, middleware, and server-client communication.
 
    Github commit
-   ![alt text](image-18.png)
+
+![alt text](devlogimages/CommitNov17th.png)
 
 ---
-
-November 17th - Auth stack, appstack
 
 ## 📅 Sprint #4 (November 18-19)
 
@@ -404,34 +404,31 @@ This gives users a smooth, branded experience that fits the rest of the app.
 #### Photos of Progress - Sprint 4
 
 November 18th
+
 Success on creating POST /api/events and MongoDB receiving. Frontend Backend connected
 
 Console-log of event posted
-![alt text](image-19.png)
+![alt text](devlogimages/ConsoleLogSuccessEvent.png)
 
 MongoDB event poseted
 
-## ![alt text](image-20.png)
-
-App photo
-
-## ![alt text](image-21.png)
-
-App photo
-![alt text](image-22.png)
+![alt text](devlogimages/MONGODBpostevent.png)
 
 Github Commit for November 18th
-![alt text](image-23.png)
+![alt text](devlogimages/CommitNov18.png)
 
 ---
 
 November 19th
 
 Trello Card (finished)
-![alt text](image-24.png)
+![alt text](devlogimages/Sprint4.png)
 
 Github commit for November 19th (Wired hubscreen to only real events instead of mock)
-![alt text](image-25.png)
+
+![alt text](devlogimages/Commit-19th.png)
+
+---
 
 ## 📅 Sprint #5 (November 20th)
 
@@ -504,6 +501,10 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 - ***
 
 #### Photos of Progress - Sprint 5
+
+success POST /api/auth/register with new role "local" or "business"
+
+![alt text](devlogimages/TCPostRoleSucess.png)
 
 ---
 
