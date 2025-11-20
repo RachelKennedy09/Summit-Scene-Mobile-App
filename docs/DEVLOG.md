@@ -509,6 +509,12 @@ success POST /api/auth/register with new role "local" or "business"
 success POST as Business role
 ![alt text](TCSucessPostAsBusiness.png)
 
+success create local user
+![alt text](MONGODBsuccesslocalroleuser.png)
+
+success business role in MONGODB
+![alt text](MONGODBsuccessbusinessroleuser.png)
+
 ---
 
 ## 📅 Sprint #6 ()
