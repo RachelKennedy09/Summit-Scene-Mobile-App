@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // role for permissions ("local" vs "business")
+    role: {
+      type: String,
+      enum: ["local", "business"], //locks to only local or business
+      default: "local", // if not provided, treat as local user
+      required: true,
+    },
   },
   {
     // Adds created/At /updatedAt automatically
@@ -32,6 +39,5 @@ const userSchema = new mongoose.Schema(
 
 // create the "users" collection in <MmongoDB
 const User = mongoose.model("User", userSchema);
-
 
 export default User;

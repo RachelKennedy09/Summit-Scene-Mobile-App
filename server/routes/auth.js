@@ -16,13 +16,18 @@ dotenv.config();
 const router = express.Router();
 
 // Helper to create a JWT token
-function createToken(userId) {
+function createToken(user) {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT_SECRET is not set in environment variables");
   }
 
-  return jwt.sign({ userId }, secret, { expiresIn: "1h" });
+  // handle older users that might not have a role yet
+  const role = user.role || "local";
+
+  return jwt.sign({ userId: user._id.toString(), role }, secret, {
+    expiresIn: "1h",
+  });
 }
 
 /*
@@ -38,7 +43,7 @@ function createToken(userId) {
 */
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, name } = req.body || {};
+    const { email, password, name, role } = req.body || {};
 
     // 1) validate
     // 2) check if email already exists
@@ -60,6 +65,16 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "Email is already registered." });
     }
 
+    // Decide finalRole safely
+    const allowedRoles = ["local", "business"];
+    let finalRole = "local";
+
+    if (role && allowedRoles.includes(role)) {
+      finalRole = role;
+    }
+
+    // if something weird is send, fall back to "local"
+
     // Hash password
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -69,10 +84,11 @@ router.post("/register", async (req, res) => {
       email,
       passwordHash,
       name,
+      role: finalRole,
     });
 
     // Create token
-    const token = createToken(user._id.toString());
+    const token = createToken(user);
 
     // Send minimal info back (not passwordHash)
     res.status(201).json({
@@ -81,6 +97,7 @@ router.post("/register", async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        role: user.role,
         createdAt: user.createdAt,
       },
     });
@@ -120,7 +137,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    const token = createToken(user._id.toString());
+    const token = createToken(user);
 
     res.json({
       token,
@@ -128,6 +145,7 @@ router.post("/login", async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
+        role: user.role || "local",
         createdAt: user.createdAt,
       },
     });
@@ -157,6 +175,7 @@ router.get("/me", authMiddleware, async (req, res) => {
       id: user._id,
       email: user.email,
       name: user.name,
+      role: user.role || "local",
       createdAt: user.createdAt,
     });
   } catch (error) {

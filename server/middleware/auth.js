@@ -2,6 +2,7 @@
 // any route that should be "logged-in only"(valid token) can use this middleware
 
 import jwt from "jsonwebtoken";
+
 export default function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
@@ -25,7 +26,7 @@ export default function authMiddleware(req, res, next) {
       throw new Error("JWT_SECRET is not set in environment variables");
     }
 
-    // decoded will have whatever i put inside jwt.sign({ userId }, ...)
+    // decoded will have whatever i put inside jwt.sign({ userId, role }, ...)
     const decoded = jwt.verify(token, secret);
     // attach to request so later handlers can use req.user.userId
     req.user = decoded;
