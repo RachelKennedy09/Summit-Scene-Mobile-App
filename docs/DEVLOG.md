@@ -432,7 +432,7 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ## 📅 Sprint #5 (November 20th-)
 
-### 🎯 Sprint Goals
+### 🎯 Sprint Goals part 1
 
 1. Add role-based accounts (“local” vs “business”) during registration
 2. Add role-safe JWT creation & backend enforcement
@@ -444,6 +444,8 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 8. Add Upgrade Account feature (local → busines
 9. Add redirect: posting an event sends user to My Events
 10. Improve UX for business users (“View My Events” button in Account screen)
+    
+### 🎯 Sprint Goals part 2
 
 ---
 
@@ -469,6 +471,9 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ---
 
+
+November 21st 
+
 <b>Issue: </b>
 <b>Fix:</b>
 
@@ -485,6 +490,7 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 - Added post-event redirect for better UX
 - Account screen now shows role-aware UI
 
+
 ### 📚 What I Learned This Sprint
 
 - How to build role-based systems using JWT
@@ -498,6 +504,8 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 - How to manage large React Native forms and screens cleanly
 
 #### Photos of Progress - Sprint 5
+
+November 20th
 
 success POST /api/auth/register with new role "local" or "business"
 
@@ -517,6 +525,13 @@ APP photo of new "View My Events" on account screen
 
 APP photo of new "MyEvents" screen
 ![alt text](APPmyeventsscreen.png)
+
+Git commit 
+
+
+
+November 21st Sprint 5 part 2
+
 
 ---
 
