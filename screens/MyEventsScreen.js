@@ -6,6 +6,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
+  Alert,
   StyleSheet,
   ActivityIndicator,
   FlatList,
@@ -72,25 +73,44 @@ export default function MyEventsScreen({ navigation }) {
 
   function renderEventItem({ item }) {
     return (
-      <Pressable
-        style={styles.card}
-        onPress={() =>
-          navigation.navigate("EventDetail", {
-            event: item,
-          })
-        }
-      >
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.meta}>
-          {item.town} • {item.category}
-        </Text>
-        <Text style={styles.dateText}>
-          {item.date} {item.time ? `• ${item.time}` : ""}
-        </Text>
-        {item.location ? (
-          <Text style={styles.location}>{item.location}</Text>
-        ) : null}
-      </Pressable>
+      <View style={styles.card}>
+        {/* Tap the main card to open EventDetail */}
+        <Pressable
+          onPress={() =>
+            navigation.navigate("EventDetail", {
+              event: item,
+            })
+          }
+        >
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.meta}>
+            {item.town} • {item.category}
+          </Text>
+          <Text style={styles.dateText}>
+            {item.date} {item.time ? `• ${item.time}` : ""}
+          </Text>
+          {item.location ? (
+            <Text style={styles.location}>{item.location}</Text>
+          ) : null}
+        </Pressable>
+
+        {/* Action buttons: Edit and Delete */}
+        <View style={styles.cardActions}>
+          <Pressable
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => handleEdit(item)}
+          >
+            <Text style={styles.actionButtonText}>Edit</Text>
+          </Pressable>
+
+          <Pressable
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={() => handleDelete(item)}
+          >
+            <Text style={styles.actionButtonText}>Delete</Text>
+          </Pressable>
+        </View>
+      </View>
     );
   }
 
@@ -133,6 +153,60 @@ export default function MyEventsScreen({ navigation }) {
         )}
       </View>
     );
+  }
+
+  function handleEdit(event) {
+    // navigate to an edit screen
+    navigation.navigate("EditEvent", { event });
+  }
+
+  function handleDelete(event) {
+    Alert.alert(
+      "Delete Event",
+      `Are yous ure you want to delete "${event.title}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => confirmDelete(event),
+        },
+      ]
+    );
+  }
+
+  async function confirmDelete(event) {
+    try {
+      if (!token) {
+        Alert.alert("Not logged in", "Please log in again.");
+        return;
+      }
+      const response = await fetch(
+        `http://172.28.248.13:4000/api/events/${event._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        console.log("Delete event error:", data);
+        throw new Error(data.message || "Failed to delete event");
+      }
+      Alert.alert("Deleted", `"${event.title}" has been removed.`);
+
+      // force reffresh list
+      onRefresh();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      Alert.alert("Error", error.message);
+    }
   }
 
   return (
@@ -263,5 +337,27 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: "#0f172a",
     fontWeight: "700",
+  },
+  cardActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 10,
+    gap: 8,
+  },
+  actionButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  editButton: {
+    backgroundColor: "#38bdf8",
+  },
+  deleteButton: {
+    backgroundColor: "#f97373",
+  },
+  actionButtonText: {
+    color: "#0f172a",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

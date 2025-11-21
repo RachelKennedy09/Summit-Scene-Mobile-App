@@ -1,3 +1,7 @@
+// screens/EditEventScreen.js
+// Edit an existing event
+// Let business users update events they've already created
+
 import React, { useState } from "react";
 import {
   View,
@@ -14,7 +18,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../context/AuthContext.js";
-import { useNavigation } from "@react-navigation/native";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -30,25 +33,34 @@ const CATEGORIES = [
   "Art",
 ];
 
-// All will not be in the categories dropdown menu
+// same as PostEventScreen: dropdown should not show "All"
 const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
 
-export default function PostEventScreen() {
-  const navigation = useNavigation();
+const API_BASE_URL = "http://172.28.248.13:4000/api";
+
+export default function EditEventScreen({ route, navigation }) {
   const { token } = useAuth();
+  const { event } = route.params; // event passed from MyEventsScreen
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [town, setTown] = useState(TOWNS[0]); // default to Banff
-  const [category, setCategory] = useState(FORM_CATEGORIES[0]); // default to first category
+  // ----- INITIAL STATE FROM EXISTING EVENT -----
+  const [title, setTitle] = useState(event.title || "");
+  const [description, setDescription] = useState(event.description || "");
+  const [town, setTown] = useState(event.town || TOWNS[0]);
+  const [category, setCategory] = useState(
+    FORM_CATEGORIES.includes(event.category)
+      ? event.category
+      : FORM_CATEGORIES[0]
+  );
 
-  // Date + Time state
-  const [dateObj, setDateObj] = useState(new Date()); // Date object for picker
-  const [date, setDate] = useState(""); // "YYYY-MM-DD"
+  // Date and Time state
+  const initialDateObj = event.date ? new Date(event.date) : new Date();
+  const [dateObj, setDateObj] = useState(initialDateObj);
+  const [date, setDate] = useState(event.date || ""); // "YYYY-MM-DD"
+
   const [timeObj, setTimeObj] = useState(new Date());
-  const [time, setTime] = useState(""); // "7:00 PM"
+  const [time, setTime] = useState(event.time || ""); // "7:00 PM" or ""
 
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(event.location || "");
   const [loading, setLoading] = useState(false);
 
   // Picker visibility toggles
@@ -57,7 +69,7 @@ export default function PostEventScreen() {
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const handleDateChange = (event, selectedDate) => {
+  const handleDateChange = (e, selectedDate) => {
     setShowDatePicker(false);
     if (!selectedDate) return;
 
@@ -93,62 +105,50 @@ export default function PostEventScreen() {
     }
 
     if (!token) {
-      Alert.alert("Not logged in", "Please log in before posting an event.");
+      Alert.alert("Not logged in", "Please log in before editing an event.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch("http://172.28.248.13:4000/api/events", {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/events/${event._id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // send JWT
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title,
           description,
           town,
           category,
-          date, // "YYYY-MM-DD"
-          time, // "7:00 PM" or ""
+          date,
+          time,
           location,
         }),
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        console.log("Create event error:", data);
-        throw new Error(data.message || "Failed to create event");
+        console.log("Update event error:", data);
+        throw new Error(data.message || "Failed to update event");
       }
 
-      const createdEvent = await response.json();
-      console.log("Event created:", createdEvent);
+      const updatedEvent = await response.json();
+      console.log("Event updated:", updatedEvent);
 
-      //  Show success alert, then go to "MyEvents" screen instead of goBack
-      Alert.alert("Success", "Your event has been posted!", [
+      Alert.alert("Updated", "Your event has been updated.", [
         {
           text: "OK",
           onPress: () => {
-            // clear the form BEFORE navigating
-            setTitle("");
-            setDescription("");
-            setLocation("");
-            setDate("");
-            setTime("");
-            setTown(TOWNS[0]);
-            setCategory(FORM_CATEGORIES[0]);
-            setDateObj(new Date());
-            setTimeObj(new Date());
-
-            // Navigate to MyEvents so the user can confirm it's listed
+            // Go back to MyEvents so they can see the updated info
             navigation.navigate("MyEvents");
           },
         },
       ]);
     } catch (error) {
-      console.error("Error posting event:", error);
+      console.error("Error updating event:", error);
       Alert.alert("Error", error.message);
     } finally {
       setLoading(false);
@@ -158,7 +158,7 @@ export default function PostEventScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>Post a New Event</Text>
+        <Text style={styles.heading}>Edit Event</Text>
 
         {/* Title */}
         <Text style={styles.label}>Title *</Text>
@@ -232,14 +232,14 @@ export default function PostEventScreen() {
           multiline
         />
 
-        {/* Submit button */}
+        {/* Save button */}
         <Pressable
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleSubmit}
           disabled={loading}
         >
           <Text style={styles.buttonText}>
-            {loading ? "Posting..." : "Post Event"}
+            {loading ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>
       </ScrollView>

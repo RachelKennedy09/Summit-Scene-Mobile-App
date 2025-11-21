@@ -13,7 +13,8 @@ import EventDetailScreen from "./screens/EventDetailScreen";
 import LoginScreen from "./screens/LoginScreen.js";
 import RegisterScreen from "./screens/RegisterScreen.js";
 import MyEventsScreen from "./screens/MyEventsScreen.js";
-import PostEventScreen from "./screens/PostEventScreen.js";
+
+import EditEventScreen from "./screens/EditEventScreen.js";
 
 // AuthProver and useAuth for context
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -55,6 +56,12 @@ function RootNavigator() {
             name="MyEvents"
             component={MyEventsScreen}
             options={{ title: "My Events" }}
+          />
+          {/*  EditEvent screen */}
+          <Stack.Screen
+            name="EditEvent"
+            component={EditEventScreen}
+            options={{ title: "Edit Event" }}
           />
           {/* Screen to navigate to from HubScreen when tapping an event
            */}
