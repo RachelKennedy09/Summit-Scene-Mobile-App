@@ -5,6 +5,7 @@ import cors from "cors";
 import { connectDB } from "./config/db.js";
 import eventRoutes from "./routes/events.js";
 import authRouter from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
 
 // create the express app
 const app = express();
@@ -15,6 +16,8 @@ app.use(express.json()); //allow JSON in request bodies
 
 // auth routes
 app.use("/api/auth", authRouter);
+
+app.use("/api/users", userRoutes);
 
 //simple test route
 app.get("/", (req, res) => {

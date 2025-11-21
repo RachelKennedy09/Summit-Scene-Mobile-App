@@ -141,6 +141,46 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // UPGRADE: local -> business
+  async function upgradeToBusiness() {
+    if (!token) {
+      throw new Error("You must be logged in to upgrade your account.");
+    }
+
+    try {
+      setIsAuthLoading(true);
+
+      const response = await fetch(
+        `${API_BASE_URL}/users/upgrade-to-business`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = data?.message || "Upgrade failed.";
+        throw new Error(message);
+      }
+
+      if (data.user) {
+        setUser(data.user); //update role in context
+      }
+
+      return data.user;
+    } catch (error) {
+      console.error("Error in upgradeToBusiness:", error);
+      throw error;
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }
+
   // LOGOUT: clear everything and remove token from storage
   async function logout() {
     try {
@@ -162,6 +202,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    upgradeToBusiness,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -430,40 +430,42 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ---
 
-## 📅 Sprint #5 (November 20th)
+## 📅 Sprint #5 (November 20th-)
 
 ### 🎯 Sprint Goals
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
+1. Add role-based accounts (“local” vs “business”) during registration
+2. Add role-safe JWT creation & backend enforcement
+3. Add role-based navigation (hide “Post Event” tab for local users)
+4. Add My Events screen showing only events created by the logged-in business
+5. Add business-only create event route + middleware (isBusiness)
+6. Add business-only update/delete routes with ownership checks
+7. Add EditEventScreen + navigation from My Events
+8. Add Upgrade Account feature (local → busines
+9. Add redirect: posting an event sends user to My Events
+10. Improve UX for business users (“View My Events” button in Account screen)
 
 ---
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: ![alt text](TCErrorBusinessPostEvent.png)</b>Error when businessToken didnt work
+<b>Issue: Business token returned “Invalid or expired token” when posting events </b>
+![alt text](TCErrorBusinessPostEvent.png)
 
-<b>Fix: </b>Restarted server, pasted a new JWT token in Headers: Authorization bearer ![alt text](TCSucessPostAsBusiness.png)
-
----
-
-<b>Issue: </b>
-
-<b>Fix:</b>
+<b>Fix: </b>Restarted server & refreshed token. Retrieved a new JWT from /auth/login, then placed it correctly in Thunderclienta Authorization: Bearer <token> header.
+![alt text](TCSucessPostAsBusiness.png)
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Missing role in token caused navigation bugs & unmounted screens </b>
 
-<b>Fix:</b>
+<b>Fix:</b> Updated createToken() to embed { userId, role }, added fallback for old accounts, and ensured AuthContext stores user.role safely.
+
+---
+
+<b>Issue: Business-only “Post” tab wasn’t appearing </b>
+
+<b>Fix:</b> Added const isBusiness = user?.role === "business" in TabNavigator and conditionally rendered the Post tab. Confirmed role value passed through JWT and /auth/me.
 
 ---
 
@@ -474,31 +476,26 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ### 🌟 Wins + Breakthroughs
 
--
+- Added full role-based authentication (local vs business)
+- App now conditionally shows business-only features
+- Created a complete upgrade account system (local → business)
+- Finished My Events with owner-only event list
+- Fully working update + delete backend routes with ownership enforcement
+- Cleaned up /auth/register, /auth/login, and /auth/me to include roles
+- Added post-event redirect for better UX
+- Account screen now shows role-aware UI
 
--
+### 📚 What I Learned This Sprint
 
--
+- How to build role-based systems using JWT
 
--
+- How to secure API routes for different account types
 
--
+- How to create business-specific screens (My Events, Edit, Delete flows)
 
--
+- How to build smooth UX for creators (redirects, alerts, buttons)
 
-- ***
-
-### 📚 What I Learned This Week
-
--
-
--
-
--
-
--
-
-- ***
+- How to manage large React Native forms and screens cleanly
 
 #### Photos of Progress - Sprint 5
 

@@ -2,17 +2,20 @@
 // Shows logged-in user's account info + logout
 // Gives users a clear place to see who is logged in and to sign out
 
-import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
 function AccountScreen() {
-  const { user, logout, isAuthLoading } = useAuth();
+  const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
   const navigation = useNavigation();
 
   const isBusiness = user?.role === "business";
+  const isLocal = user?.role === "local";
+
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   // Safeguard: in theory AccountScreen is only shown when user != null,
   // but we handle the "just in case" situation gracefully.
@@ -27,6 +30,27 @@ function AccountScreen() {
         </View>
       </SafeAreaView>
     );
+  }
+  async function handleUpgradeToBusiness() {
+    try {
+      setIsUpgrading(true);
+      const updated = await upgradeToBusiness();
+
+      // timeout before showing alert so UI doesnt unmount instantly
+      setTimeout(() => {
+        Alert.alert(
+          "Account upgraded",
+          "Your account is now a business account. You can now post and manage events."
+        );
+      }, 200);
+    } catch (error) {
+      Alert.alert(
+        "Upgrade failed",
+        error.message || "Unable to upgrade account right now."
+      );
+    } finally {
+      setIsUpgrading(false);
+    }
   }
 
   // Format joined date nicely
@@ -67,6 +91,25 @@ function AccountScreen() {
             onPress={() => navigation.navigate("MyEvents")}
           >
             <Text style={styles.accountButtonText}>View My Events</Text>
+          </Pressable>
+        )}
+
+        {isLocal && (
+          <Pressable
+            style={[
+              styles.accountButtonSecondary,
+              (isAuthLoading || isUpgrading) && styles.buttonDisabled,
+            ]}
+            onPress={handleUpgradeToBusiness}
+            disabled={isAuthLoading || isUpgrading}
+          >
+            <Text style={styles.accountButtonSecondaryText}>
+              Upgrade to business account
+            </Text>
+            <Text style={styles.accountButtonSecondarySubtext}>
+              Become a verified local business or event organizer and start
+              posting your own events.
+            </Text>
           </Pressable>
         )}
 
@@ -140,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // 🔽 NEW styles for "View My Events" button
+  // styles for "View My Events" button
   accountButton: {
     backgroundColor: "#e2a59bff",
     paddingVertical: 12,
@@ -152,6 +195,25 @@ const styles = StyleSheet.create({
     color: "#0f172a",
     fontWeight: "700",
     fontSize: 15,
+  },
+  accountButtonSecondary: {
+    backgroundColor: "#1f2933",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#38bdf8",
+  },
+  accountButtonSecondaryText: {
+    color: "#e5e7eb",
+    fontWeight: "600",
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  accountButtonSecondarySubtext: {
+    color: "#9ca3af",
+    fontSize: 12,
   },
 
   button: {
