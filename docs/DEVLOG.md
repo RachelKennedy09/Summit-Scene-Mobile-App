@@ -474,8 +474,8 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 November 21st 
 
-<b>Issue: </b>
-<b>Fix:</b>
+<b>Issue: Older events that I had created before business vs local logic were not updated (of course)</b>
+<b>Fix: Just deleted the old eents with the old logic and created new ones and the logic was appearing!</b>
 
 ---
 
@@ -527,10 +527,18 @@ APP photo of new "MyEvents" screen
 ![alt text](APPmyeventsscreen.png)
 
 Git commit 
+![alt text](CommitNov20.png)
+
 
 
 
 November 21st Sprint 5 part 2
+
+
+
+
+
+
 
 
 ---

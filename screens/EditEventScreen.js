@@ -18,6 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../context/AuthContext.js";
+import { updateEvent } from "../services/eventsApi";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -33,14 +34,11 @@ const CATEGORIES = [
   "Art",
 ];
 
-// same as PostEventScreen: dropdown should not show "All"
 const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
-
-const API_BASE_URL = "http://172.28.248.13:4000/api";
 
 export default function EditEventScreen({ route, navigation }) {
   const { token } = useAuth();
-  const { event } = route.params; // event passed from MyEventsScreen
+  const { event } = route.params; // event passed from EventDetailScreen
 
   // ----- INITIAL STATE FROM EXISTING EVENT -----
   const [title, setTitle] = useState(event.title || "");
@@ -112,30 +110,18 @@ export default function EditEventScreen({ route, navigation }) {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/events/${event._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          town,
-          category,
-          date,
-          time,
-          location,
-        }),
-      });
+      const payload = {
+        title,
+        description,
+        town,
+        category,
+        date,
+        time,
+        location,
+      };
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        console.log("Update event error:", data);
-        throw new Error(data.message || "Failed to update event");
-      }
-
-      const updatedEvent = await response.json();
+      // call shared API helper to update
+      const updatedEvent = await updateEvent(event._id, payload, token);
       console.log("Event updated:", updatedEvent);
 
       Alert.alert("Updated", "Your event has been updated.", [
@@ -149,7 +135,7 @@ export default function EditEventScreen({ route, navigation }) {
       ]);
     } catch (error) {
       console.error("Error updating event:", error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error.message || "Failed to update event");
     } finally {
       setLoading(false);
     }

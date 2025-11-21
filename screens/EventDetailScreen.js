@@ -1,11 +1,61 @@
+// screens/EventDetailScreen.js
 // Show full details for a single event
 
 import React from "react";
-import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  Pressable,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+
+import { useAuth } from "../context/AuthContext";
+import { deleteEvent } from "../services/eventsApi";
 
 export default function EventDetailScreen({ route }) {
-  const { event } = route.params; // event was passed in navigate(..., {event})
+  const navigation = useNavigation();
+  const { user, token } = useAuth();
+
+  // 👇 event passed in from navigate("EventDetail", { event })
+  const { event } = route.params;
+
+  // Decide if this event belongs to the logged in business user
+  const isOwner =
+    !!user &&
+    !!event &&
+    !!event.createdBy && // make sure field exists
+    (event.createdBy === user._id || event.createdBy === user.id);
+
+  const handleEdit = () => {
+    navigation.navigate("EditEvent", {
+      event,
+    });
+  };
+
+  const handleDelete = () => {
+    Alert.alert("Delete this event?", "This action cannot be undone.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteEvent(event._id, token);
+            navigation.goBack();
+          } catch (error) {
+            console.error(error);
+            Alert.alert("Error", error.message || "Failed to delete event.");
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
@@ -36,6 +86,29 @@ export default function EventDetailScreen({ route }) {
               No detailed description added yet.
             </Text>
           )}
+
+          {/* owner-only section */}
+          {isOwner && (
+            <View style={styles.ownerSection}>
+              <Text style={styles.ownerBadge}>This is your event</Text>
+
+              <View style={styles.ownerButtonsRow}>
+                <Pressable
+                  style={[styles.ownerButton, styles.editButton]}
+                  onPress={handleEdit}
+                >
+                  <Text style={styles.ownerButtonText}>Edit Event</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[styles.ownerButton, styles.deleteButton]}
+                  onPress={handleDelete}
+                >
+                  <Text style={styles.ownerButtonText}>Delete Event</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -48,9 +121,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#0b1724",
   },
   safeArea: {
-  flex: 1,
-  backgroundColor: "#0b1724",
-},
+    flex: 1,
+    backgroundColor: "#0b1724",
+  },
 
   heroImage: {
     width: "100%",
@@ -94,5 +167,46 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#c2d0e8",
     lineHeight: 20,
+  },
+  ownerSection: {
+    marginTop: 24,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "#0f766e10", // soft teal tint
+  },
+  ownerBadge: {
+    alignSelf: "flex-start",
+    marginBottom: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: "#0f766e",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  ownerButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  ownerButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editButton: {
+    backgroundColor: "#0f766e",
+  },
+  deleteButton: {
+    backgroundColor: "#b91c1c",
+  },
+  ownerButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

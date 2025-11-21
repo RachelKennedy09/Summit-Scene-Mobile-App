@@ -23,7 +23,7 @@ export async function createEvent(eventData) {
   try {
     const response = await fetch(`${BASE_URL}/api/events`, {
       method: "POST",
-      header: {
+      headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(eventData),
@@ -35,6 +35,51 @@ export async function createEvent(eventData) {
     return await response.json();
   } catch (error) {
     console.error("createEvent error:", error.message);
+    throw error;
+  }
+}
+
+export async function deleteEvent(eventId, token) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/events/${eventId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || "Failed to delete event");
+    }
+    return true;
+  } catch (error) {
+    console.error("deleteEvent:", error.message);
+    throw error;
+  }
+}
+
+export async function updateEvent(eventId, eventData, token) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/events/${eventId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(eventData),
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({}));
+      throw new Error(errorBody.message || "Error updating event");
+    }
+
+    const updatedEvent = await res.json();
+    return updatedEvent;
+  } catch (error) {
+    console.error("updatedEvent error:", error.message);
     throw error;
   }
 }
