@@ -529,10 +529,11 @@ APP photo of new "MyEvents" screen
 Git commit 
 ![alt text](CommitNov20.png)
 
+Sprint 5 done
+![alt text](Sprint5.png)
 
 
 
-November 21st Sprint 5 part 2
 
 
 
