@@ -544,20 +544,16 @@ Sprint 5 done
 
 ---
 
-## 📅 Sprint #6 ()
+## 📅 Sprint #6 - Community Screens/Tabs (Nov 23-)
 
 ### 🎯 Sprint Goals
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
+1. Design communityPost model + routes
+2. Create /api/community GET + POST (protected)
+3. Build CommunityScreen with boards ( Weather Conditions, Rideshare/Carpool, Event Buddies(new to town?))
+3. CreateCommunityPostScreen with form + validation
+4. Loading error and empty states for community
+
 
 ---
 
