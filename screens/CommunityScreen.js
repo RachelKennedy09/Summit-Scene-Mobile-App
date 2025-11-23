@@ -1,54 +1,45 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// post types (backend values and labels)
+const POST_TYPES = [
+  { label: "Highway Conditions", value: "highwayconditions" },
+  { label: "Ride Share", value: "rideshare" },
+  { label: "Event Budyy", value: "eventbuddy" },
+];
+
+// Mock posts to shape UI
+const MOCK_POSTS = [
+  {
+    id: "1",
+    type: "highwayconditions",
+    town: "Banff",
+    title: "Snowy on Highway 1 near Banff",
+    body: "Expect compact snow and low visibility this morning. Drive slow!",
+  },
+  {
+    id: "2",
+    type: "rideshare",
+    town: "Canmore",
+    title: "Ride to Lake Louise Saturday 7am",
+    body: "Leaving from Canmore downtown, 2 spots available. Gas split.",
+  },
+  {
+    id: "3",
+    type: "eventbuddy",
+    town: "Lake Louise",
+    title: "Looking for buddy for night skiing at Norquay",
+    body: "Anyone want to go Thursday night? Intermediate level.",
+  },
+];
+
+
 export default function CommunityScreen() {
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <Text style={styles.heading}>Community</Text>
-      <Text style={styles.subheading}>
-        A space for locals to share tips, updates, questions, and community
-        news.
-      </Text>
+  const [selectedType, setSelectedType] = useState("eventbuddy")
 
-      {/* Section List *static for now) */}
-      <ScrollView
-        contentContainerStyle={styles.sectionsContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>General Chat</Text>
-          <Text style={styles.sectionText}>
-            Discuss snow conditions, trail updates, cafe recommendations, and
-            more
-          </Text>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Local Questions</Text>
-          <Text style={styles.sectionText}>
-            "Best place for breakfast in Canmore?" - "How icy is the Lake Louise
-            trail"
-          </Text>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Ride Share / Carpool</Text>
-          <Text style={styles.sectionText}>
-            Connect with others heading to Banff, Canmore, LL, or Sunshine. Or
-            click here for Roam Transit information.
-          </Text>
-        </View>
-
-        <Pressable style={styles.button} disabled>
-          <Text style={styles.buttonText}>
-            Community Features Locked (sprint 4+)
-          </Text>
-        </Pressable>
-      </ScrollView>
-    </SafeAreaView>
-  );
+  // mock data later api
+  const [posts] = useState(MOCK_POSTS)
 }
 
 const styles = StyleSheet.create({

@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import eventRoutes from "./routes/events.js";
 import authRouter from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import communityRoutes from "./routes/community.js";
 
 // create the express app
 const app = express();
@@ -25,6 +26,9 @@ app.get("/", (req, res) => {
     message: "summitScene API is running (ESM)",
   });
 });
+
+// middleware for community routes
+app.use("/api/community", communityRoutes);
 
 // events routes for anything starting with /api/events
 app.use("/api/events", eventRoutes);
