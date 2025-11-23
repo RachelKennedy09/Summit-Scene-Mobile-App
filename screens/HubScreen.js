@@ -1,6 +1,4 @@
 // screens/HubScreen.js
-// Stae and logic only
-//Screen for events pulled from AI (or MOCK if no events to pull/error)
 
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
@@ -17,8 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import EventCard from "../components/EventCard";
 import CategoryChips from "../components/CategoryChips";
 import TownChips from "../components/TownChips";
-
-const API_BASE_URL = "http://172.28.248.13:4000";
+import { fetchEvents as fetchEventsFromApi } from "../services/eventsApi";
 
 const CATEGORIES = [
   "All",
@@ -33,19 +30,17 @@ const CATEGORIES = [
   "Art",
 ];
 
-// Main HubScreen component
 export default function HubScreen() {
   const navigation = useNavigation();
 
-  const [selectedCategory, setSelectedCategory] = useState("All"); // which event type is active?
-  const [selectedTown, setSelectedTown] = useState("All"); //which town tab is active?
-  // events come form state instead of mock_events
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedTown, setSelectedTown] = useState("All");
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true); //inital load
-  const [refreshing, setRefreshing] = useState(false); //pull to refresh
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchEvents = useCallback(async (isRefresh = false) => {
+  const loadEvents = useCallback(async (isRefresh = false) => {
     try {
       if (!isRefresh) {
         setLoading(true);
@@ -55,14 +50,17 @@ export default function HubScreen() {
 
       setError(null);
 
-      const res = await fetch(`${API_BASE_URL}/api/events`);
+      //  shared API helper
+      const data = await fetchEventsFromApi();
 
-      if (!res.ok) {
-        throw new Error("Failed to load events");
-      }
+      //  sort by date
+      const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+      });
 
-      const data = await res.json();
-      setEvents(Array.isArray(data) ? data : []);
+      setEvents(sorted);
     } catch (error) {
       console.log("Error fetching events:", error.message);
       setError("Could not load events. Pull to refresh to try again.");
@@ -73,11 +71,11 @@ export default function HubScreen() {
   }, []);
 
   useEffect(() => {
-    fetchEvents(false);
-  }, [fetchEvents]);
+    loadEvents(false);
+  }, [loadEvents]);
 
   const handleRefresh = () => {
-    fetchEvents(true);
+    loadEvents(true);
   };
 
   const eventsToShow = useMemo(() => {
@@ -91,15 +89,21 @@ export default function HubScreen() {
     });
   }, [events, selectedCategory, selectedTown]);
 
-  // rendering each event using EventCard
-  const renderEvent = ({ item }) => (
-    <EventCard
-      event={item}
-      onPress={() =>
-        navigation.navigate("EventDetail", { event: item, eventId: item._id })
-      }
-    />
-  );
+  const emptyMessage = useMemo(() => {
+    if (selectedCategory === "All" && selectedTown === "All") {
+      return "No events available yet. Check back soon!";
+    }
+
+    if (selectedCategory === "All") {
+      return `No events found in ${selectedTown}. Try another town or check back later.`;
+    }
+
+    if (selectedTown === "All") {
+      return `No ${selectedCategory} events found. Try another category or town.`;
+    }
+
+    return `No ${selectedCategory} events found in ${selectedTown}.`;
+  }, [selectedCategory, selectedTown]);
 
   if (loading && !refreshing && events.length === 0) {
     return (
@@ -122,6 +126,15 @@ export default function HubScreen() {
       </SafeAreaView>
     );
   }
+
+  const renderEvent = ({ item }) => (
+    <EventCard
+      event={item}
+      onPress={() =>
+        navigation.navigate("EventDetail", { event: item, eventId: item._id })
+      }
+    />
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -159,9 +172,7 @@ export default function HubScreen() {
           />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            No events found for this category.
-          </Text>
+          <Text style={styles.emptyText}>{emptyMessage}</Text>
         }
       />
 
