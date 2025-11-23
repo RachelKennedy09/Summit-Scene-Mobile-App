@@ -1,3 +1,4 @@
+// eventsApi.js
 //small helper for talking to summitScene backend
 
 const BASE_URL = "http://172.28.248.13:4000"; // BASE_URL is where node serve lives, on phone use local IP instead of host.

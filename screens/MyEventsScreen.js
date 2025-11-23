@@ -14,6 +14,7 @@ import {
   Pressable,
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
+import { deleteEvent } from "../services/eventsApi";
 
 const API_BASE_URL = "http://172.28.248.13:4000/api";
 
@@ -45,7 +46,14 @@ export default function MyEventsScreen({ navigation }) {
       }
 
       const data = await response.json();
-      setEvents(data || []);
+
+      // sort events by date (earlier first)
+      const sorted = (data || []).slice().sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+      });
+      setEvents(sorted);
     } catch (err) {
       console.error("Error fetching my events:", err);
       setError(err.message);
@@ -79,6 +87,8 @@ export default function MyEventsScreen({ navigation }) {
           onPress={() =>
             navigation.navigate("EventDetail", {
               event: item,
+              // lets EventDetail ask MyEvents to reload
+              onUpdated: fetchMyEvents,
             })
           }
         >
@@ -184,28 +194,16 @@ export default function MyEventsScreen({ navigation }) {
         Alert.alert("Not logged in", "Please log in again.");
         return;
       }
-      const response = await fetch(
-        `http://172.28.248.13:4000/api/events/${event._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        console.log("Delete event error:", data);
-        throw new Error(data.message || "Failed to delete event");
-      }
+      // shared helper
+      await deleteEvent(event._id, token);
+
       Alert.alert("Deleted", `"${event.title}" has been removed.`);
 
-      // force reffresh list
       onRefresh();
     } catch (error) {
       console.error("Error deleting event:", error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error.message || "Failed to delete event.");
     }
   }
 

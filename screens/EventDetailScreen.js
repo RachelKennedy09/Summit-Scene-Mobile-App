@@ -46,6 +46,11 @@ export default function EventDetailScreen({ route }) {
         onPress: async () => {
           try {
             await deleteEvent(event._id, token);
+
+            // If myEventsScreen passes a refresh callback, use it
+            if (route.params?.onUpdated) {
+              route.params.onUpdated();
+            }
             navigation.goBack();
           } catch (error) {
             console.error(error);
