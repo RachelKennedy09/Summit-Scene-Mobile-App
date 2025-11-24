@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { useAuth } from "../context/AuthContext";
 
 // post types (backend values and labels)
 const POST_TYPES = [
@@ -38,12 +40,53 @@ export default function CommunityScreen() {
   const [selectedType, setSelectedType] = useState("eventbuddy");
 
   // mock data later api
-  const [posts] = useState(MOCK_POSTS);
+  const [posts, setPosts] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const { token } = useAuth(); //get JWT token
 
   const filteredPosts = useMemo(
     () => posts.filter((post) => post.type === selectedType),
     [posts, selectedType]
   );
+
+  async function fetchPosts() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const API_BASE_URL =
+        process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/community?type=${selectedType}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        throw new Error("Failed to load posts");
+      }
+
+      const data = await res.json();
+      setPosts(data);
+    } catch (error) {
+      console.log("Error fetching community posts:", error);
+      setError(error.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts();
+  }, [selectedType]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,17 +124,38 @@ export default function CommunityScreen() {
         contentContainerStyle={styles.sectionsContainer}
         showsVerticalScrollIndicator={false}
       >
-        {filteredPosts.map((post) => (
-          <View key={post.id} style={styles.sectionCard}>
-            <View style={styles.cardHeaderRow}>
-              <Text style={styles.sectionTitle}>{post.title}</Text>
-            </View>
-            <Text style={styles.sectionText}>{post.body}</Text>
+        {loading && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={{ color: "white" }}>Loading posts...</Text>
           </View>
-        ))}
+        )}
 
-        {/* Simple empty state for now */}
-        {filteredPosts.length === 0 && (
+        {error && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>Error Loading Posts</Text>
+            <Text style={styles.emptyText}>{error}</Text>
+            <Pressable
+              onPress={fetchPosts}
+              style={[styles.typePillActive, { padding: 10, marginTop: 10 }]}
+            >
+              <Text style={{ color: "white" }}>Try Again</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {!loading &&
+          !error &&
+          filteredPosts.map((post) => (
+            <View key={post._id ?? post.id} style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <Text style={styles.sectionTitle}>{post.title}</Text>
+                <Text style={styles.townTag}>{post.town}</Text>
+              </View>
+              <Text style={styles.sectionText}>{post.body}</Text>
+            </View>
+          ))}
+
+        {!loading && !error && filteredPosts.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No posts yet</Text>
             <Text style={styles.emptyText}>
