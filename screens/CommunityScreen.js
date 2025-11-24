@@ -36,7 +36,7 @@ const MOCK_POSTS = [
   },
 ];
 
-export default function CommunityScreen() {
+export default function CommunityScreen({ navigation }) {
   const [selectedType, setSelectedType] = useState("eventbuddy");
 
   // mock data later api
@@ -91,10 +91,21 @@ export default function CommunityScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Text style={styles.heading}>Community</Text>
-      <Text style={styles.subheading}>
-        A space for locals to share road conditions, rides, and event buddies.
-      </Text>
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.heading}>Community</Text>
+          <Text style={styles.subheading}>
+            A space for locals to share road conditions, rides, and event
+            buddies.
+          </Text>
+        </View>
+        <Pressable
+          style={styles.newPostButton}
+          onPress={() => navigation.navigate("CreateCommunityPost")}
+        >
+          <Text style={styles.newPostButtonText}>New Post</Text>
+        </Pressable>
+      </View>
 
       {/* Type selector pills */}
       <View style={styles.typeRow}>
@@ -186,7 +197,23 @@ const styles = StyleSheet.create({
     color: "#b0c4de",
     marginBottom: 16,
   },
-
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  newPostButton: {
+    marginLeft: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "#4a90e2",
+  },
+  newPostButtonText: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
   // Row of type pills
   typeRow: {
     flexDirection: "row",

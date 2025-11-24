@@ -16,6 +16,8 @@ import MyEventsScreen from "./screens/MyEventsScreen.js";
 
 import EditEventScreen from "./screens/EditEventScreen.js";
 
+import CreateCommunityPostScreen from "./screens/CommunityPostScreen.js";
+
 // AuthProver and useAuth for context
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -45,7 +47,6 @@ function RootNavigator() {
       {user ? (
         // APP STACK: user is logged in -> show tabs and event details
         <>
-          {/* This screen holds bottom tabs (Hub, Map, Post, Community, Account) */}
           <Stack.Screen
             name="tabs"
             component={TabNavigator}
@@ -70,6 +71,12 @@ function RootNavigator() {
             name="EventDetail"
             component={EventDetailScreen}
             options={{ title: "Event details" }}
+          />
+          {/* Screen for community posts */}
+          <Stack.Screen
+            name="CreateCommunityPost"
+            component={CreateCommunityPostScreen}
+            options={{ title: "New Community Post" }}
           />
         </>
       ) : (
