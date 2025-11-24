@@ -612,6 +612,9 @@ Sprint 5 done
 
 #### Photos of Progress - Sprint 6
 
+MONGODB success event community post
+![alt text](MONGODBEventBuddyPostSuccess.png)
+
 ---
 
 ## 📅 Sprint #7 (November 16th)

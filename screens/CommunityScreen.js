@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "../context/AuthContext";
@@ -9,31 +10,6 @@ const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
   { label: "Ride Share", value: "rideshare" },
   { label: "Event Buddy", value: "eventbuddy" },
-];
-
-// Mock posts to shape UI
-const MOCK_POSTS = [
-  {
-    id: "1",
-    type: "highwayconditions",
-    town: "Banff",
-    title: "Snowy on Highway 1 near Banff",
-    body: "Expect compact snow and low visibility this morning. Drive slow!",
-  },
-  {
-    id: "2",
-    type: "rideshare",
-    town: "Canmore",
-    title: "Ride to Lake Louise Saturday 7am",
-    body: "Leaving from Canmore downtown, 2 spots available. Gas split.",
-  },
-  {
-    id: "3",
-    type: "eventbuddy",
-    town: "Lake Louise",
-    title: "Looking for buddy for night skiing at Norquay",
-    body: "Anyone want to go Thursday night? Intermediate level.",
-  },
 ];
 
 export default function CommunityScreen({ navigation }) {
@@ -47,18 +23,18 @@ export default function CommunityScreen({ navigation }) {
 
   const { token } = useAuth(); //get JWT token
 
+  const API_BASE_URL =
+    process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+
   const filteredPosts = useMemo(
     () => posts.filter((post) => post.type === selectedType),
     [posts, selectedType]
   );
 
-  async function fetchPosts() {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
-      const API_BASE_URL =
-        process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
 
       const res = await fetch(
         `${API_BASE_URL}/api/community?type=${selectedType}`,
@@ -70,6 +46,7 @@ export default function CommunityScreen({ navigation }) {
           },
         }
       );
+
       if (!res.ok) {
         throw new Error("Failed to load posts");
       }
@@ -82,11 +59,15 @@ export default function CommunityScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [API_BASE_URL, selectedType, token]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [selectedType]);
+  useFocusEffect(
+    useCallback(() => {
+      // When the screen comes into focus (first load OR coming back),
+      // fetch the posts for the current board
+      fetchPosts();
+    }, [fetchPosts])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
