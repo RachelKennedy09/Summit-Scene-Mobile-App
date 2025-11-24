@@ -589,8 +589,6 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 
 -
 
-
-
 ### 📚 What I Learned
 
 - How to implement safe DateTimePicker patterns for iOS + Android
@@ -605,16 +603,16 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 - Understood that all screens receive navigation automatically,
   but you only need to destructure it if the screen actually uses it
 
-
 #### Photos of Progress - Sprint 6
 
 MONGODB success event community post
 ![alt text](MONGODBEventBuddyPostSuccess.png)
 
 Trello Card Sprint 6 Nov 23
-![alt text](Sprint6(23rd).png)
+![alt text](<Sprint6(23rd).png>)
 
-
+Git Commit Nov 23rd
+![alt text](devlogimages/CommitNov23.png)
 
 ---
 
