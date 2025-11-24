@@ -20,6 +20,11 @@ const communityPostSchema = new mongoose.Schema(
       enum: ["Banff", "Canmore", "Lake Louise"],
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     title: {
       type: String,
       required: true,
@@ -32,6 +37,7 @@ const communityPostSchema = new mongoose.Schema(
     },
     targetDate: {
       type: Date,
+      required: true,
     },
   },
   { timestamps: true }

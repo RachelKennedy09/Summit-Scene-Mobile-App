@@ -143,6 +143,21 @@ export default function CommunityScreen({ navigation }) {
                 <Text style={styles.sectionTitle}>{post.title}</Text>
                 <Text style={styles.townTag}>{post.town}</Text>
               </View>
+
+              <Text style={styles.timestampText}>
+                {post.name ? `${post.name} • ` : ""}
+                {new Date(post.createdAt).toLocaleDateString()} •{" "}
+                {new Date(post.createdAt).toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </Text>
+
+              {/* target date */}
+              <Text style={styles.dateText}>
+                For: {new Date(post.targetDate).toLocaleDateString()}
+              </Text>
+
               <Text style={styles.sectionText}>{post.body}</Text>
             </View>
           ))}
@@ -273,5 +288,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: "#b0c4de",
+  },
+  dateText: {
+    fontSize: 12,
+    color: "#b0c4de",
+    marginBottom: 4,
   },
 });

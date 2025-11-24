@@ -6,7 +6,7 @@ import CommunityPost from "../models/CommunityPost.js";
 // GET /api/community?type=highwayconditions&town=Banff
 export async function getCommunityPosts(req, res) {
   try {
-    const { type, town } = req.query;
+    const { type, town, title, body, targetDate } = req.query;
 
     const filter = {};
     if (type) filter.type = type;
@@ -32,7 +32,13 @@ export async function createCommunityPost(req, res) {
       return res.status(401).json({ error: "Unauthorized: missing user id" });
     }
 
-    const { type, town, title, body, targetDate } = req.body;
+    const { type, town, title, body, targetDate, name } = req.body;
+
+    if (!name || !targetData) {
+      return res
+        .status(400)
+        .json({ error: "Name and date are required for community posts." });
+    }
 
     const newPost = await CommunityPost.create({
       user: userId,
@@ -40,6 +46,7 @@ export async function createCommunityPost(req, res) {
       town,
       title,
       body,
+      name,
       targetDate,
     });
 

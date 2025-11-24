@@ -553,6 +553,10 @@ Sprint 5 done
 3. Build CommunityScreen with boards ( Weather Conditions, Rideshare/Carpool, Event Buddies(new to town?))
 3. CreateCommunityPostScreen with form + validation
 4. Loading error and empty states for community
+5. Replace MOCK data with real api fetch
+6. Add target date for posts
+7. Edit/Delete for creators posts
+8. Community StackNavigator for a deeper screen
 
 
 ---

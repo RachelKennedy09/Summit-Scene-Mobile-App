@@ -7,9 +7,11 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../context/AuthContext";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
@@ -26,10 +28,13 @@ const TOWNS = [
 export default function CreateCommunityPostScreen({ navigation }) {
   const { token } = useAuth();
 
-  const [type, setType] = useState("highwaycondtions");
+  const [type, setType] = useState("highwayconditions");
   const [town, setTown] = useState("Banff");
+  const [name, setName] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [targetDate, setTargetDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -38,8 +43,16 @@ export default function CreateCommunityPostScreen({ navigation }) {
 
   async function handleSubmit() {
     // basic validation
+    if (!name.trim()) {
+      Alert.alert("Missing info", "Please enter your name.");
+      return;
+    }
     if (!title.trim() || !body.trim()) {
       Alert.alert("Missing info", "Please add a title and some details.");
+      return;
+    }
+    if (!targetDate) {
+      Alert.alert("Missing info", "Please select a date for this post.");
       return;
     }
 
@@ -47,18 +60,22 @@ export default function CreateCommunityPostScreen({ navigation }) {
       setSubmitting(true);
       setError(null);
 
+      const payload = {
+        type,
+        town,
+        name: name.trim(),
+        title: title.trim(),
+        body: body.trim(),
+        targetDate: targetDate.toISOString(),
+      };
+
       const res = await fetch(`${API_BASE_URL}/api/community`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          type,
-          town,
-          title: title.trim(),
-          body: body.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -69,8 +86,10 @@ export default function CreateCommunityPostScreen({ navigation }) {
       await res.json();
 
       Alert.alert("Post shared!", "Your community post has been created.");
+      setName("");
       setTitle("");
       setBody("");
+      setTargetDate(new Date());
       navigation.goBack();
     } catch (error) {
       console.log("Error creating community post:", error);
@@ -132,6 +151,42 @@ export default function CreateCommunityPostScreen({ navigation }) {
             );
           })}
         </View>
+
+        {/* Name */}
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Your name"
+          placeholderTextColor="#66758a"
+          value={name}
+          onChangeText={setName}
+        />
+
+        {/*  Date and Time */}
+
+        <Text style={styles.label}>Date</Text>
+        <Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
+          <Text style={{ color: "#ffffff" }}>
+            {targetDate.toLocaleDateString()}
+          </Text>
+        </Pressable>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={targetDate}
+            mode="date"
+            display={Platform.OS === "android" ? "calendar" : "spinner"}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+
+              if (event.type === "dismissed") return;
+
+              if (selectedDate) {
+                setTargetDate(selectedDate);
+              }
+            }}
+          />
+        )}
 
         {/* Title input */}
         <Text style={styles.label}>Title</Text>
