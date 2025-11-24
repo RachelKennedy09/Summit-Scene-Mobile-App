@@ -444,7 +444,7 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 8. Add Upgrade Account feature (local → busines
 9. Add redirect: posting an event sends user to My Events
 10. Improve UX for business users (“View My Events” button in Account screen)
-    
+
 ### 🎯 Sprint Goals part 2
 
 ---
@@ -471,8 +471,7 @@ Github commit for November 19th (Wired hubscreen to only real events instead of 
 
 ---
 
-
-November 21st 
+November 21st
 
 <b>Issue: Older events that I had created before business vs local logic were not updated (of course)</b>
 <b>Fix: Just deleted the old eents with the old logic and created new ones and the logic was appearing!</b>
@@ -489,7 +488,6 @@ November 21st
 - Cleaned up /auth/register, /auth/login, and /auth/me to include roles
 - Added post-event redirect for better UX
 - Account screen now shows role-aware UI
-
 
 ### 📚 What I Learned This Sprint
 
@@ -526,21 +524,11 @@ APP photo of new "View My Events" on account screen
 APP photo of new "MyEvents" screen
 ![alt text](APPmyeventsscreen.png)
 
-Git commit 
+Git commit
 ![alt text](CommitNov20.png)
 
 Sprint 5 done
 ![alt text](Sprint5.png)
-
-
-
-
-
-
-
-
-
-
 
 ---
 
@@ -551,27 +539,28 @@ Sprint 5 done
 1. Design communityPost model + routes
 2. Create /api/community GET + POST (protected)
 3. Build CommunityScreen with boards ( Weather Conditions, Rideshare/Carpool, Event Buddies(new to town?))
-3. CreateCommunityPostScreen with form + validation
-4. Loading error and empty states for community
-5. Replace MOCK data with real api fetch
-6. Add target date for posts
-7. Edit/Delete for creators posts
-8. Community StackNavigator for a deeper screen
-
+4. CreateCommunityPostScreen with form + validation
+5. Loading error and empty states for community
+6. Replace MOCK data with real api fetch
+7. Add target date for posts
+8. Edit/Delete for creators posts
+9. Community StackNavigator for a deeper screen
 
 ---
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: DateTimePicker caused Expo to immediately crash when tapped </b>
 
-<b>Fix:</b>
+<b>Fix: </b>Switched to a platform-safe config using
+display="calendar" (Android) and display="spinner" (iOS).
+Ensured targetDate is always a valid new Date() and removed the TextInput to avoid type mismatch.
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Posts weren’t refreshing after submitting</b>
 
-<b>Fix:</b>
+<b>Fix:</b>Implemented useFocusEffect + fetchPosts() so posts now auto-refresh when navigating back to the Community tab — no more stale data.
 
 ---
 
@@ -588,36 +577,44 @@ Sprint 5 done
 
 ### 🌟 Wins + Breakthroughs
 
--
+- Full Community feature now functions using real API data
+
+- Created first version of a multi-board community system
+
+- Added name + targetDate to make posts more relevant (highway conditions, meetups, rideshares)
+
+- Successfully connected backend + frontend with protected routes
+
+- Completely replaced mock data with dynamic API-driven posts
 
 -
 
--
 
--
 
--
+### 📚 What I Learned
 
--
+- How to implement safe DateTimePicker patterns for iOS + Android
 
-- ***
+- How to structure a community board system with filtering
 
-### 📚 What I Learned This Week
+- How to use useFocusEffect to auto-refresh screens
 
--
+- How navigation props work in React Navigation:
+- Learned the difference between receiving { navigation } as a screen prop
+  vs. calling useNavigation() hook
+- Understood that all screens receive navigation automatically,
+  but you only need to destructure it if the screen actually uses it
 
--
-
--
-
--
-
-- ***
 
 #### Photos of Progress - Sprint 6
 
 MONGODB success event community post
 ![alt text](MONGODBEventBuddyPostSuccess.png)
+
+Trello Card Sprint 6 Nov 23
+![alt text](Sprint6(23rd).png)
+
+
 
 ---
 
