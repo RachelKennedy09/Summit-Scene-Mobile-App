@@ -6,7 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
   { label: "Ride Share", value: "rideshare" },
-  { label: "Event Budyy", value: "eventbuddy" },
+  { label: "Event Buddy", value: "eventbuddy" },
 ];
 
 // Mock posts to shape UI
@@ -34,12 +34,74 @@ const MOCK_POSTS = [
   },
 ];
 
-
 export default function CommunityScreen() {
-  const [selectedType, setSelectedType] = useState("eventbuddy")
+  const [selectedType, setSelectedType] = useState("eventbuddy");
 
   // mock data later api
-  const [posts] = useState(MOCK_POSTS)
+  const [posts] = useState(MOCK_POSTS);
+
+  const filteredPosts = useMemo(
+    () => posts.filter((post) => post.type === selectedType),
+    [posts, selectedType]
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <Text style={styles.heading}>Community</Text>
+      <Text style={styles.subheading}>
+        A space for locals to share road conditions, rides, and event buddies.
+      </Text>
+
+      {/* Type selector pills */}
+      <View style={styles.typeRow}>
+        {POST_TYPES.map((type) => {
+          const isActive = type.value === selectedType;
+          return (
+            <Pressable
+              key={type.value}
+              onPress={() => setSelectedType(type.value)}
+              style={[styles.typePill, isActive && styles.typePillActive]}
+            >
+              <Text
+                style={[
+                  styles.typePillText,
+                  isActive && styles.typePillTextActive,
+                ]}
+              >
+                {type.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/*  Posts list for the selected board  */}
+      <ScrollView
+        contentContainerStyle={styles.sectionsContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredPosts.map((post) => (
+          <View key={post.id} style={styles.sectionCard}>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.sectionTitle}>{post.title}</Text>
+            </View>
+            <Text style={styles.sectionText}>{post.body}</Text>
+          </View>
+        ))}
+
+        {/* Simple empty state for now */}
+        {filteredPosts.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>No posts yet</Text>
+            <Text style={styles.emptyText}>
+              Be the first to share something in this board.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -60,6 +122,34 @@ const styles = StyleSheet.create({
     color: "#b0c4de",
     marginBottom: 16,
   },
+
+  // Row of type pills
+  typeRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+  },
+  typePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#243b53",
+    backgroundColor: "#050b12",
+  },
+  typePillActive: {
+    backgroundColor: "#1b3a57",
+    borderColor: "#4a90e2",
+  },
+  typePillText: {
+    color: "#c0d0f0",
+    fontSize: 13,
+  },
+  typePillTextActive: {
+    color: "#ffffff",
+    fontWeight: "600",
+  },
+
   sectionsContainer: {
     paddingBottom: 32,
     gap: 16,
@@ -71,27 +161,45 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#243b53",
   },
+  cardHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 6,
+  },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: "#ffffff",
-    marginBottom: 6,
+    flex: 1,
+    marginRight: 8,
+  },
+  townTag: {
+    fontSize: 12,
+    color: "#c0d0f0",
+    opacity: 0.9,
   },
   sectionText: {
     fontSize: 14,
     color: "#c0d0f0",
   },
-  button: {
+
+  emptyState: {
     marginTop: 24,
-    backgroundColor: "#243b53",
-    paddingVertical: 12,
-    borderRadius: 999,
-    alignItems: "center",
-    opacity: 0.7,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "#08101c",
+    borderWidth: 1,
+    borderColor: "#243b53",
   },
-  buttonText: {
-    color: "#c0d0f0",
-    fontSize: 14,
+  emptyTitle: {
+    fontSize: 16,
     fontWeight: "600",
+    color: "#ffffff",
+    marginBottom: 4,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: "#b0c4de",
   },
 });
