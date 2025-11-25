@@ -564,14 +564,14 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 
 ---
 
-<b>Issue: </b>
+<b>Issue: VS Code kept showing a red error on CommunityPost model imports (“already included file name differs only in casing”).</b>
 
-<b>Fix:</b>
+<b>Fix:</b>Standardized the model file to CommunityPost.js, updated the import to ../models/CommunityPost.js (with .js extension for ESM), and restarted VS Code/TS server. This cleared the casing conflict and stopped Node from looking for two different versions of the model.
 
 ---
 
-<b>Issue: </b>
-<b>Fix:</b>
+<b>Issue: Delete and Edit buttons were not showing for posts I created.</b>
+<b>Fix:</b> Realized the owner check was comparing the wrong shapes of IDs. Updated the logic to handle both cases where post.user is a string or a populated object, and where the logged-in user might have id or _id. Once I compared post.user.id / post.user to user.id correctly, isOwner became true and the buttons appeared only on my own posts.
 
 ---
 
@@ -587,7 +587,10 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 
 - Completely replaced mock data with dynamic API-driven posts
 
--
+- Implemented full CRUD for community posts (Create, Read, Update, Delete) using MongoDB, Express, and React Native.
+- Added owner-only Edit/Delete controls on the community cards, making the feature feel like a real local board where people manage their own posts.
+- Built a dedicated EditCommunityPostScreen that pre-fills data, reuses the same DateTimePicker pattern, and sends a PUT request to update the post in MongoDB.
+- Made the community feature genuinely useful for real-world scenarios like changing dates for rides or updated road conditions.
 
 ### 📚 What I Learned
 
@@ -603,6 +606,7 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 - Understood that all screens receive navigation automatically,
   but you only need to destructure it if the screen actually uses it
 
+- How to extend an existing feature (Community) from simple GET/POST to full CRUD, including secure delete and edit flows.
 #### Photos of Progress - Sprint 6
 
 MONGODB success event community post
@@ -614,7 +618,14 @@ Trello Card Sprint 6 Nov 23
 Git Commit Nov 23rd
 ![alt text](devlogimages/CommitNov23.png)
 
----
+
+Trello Card Sprint 6 Nov 24th (Edit/Delete buttons done)
+
+
+Git commit nov 24th
+
+
+
 
 ## 📅 Sprint #7 (November 16th)
 
