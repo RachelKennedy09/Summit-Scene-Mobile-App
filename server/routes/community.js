@@ -3,6 +3,7 @@ import {
   getCommunityPosts,
   createCommunityPost,
   deleteCommunityPost,
+  updateCommunityPost,
 } from "../controllers/communityController.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -13,5 +14,6 @@ router.get("/", authMiddleware, getCommunityPosts);
 
 router.post("/", authMiddleware, createCommunityPost);
 router.delete("/:id", authMiddleware, deleteCommunityPost);
+router.put("/id:", authMiddleware, updateCommunityPost);
 
 export default router;

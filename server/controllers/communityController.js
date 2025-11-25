@@ -84,3 +84,47 @@ export async function deleteCommunityPost(req, res) {
     res.status(500).json({ error: "Failed to delete post" });
   }
 }
+
+// update a community post (title, body, targetDate only)
+export async function updateCommunityPost(req, res) {
+  try {
+    const postId = req.params.id;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "not authorized" });
+    }
+
+    // find the post first
+    const post = await CommunityPost.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    //only the user can edit
+    if (post.user.toString() !== userId.toString()) {
+      return res.status(403).json({ error: "You cannot edit this post" });
+    }
+
+    // pull the fields we allow to be edited
+    const { title, body, targetDate } = req.body;
+
+    // title, body, and date are required rest stays same
+    if (!title || !body || !targetDate) {
+      return res.status(400).json({
+        error: "Title, body, and date are required to update a post",
+      });
+    }
+    // Update only these fields
+    post.title = title;
+    post.body = body;
+    post.targetDate = targetDate;
+    const updated = await post.save();
+
+    return res.json(updated);
+  } catch (error) {
+    console.error("Error updating community post:", error);
+    res.status(500).json({ error: "Failed to update post" });
+  }
+}
