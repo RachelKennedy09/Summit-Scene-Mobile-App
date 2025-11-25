@@ -13,6 +13,7 @@ import EventDetailScreen from "./screens/EventDetailScreen";
 import LoginScreen from "./screens/LoginScreen.js";
 import RegisterScreen from "./screens/RegisterScreen.js";
 import MyEventsScreen from "./screens/MyEventsScreen.js";
+import EditCommunityPostScreen from "./screens/EditCommunityPostScreen.js";
 
 import EditEventScreen from "./screens/EditEventScreen.js";
 
@@ -77,6 +78,11 @@ function RootNavigator() {
             name="CreateCommunityPost"
             component={CreateCommunityPostScreen}
             options={{ title: "New Community Post" }}
+          />
+          <Stack.Screen
+            name="EditCommunityPost"
+            component={EditCommunityPostScreen}
+            options={{ title: "Edit Post" }}
           />
         </>
       ) : (

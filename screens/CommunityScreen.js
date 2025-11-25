@@ -220,12 +220,22 @@ export default function CommunityScreen({ navigation }) {
 
                 {/* Owner-only delete button */}
                 {isOwner && (
-                  <Pressable
-                    style={styles.deleteButton}
-                    onPress={() => handleDeletePost(post._id)}
-                  >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
-                  </Pressable>
+                  <View style={styles.ownerActionsRow}>
+                    <Pressable
+                      style={styles.editButton}
+                      onPress={() =>
+                        navigation.navigate("EditCommunityPost", { post })
+                      }
+                    >
+                      <Text style={styles.editButtonText}>Edit</Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.deleteButton}
+                      onPress={() => handleDeletePost(post._id || post.id)}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </Pressable>
+                  </View>
                 )}
               </View>
             );
@@ -365,14 +375,33 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  deleteButton: {
+  ownerActionsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
     marginTop: 10,
-    alignSelf: "flex-end",
+  },
+
+  editButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: "#1b3a57",
+  },
+
+  editButtonText: {
+    color: "#ffffff",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+
+  deleteButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     backgroundColor: "#8b1e1e",
   },
+
   deleteButtonText: {
     color: "#ffffff",
     fontWeight: "600",
