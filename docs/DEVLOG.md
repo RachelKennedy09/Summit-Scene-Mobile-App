@@ -571,7 +571,7 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 ---
 
 <b>Issue: Delete and Edit buttons were not showing for posts I created.</b>
-<b>Fix:</b> Realized the owner check was comparing the wrong shapes of IDs. Updated the logic to handle both cases where post.user is a string or a populated object, and where the logged-in user might have id or _id. Once I compared post.user.id / post.user to user.id correctly, isOwner became true and the buttons appeared only on my own posts.
+<b>Fix:</b> Realized the owner check was comparing the wrong shapes of IDs. Updated the logic to handle both cases where post.user is a string or a populated object, and where the logged-in user might have id or \_id. Once I compared post.user.id / post.user to user.id correctly, isOwner became true and the buttons appeared only on my own posts.
 
 ---
 
@@ -607,6 +607,7 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
   but you only need to destructure it if the screen actually uses it
 
 - How to extend an existing feature (Community) from simple GET/POST to full CRUD, including secure delete and edit flows.
+
 #### Photos of Progress - Sprint 6
 
 MONGODB success event community post
@@ -618,14 +619,15 @@ Trello Card Sprint 6 Nov 23
 Git Commit Nov 23rd
 ![alt text](devlogimages/CommitNov23.png)
 
-
+Photo of edit delete buttons added
+![alt text](editanddeletebuttons.png)
+photo of edit screen
+![alt text](EditScreenSuccess.png)
 Trello Card Sprint 6 Nov 24th (Edit/Delete buttons done)
 ![alt text](Sprint6done.png)
 
 Git commit nov 24th
-
-
-
+![alt text](COMMITnov24.png)
 
 ## 📅 Sprint #7 (November 16th)
 
