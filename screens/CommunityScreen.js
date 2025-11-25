@@ -1,5 +1,12 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,7 +28,7 @@ export default function CommunityScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { token } = useAuth(); //get JWT token
+  const { user, token } = useAuth(); //get JWT token
 
   const API_BASE_URL =
     process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
@@ -68,6 +75,52 @@ export default function CommunityScreen({ navigation }) {
       fetchPosts();
     }, [fetchPosts])
   );
+
+  const handleDeletePost = (postId) => {
+    Alert.alert("Delete post?", "This action cannot be undone.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destruction",
+        onPress: async () => {
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/community/${postId}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (!res.ok) {
+              throw new Error("failed to delete");
+            }
+
+            // refresh the feed
+            fetchPosts();
+          } catch (error) {
+            Alert.alert("Error", error.message);
+          }
+        },
+      },
+    ]);
+  };
+
+  function isPostOwner(post) {
+    if (!user) return false;
+
+    // Logged-in user id (support _id or id)
+    const userId = user._id || user.id;
+    if (!userId) return false;
+
+    // Post owner id can be a string or a populated object
+    const postUserId =
+      typeof post.user === "string" ? post.user : post.user?._id;
+
+    if (!postUserId) return false;
+
+    return postUserId === userId;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,33 +188,50 @@ export default function CommunityScreen({ navigation }) {
           </View>
         )}
 
+        {/* MAIN POSTS LIST */}
         {!loading &&
           !error &&
-          filteredPosts.map((post) => (
-            <View key={post._id ?? post.id} style={styles.sectionCard}>
-              <View style={styles.cardHeaderRow}>
-                <Text style={styles.sectionTitle}>{post.title}</Text>
-                <Text style={styles.townTag}>{post.town}</Text>
+          filteredPosts.map((post) => {
+            const isOwner = isPostOwner(post);
+
+            return (
+              <View key={post._id ?? post.id} style={styles.sectionCard}>
+                <View style={styles.cardHeaderRow}>
+                  <Text style={styles.sectionTitle}>{post.title}</Text>
+                  <Text style={styles.townTag}>{post.town}</Text>
+                </View>
+
+                {/* Name + posted time */}
+                <Text style={styles.timestampText}>
+                  {post.name ? `${post.name} • ` : ""}
+                  {new Date(post.createdAt).toLocaleDateString()} •{" "}
+                  {new Date(post.createdAt).toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </Text>
+
+                {/* Required event/ride date */}
+                <Text style={styles.dateText}>
+                  For: {new Date(post.targetDate).toLocaleDateString()}
+                </Text>
+
+                <Text style={styles.sectionText}>{post.body}</Text>
+
+                {/* Owner-only delete button */}
+                {isOwner && (
+                  <Pressable
+                    style={styles.deleteButton}
+                    onPress={() => handleDeletePost(post._id)}
+                  >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </Pressable>
+                )}
               </View>
+            );
+          })}
 
-              <Text style={styles.timestampText}>
-                {post.name ? `${post.name} • ` : ""}
-                {new Date(post.createdAt).toLocaleDateString()} •{" "}
-                {new Date(post.createdAt).toLocaleTimeString([], {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </Text>
-
-              {/* target date */}
-              <Text style={styles.dateText}>
-                For: {new Date(post.targetDate).toLocaleDateString()}
-              </Text>
-
-              <Text style={styles.sectionText}>{post.body}</Text>
-            </View>
-          ))}
-
+        {/* EMPTY STATE */}
         {!loading && !error && filteredPosts.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No posts yet</Text>
@@ -293,5 +363,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#b0c4de",
     marginBottom: 4,
+  },
+
+  deleteButton: {
+    marginTop: 10,
+    alignSelf: "flex-end",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: "#8b1e1e",
+  },
+  deleteButtonText: {
+    color: "#ffffff",
+    fontWeight: "600",
+    fontSize: 13,
   },
 });

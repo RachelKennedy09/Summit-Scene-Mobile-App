@@ -46,5 +46,5 @@ const communityPostSchema = new mongoose.Schema(
 // This creates/uses the "communityposts" collection in MongoDB
 const CommunityPost = mongoose.model("CommunityPost", communityPostSchema);
 
-// Default export = import CommunityPost from "../models/CommunityPost.js"
+
 export default CommunityPost;

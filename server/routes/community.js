@@ -2,6 +2,7 @@ import express from "express";
 import {
   getCommunityPosts,
   createCommunityPost,
+  deleteCommunityPost,
 } from "../controllers/communityController.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -11,5 +12,6 @@ const router = express.Router();
 router.get("/", authMiddleware, getCommunityPosts);
 
 router.post("/", authMiddleware, createCommunityPost);
+router.delete("/:id", authMiddleware, deleteCommunityPost);
 
 export default router;
