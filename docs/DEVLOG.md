@@ -620,7 +620,7 @@ Git Commit Nov 23rd
 
 
 Trello Card Sprint 6 Nov 24th (Edit/Delete buttons done)
-
+![alt text](Sprint6done.png)
 
 Git commit nov 24th
 
