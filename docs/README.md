@@ -143,3 +143,9 @@ RootNavigator (useAuth)
          │
          └─ TabNavigator (useAuth again)
               └─ if user.role === "business" → show Post tab
+
+
+
+App flow looks like 
+App.js → RootNavigator → TabNavigator → Screens → Components
+
