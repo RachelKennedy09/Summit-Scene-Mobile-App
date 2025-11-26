@@ -12,6 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "../../context/AuthContext";
 
+import { colors } from "../../theme/colors";
+
 // post types (backend values and labels)
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
@@ -258,123 +260,144 @@ export default function CommunityScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050b12",
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
+
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 4,
   },
+
   subheading: {
     fontSize: 14,
-    color: "#b0c4de",
+    color: colors.textMuted,
     marginBottom: 16,
   },
+
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
+
   newPostButton: {
     marginLeft: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: "#4a90e2",
+    backgroundColor: colors.accent,
   },
+
   newPostButtonText: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontSize: 12,
     fontWeight: "600",
   },
-  // Row of type pills
+
+  /* ---- CATEGORY PILLS ---- */
   typeRow: {
     flexDirection: "row",
     gap: 8,
     marginBottom: 16,
   },
+
   typePill: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "#243b53",
-    backgroundColor: "#050b12",
+    borderColor: colors.border,
+    backgroundColor: colors.primary,
   },
+
   typePillActive: {
-    backgroundColor: "#1b3a57",
-    borderColor: "#4a90e2",
+    backgroundColor: colors.secondary,
+    borderColor: colors.accent,
   },
+
   typePillText: {
-    color: "#c0d0f0",
+    color: colors.textMuted,
     fontSize: 13,
   },
+
   typePillTextActive: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "600",
   },
 
+  /* ---- SECTIONS / CARDS ---- */
   sectionsContainer: {
     paddingBottom: 32,
     gap: 16,
   },
+
   sectionCard: {
-    backgroundColor: "#0c1624",
+    backgroundColor: colors.secondary,
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#243b53",
+    borderColor: colors.border,
   },
+
   cardHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 6,
   },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     flex: 1,
     marginRight: 8,
   },
+
   townTag: {
     fontSize: 12,
-    color: "#c0d0f0",
+    color: colors.textMuted,
     opacity: 0.9,
   },
+
   sectionText: {
     fontSize: 14,
-    color: "#c0d0f0",
+    color: colors.textMuted,
   },
 
+  /* ---- EMPTY STATE ---- */
   emptyState: {
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: "#08101c",
+    backgroundColor: colors.secondary,
     borderWidth: 1,
-    borderColor: "#243b53",
+    borderColor: colors.border,
   },
+
   emptyTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
-    marginBottom: 4,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: "#b0c4de",
-  },
-  dateText: {
-    fontSize: 12,
-    color: "#b0c4de",
+    color: colors.textLight,
     marginBottom: 4,
   },
 
+  emptyText: {
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+
+  dateText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginBottom: 4,
+  },
+
+  /* ---- OWNER BUTTONS ---- */
   ownerActionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -386,11 +409,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
-    backgroundColor: "#1b3a57",
+    backgroundColor: colors.accent,
   },
 
   editButtonText: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "600",
     fontSize: 13,
   },
@@ -399,11 +422,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
-    backgroundColor: "#8b1e1e",
+    backgroundColor: colors.danger,
   },
 
   deleteButtonText: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "600",
     fontSize: 13,
   },

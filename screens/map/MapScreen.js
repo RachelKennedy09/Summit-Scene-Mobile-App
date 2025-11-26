@@ -14,6 +14,8 @@ import TownChips from "../../components/chips/TownChips.js";
 import CategoryChips from "../../components/chips/CategoryChips.js";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
 
+import { colors } from "../../theme/colors.js";
+
 // Static coordinates for each town
 const TOWN_COORDS = {
   Banff: { latitude: 51.1784, longitude: -115.5708 },
@@ -203,23 +205,23 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050b12",
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: "#b0c4de",
+    color: colors.textMuted,
     marginBottom: 8,
   },
   errorText: {
-    color: "#ffb3b3",
+    color: colors.error,
     marginBottom: 6,
     fontSize: 13,
   },
@@ -227,23 +229,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dateLabel: {
-    color: "#cbd5f5",
+    color: colors.textLight,
     fontSize: 13,
     marginBottom: 4,
   },
   dateInput: {
     borderWidth: 1,
-    borderColor: "#2c3e57",
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    color: "#e2e8f0",
-    backgroundColor: "#121826",
+    color: colors.textLight,
+    backgroundColor: colors.secondary,
     fontSize: 14,
   },
   filterSummary: {
     fontSize: 12,
-    color: "#7e8fa8",
+    color: colors.textMuted,
     marginBottom: 8,
   },
   mapContainer: {
@@ -251,8 +253,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#2c3e57",
-    backgroundColor: "#0c1624",
+    borderColor: colors.border,
+    backgroundColor: colors.secondary,
   },
   map: {
     flex: 1,
@@ -264,13 +266,13 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 8,
-    color: "#b0c4de",
+    color: colors.textMuted,
     fontSize: 14,
   },
   emptyText: {
     marginTop: 10,
     textAlign: "center",
-    color: "#b0c4de",
+    color: colors.textMuted,
     fontSize: 13,
   },
 });

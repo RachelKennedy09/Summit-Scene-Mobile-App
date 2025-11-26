@@ -17,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 
+import { colors } from "../../theme/colors";
+
 export default function EventDetailScreen({ route }) {
   const navigation = useNavigation();
   const { user, token } = useAuth();
@@ -123,79 +125,90 @@ export default function EventDetailScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0b1724",
+    backgroundColor: colors.primary,
   },
   safeArea: {
     flex: 1,
-    backgroundColor: "#0b1724",
+    backgroundColor: colors.primary,
   },
 
   heroImage: {
     width: "100%",
     height: 220,
   },
+
   content: {
     padding: 16,
   },
+
   category: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#a5d6ff",
+    color: colors.accent,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 6,
   },
+
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 6,
   },
+
   meta: {
     fontSize: 14,
-    color: "#c2d0e8",
+    color: colors.textMuted,
     marginBottom: 4,
   },
+
   location: {
     fontSize: 14,
-    color: "#d1e0ff",
+    color: colors.textLight,
     marginBottom: 16,
   },
+
   sectionHeading: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 6,
     marginTop: 8,
   },
+
   description: {
     fontSize: 14,
-    color: "#c2d0e8",
+    color: colors.textMuted,
     lineHeight: 20,
   },
+
   ownerSection: {
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: "#0f766e10", // soft teal tint
+    backgroundColor: colors.tealTint,
   },
+
   ownerBadge: {
     alignSelf: "flex-start",
     marginBottom: 12,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 999,
-    backgroundColor: "#0f766e",
-    color: "#fff",
+    backgroundColor: colors.teal,
+    color: colors.textLight,
     fontSize: 12,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
+
   ownerButtonsRow: {
     flexDirection: "row",
     gap: 12,
   },
+
   ownerButton: {
     flex: 1,
     paddingVertical: 10,
@@ -203,14 +216,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   editButton: {
-    backgroundColor: "#0f766e",
+    backgroundColor: colors.teal,
   },
+
   deleteButton: {
-    backgroundColor: "#b91c1c",
+    backgroundColor: colors.danger,
   },
+
   ownerButtonText: {
-    color: "#fff",
+    color: colors.textLight,
     fontWeight: "600",
     fontSize: 14,
   },

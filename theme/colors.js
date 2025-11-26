@@ -16,7 +16,7 @@ export const colors = {
 
   // SURFACES
   card: "#ffffff", // event cards or white elements
-  cardDark: "#334155", // dark mode card 
+  cardDark: "#334155", // dark mode card
 
   // BORDERS & LINES
   border: "#475569",
@@ -31,4 +31,9 @@ export const colors = {
   markerFood: "#f97316",
   markerMusic: "#8b5cf6",
   markerOutdoor: "#22c55e",
+
+  cta: "#FF8A3D", // call-to-action orange (buttons, highlights)
+  danger: "#b91c1c", // delete buttons
+  teal: "#0f766e", // business-owner badge color
+  tealTint: "#0f766e10", // soft teal translucent background
 };

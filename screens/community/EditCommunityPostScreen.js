@@ -16,6 +16,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuth } from "../../context/AuthContext";
 
+import { colors } from "../../theme/colors";
+
 export default function EditCommunityPostScreen({ route, navigation }) {
   const { post } = route.params; // post passed in from CommunityScreen
   const { token } = useAuth();
@@ -170,73 +172,90 @@ export default function EditCommunityPostScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050b12",
+    backgroundColor: colors.primary,
   },
+
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 32,
   },
+
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 4,
   },
+
   subheading: {
     fontSize: 14,
-    color: "#b0c4de",
+    color: colors.textMuted,
     marginBottom: 16,
   },
+
+  /* ---- READONLY FIELDS ---- */
   readonlyRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 4,
   },
+
   readonlyLabel: {
     fontSize: 14,
-    color: "#c0d0f0",
+    color: colors.textMuted,
     marginRight: 4,
   },
+
   readonlyValue: {
     fontSize: 14,
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "600",
   },
+
+  /* ---- INPUT LABEL ---- */
   label: {
     fontSize: 14,
-    color: "#c0d0f0",
+    color: colors.textMuted,
     marginBottom: 6,
     marginTop: 12,
   },
+
+  /* ---- INPUTS ---- */
   input: {
     borderWidth: 1,
-    borderColor: "#243b53",
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: "#ffffff",
-    backgroundColor: "#0c1624",
+    color: colors.textLight,
+    backgroundColor: colors.secondary,
     fontSize: 14,
   },
+
   inputMultiline: {
     height: 100,
     textAlignVertical: "top",
   },
+
+  /* ---- ERRORS ---- */
   errorText: {
     marginTop: 8,
-    color: "#ff8a8a",
+    color: colors.error,
     fontSize: 13,
   },
+
+  /* ---- SUBMIT BUTTON ---- */
   submitButton: {
     marginTop: 20,
-    backgroundColor: "#4a90e2",
+    backgroundColor: colors.accent,
     paddingVertical: 12,
     borderRadius: 999,
     alignItems: "center",
   },
+
   submitButtonText: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontSize: 15,
     fontWeight: "600",
   },

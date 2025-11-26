@@ -16,6 +16,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
+import { colors } from "../../theme/colors";
+
 function LoginScreen() {
   const { login, isAuthLoading } = useAuth();
   const navigation = useNavigation();
@@ -113,59 +115,69 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0b1522", // placeholder dark background for now
+    backgroundColor: colors.primary,
   },
+
   inner: {
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 80,
   },
+
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 8,
   },
+
   subtitle: {
     fontSize: 14,
-    color: "#cbd5e1",
+    color: colors.textMuted,
     marginBottom: 24,
   },
+
   inputGroup: {
     marginBottom: 16,
   },
+
   label: {
-    color: "#e2e8f0",
+    color: colors.textLight,
     marginBottom: 6,
     fontSize: 14,
   },
+
   input: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: "#e2e8f0",
+    color: colors.textLight,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.border,
   },
+
   button: {
     marginTop: 8,
-    backgroundColor: "#38bdf8",
+    backgroundColor: colors.accent,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
+
   buttonDisabled: {
     opacity: 0.7,
   },
+
   buttonText: {
-    color: "#0f172a",
+    color: colors.textDark,
     fontWeight: "700",
     fontSize: 16,
   },
+
   linkText: {
     marginTop: 16,
-    color: "#38bdf8",
+    color: colors.accent,
     textAlign: "center",
     fontSize: 14,
   },

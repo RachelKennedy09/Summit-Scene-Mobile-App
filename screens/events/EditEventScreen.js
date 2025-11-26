@@ -20,6 +20,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuth } from "../../context/AuthContext.js";
 import { updateEvent } from "../../services/eventsApi.js";
 
+import { colors } from "../../theme/colors.js";
+
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
   "All",
@@ -340,7 +342,7 @@ export default function EditEventScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary, // was "#0B1520"
   },
   container: {
     padding: 16,
@@ -349,37 +351,37 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 16,
-    color: "#FFFFFF",
+    color: colors.textLight, // was "#FFFFFF"
   },
   label: {
     fontSize: 14,
     marginBottom: 4,
-    color: "#C4D0E0",
+    color: colors.textMuted, // was "#C4D0E0"
   },
   input: {
-    backgroundColor: "#1B2532",
+    backgroundColor: colors.secondary, // was "#1B2532"
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
-    color: "#FFFFFF",
+    color: colors.textLight, // was "#FFFFFF"
   },
   textArea: {
     height: 100,
     textAlignVertical: "top",
   },
   selectButton: {
-    backgroundColor: "#1B2532",
+    backgroundColor: colors.secondary, // was "#1B2532"
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginBottom: 12,
   },
   selectButtonText: {
-    color: "#FFFFFF",
+    color: colors.textLight, // was "#FFFFFF"
   },
   button: {
-    backgroundColor: "#FF8A3D",
+    backgroundColor: colors.cta, // was "#FF8A3D"
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",
@@ -390,23 +392,23 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: "#0B1520",
+    color: colors.primary, // was "#0B1520"
     fontWeight: "700",
     fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.4)", // overlay: fine to keep as rgba literal
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   modalContent: {
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary, // was "#0B1520"
     borderRadius: 12,
     padding: 16,
   },
   modalTitle: {
-    color: "#FFFFFF",
+    color: colors.textLight, // was "#FFFFFF"
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
@@ -415,7 +417,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   modalOptionText: {
-    color: "#FFFFFF",
+    color: colors.textLight, // was "#FFFFFF"
     fontSize: 16,
   },
   modalCancel: {
@@ -423,11 +425,11 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   modalCancelText: {
-    color: "#FF8A3D",
+    color: colors.cta, // was "#FF8A3D"
     fontSize: 14,
   },
   pickerModalContent: {
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary, // was "#0B1520"
     borderRadius: 12,
     padding: 16,
   },

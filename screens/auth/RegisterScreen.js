@@ -20,6 +20,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
+import { colors } from "../../theme/colors";
+
 function RegisterScreen() {
   const { register, isAuthLoading } = useAuth();
   const navigation = useNavigation();
@@ -180,7 +182,7 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0b1522", // dark mountain-night background
+    backgroundColor: colors.primary,
   },
   inner: {
     flex: 1,
@@ -190,36 +192,36 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: "#cbd5e1",
+    color: colors.textMuted,
     marginBottom: 24,
   },
   inputGroup: {
     marginBottom: 16,
   },
   label: {
-    color: "#e2e8f0",
+    color: colors.textLight,
     marginBottom: 6,
     fontSize: 14,
   },
   input: {
-    backgroundColor: "#1e293b",
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: "#e2e8f0",
+    color: colors.textLight,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.border,
   },
   sectionLabel: {
     marginTop: 8,
     marginBottom: 8,
     fontWeight: "500",
-    color: "#e2e8f0",
+    color: colors.textLight,
   },
   roleColumn: {
     gap: 10,
@@ -227,30 +229,30 @@ const styles = StyleSheet.create({
   },
   roleOption: {
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 10,
-    backgroundColor: "#020617",
+    backgroundColor: colors.primary,
   },
   roleOptionSelected: {
-    borderColor: "#22c55e",
+    borderColor: colors.success,
     backgroundColor: "#022c22",
   },
   roleTitle: {
     fontWeight: "600",
     marginBottom: 4,
-    color: "#e2e8f0",
+    color: colors.textLight,
   },
   roleTitleSelected: {
-    color: "#bbf7d0",
+    color: colors.textLight,
   },
   roleSubtitle: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: colors.textMuted,
   },
   button: {
     marginTop: 8,
-    backgroundColor: "#22c55e",
+    backgroundColor: colors.success,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
@@ -259,13 +261,13 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: "#0f172a",
+    color: colors.textDark,
     fontWeight: "700",
     fontSize: 16,
   },
   linkText: {
     marginTop: 16,
-    color: "#38bdf8",
+    color: colors.accent,
     textAlign: "center",
     fontSize: 14,
   },

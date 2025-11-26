@@ -13,6 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+import { colors } from "../../theme/colors";
+
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
   { label: "Ride Share", value: "rideshare" },
@@ -229,7 +231,7 @@ export default function CommunityPostScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050b12",
+    backgroundColor: colors.primary, // was "#050b12"
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -239,17 +241,17 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight, // was "#ffffff"
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: "#b0c4de",
+    color: colors.textMuted, // was "#b0c4de"
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
-    color: "#c0d0f0",
+    color: colors.textMuted, // was "#c0d0f0"
     marginBottom: 6,
     marginTop: 12,
   },
@@ -264,30 +266,29 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "#243b53",
-    backgroundColor: "#050b12",
+    borderColor: colors.border,
+    backgroundColor: colors.primary,
   },
   pillActive: {
-    backgroundColor: "#1b3a57",
-    borderColor: "#4a90e2",
+    backgroundColor: colors.secondary,
+    borderColor: colors.accent,
   },
   pillText: {
     fontSize: 13,
-    color: "#c0d0f0",
+    color: colors.textMuted,
   },
   pillTextActive: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "600",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#243b53",
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: "#ffffff",
-    backgroundColor: "#0c1624",
-    fontSize: 14,
+    color: colors.textLight,
+    backgroundColor: colors.secondary,
   },
   inputMultiline: {
     height: 100,
@@ -295,18 +296,18 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 8,
-    color: "#ff8a8a",
+    color: colors.error,
     fontSize: 13,
   },
   submitButton: {
     marginTop: 20,
-    backgroundColor: "#4a90e2",
+    backgroundColor: colors.accent,
     paddingVertical: 12,
     borderRadius: 999,
     alignItems: "center",
   },
   submitButtonText: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontSize: 15,
     fontWeight: "600",
   },

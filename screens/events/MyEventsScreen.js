@@ -16,6 +16,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 
+import { colors } from "../../theme/colors";
+
 const API_BASE_URL = "http://172.28.248.13:4000/api";
 
 export default function MyEventsScreen({ navigation }) {
@@ -240,65 +242,65 @@ export default function MyEventsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#020617",
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   screenTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#e2e8f0",
+    color: colors.textLight,
     marginBottom: 4,
   },
   screenSubtitle: {
     fontSize: 13,
-    color: "#94a3b8",
+    color: colors.textMuted,
     marginBottom: 12,
   },
   listContent: {
     paddingBottom: 24,
   },
   card: {
-    backgroundColor: "#0b1120",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1e293b",
+    borderColor: colors.border,
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e5e7eb",
+    color: colors.textLight,
     marginBottom: 4,
   },
   meta: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: colors.textMuted,
     marginBottom: 4,
   },
   dateText: {
     fontSize: 13,
-    color: "#cbd5e1",
+    color: colors.textLight,
   },
   location: {
     fontSize: 12,
-    color: "#64748b",
+    color: colors.textMuted,
     marginTop: 4,
   },
   center: {
     flex: 1,
-    backgroundColor: "#020617",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   loadingText: {
     marginTop: 12,
-    color: "#e2e8f0",
+    color: colors.textLight,
   },
   errorText: {
-    color: "#fecaca",
+    color: colors.error,
     textAlign: "center",
     marginBottom: 16,
   },
@@ -307,33 +309,33 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#f97316",
+    borderColor: colors.cta,
   },
   retryText: {
-    color: "#f97316",
+    color: colors.cta,
     fontWeight: "600",
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#e5e7eb",
+    color: colors.textLight,
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 13,
-    color: "#94a3b8",
+    color: colors.textMuted,
     marginBottom: 16,
     textAlign: "center",
   },
   primaryButton: {
-    backgroundColor: "#22c55e",
+    backgroundColor: colors.success,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
   },
   primaryButtonText: {
-    color: "#0f172a",
+    color: colors.textDark,
     fontWeight: "700",
   },
   cardActions: {
@@ -348,13 +350,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   editButton: {
-    backgroundColor: "#38bdf8",
+    backgroundColor: colors.accent,
   },
-  deleteButton: {
-    backgroundColor: "#f97373",
-  },
+  deleteButton: {},
   actionButtonText: {
-    color: "#0f172a",
+    color: colors.textDark,
     fontSize: 12,
     fontWeight: "600",
   },

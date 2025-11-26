@@ -3,6 +3,8 @@
 import React from "react";
 import { ScrollView, Pressable, Text, StyleSheet, View } from "react-native";
 
+import { colors } from "../../theme/colors";
+
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
 
 export default function TownChips({ selectedTown, onSelectTown }) {
@@ -38,34 +40,39 @@ const styles = StyleSheet.create({
   wrapper: {
     marginBottom: 8,
   },
+
   chipRow: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 4,
   },
+
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: "#2c3e57",
-    backgroundColor: "#121f33",
+    borderColor: colors.border,
+    backgroundColor: colors.secondary,
     marginRight: 10,
     minWidth: 70,
     alignItems: "center",
     justifyContent: "center",
   },
+
   chipActive: {
-    backgroundColor: "#1c3250",
-    borderColor: "#a5d6ff",
+    backgroundColor: colors.primary,
+    borderColor: colors.accent,
   },
+
   chipText: {
-    color: "#d1e0ff",
+    color: colors.textLight,
     fontSize: 14,
     fontWeight: "500",
   },
+
   chipTextActive: {
-    color: "#ffffff",
+    color: colors.textLight,
     fontWeight: "700",
   },
 });

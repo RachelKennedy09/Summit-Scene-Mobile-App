@@ -16,6 +16,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuth } from "../../context/AuthContext.js";
 import { useNavigation } from "@react-navigation/native";
 
+import { colors } from "../../theme/colors";
+
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
   "All",
@@ -354,94 +356,112 @@ export default function PostEventScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary,
   },
+
   container: {
     padding: 16,
   },
+
   heading: {
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 16,
-    color: "#FFFFFF",
+    color: colors.textLight,
   },
+
   label: {
     fontSize: 14,
     marginBottom: 4,
-    color: "#C4D0E0",
+    color: colors.textMuted,
   },
+
   input: {
-    backgroundColor: "#1B2532",
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
-    color: "#FFFFFF",
+    color: colors.textLight,
   },
+
   textArea: {
     height: 100,
     textAlignVertical: "top",
   },
+
   selectButton: {
-    backgroundColor: "#1B2532",
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginBottom: 12,
   },
+
   selectButtonText: {
-    color: "#FFFFFF",
+    color: colors.textLight,
   },
+
   button: {
-    backgroundColor: "#FF8A3D",
+    backgroundColor: colors.cta,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 8,
     marginBottom: 40,
   },
+
   buttonDisabled: {
     opacity: 0.6,
   },
+
   buttonText: {
-    color: "#0B1520",
+    color: colors.primary,
     fontWeight: "700",
     fontSize: 16,
   },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
+
   modalContent: {
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
+
   modalTitle: {
-    color: "#FFFFFF",
+    color: colors.textLight,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
   },
+
   modalOption: {
     paddingVertical: 10,
   },
+
   modalOptionText: {
-    color: "#FFFFFF",
+    color: colors.textLight,
     fontSize: 16,
   },
+
   modalCancel: {
     marginTop: 12,
     alignSelf: "flex-end",
   },
+
   modalCancelText: {
-    color: "#FF8A3D",
+    color: colors.cta,
     fontSize: 14,
   },
+
   pickerModalContent: {
-    backgroundColor: "#0B1520",
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },

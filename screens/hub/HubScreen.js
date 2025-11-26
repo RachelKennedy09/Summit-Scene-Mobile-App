@@ -17,6 +17,8 @@ import CategoryChips from "../../components/chips/CategoryChips";
 import TownChips from "../../components/chips/TownChips";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi";
 
+import { colors } from "../../theme/colors";
+
 const CATEGORIES = [
   "All",
   "Market",
@@ -188,23 +190,23 @@ export default function HubScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#090d11ff",
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: "#b0c4de",
+    color: colors.textLight,
     marginBottom: 12,
   },
   errorText: {
-    color: "#ffb3b3",
+    color: colors.error,
     marginBottom: 8,
     fontSize: 13,
   },
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 24,
     textAlign: "center",
-    color: "#b0c4de",
+    color: colors.textMuted,
     fontSize: 14,
   },
   center: {
@@ -230,7 +232,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 8,
-    color: "#b0c4de",
+    color: colors.textMuted,
   },
   refreshOverlay: {
     position: "absolute",
@@ -240,6 +242,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+
     backgroundColor: "rgba(9, 13, 17, 0.6)",
   },
 });
