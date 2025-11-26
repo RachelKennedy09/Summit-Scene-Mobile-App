@@ -629,20 +629,17 @@ Trello Card Sprint 6 Nov 24th (Edit/Delete buttons done)
 Git commit nov 24th
 ![alt text](COMMITnov24.png)
 
-## 📅 Sprint #7 (November 16th)
+## 📅 Sprint #7 (November 25th)
 
 ### 🎯 Sprint Goals
 
-1.
-2.
-3.
-4.
-5.
-6.
-7.
-8.
-9.
-10.
+1. Install and set up the map component
+2. Hook the map tab into navigation
+3. Load events for a selected date
+4. convert events to markers
+5. add a tap marker to go to event detail screen
+6. add a category chips and filter markers by category
+
 
 ---
 
@@ -685,11 +682,10 @@ Git commit nov 24th
 
 -
 
-- ***
 
 ### 📚 What I Learned This Week
 
--
+- How easy it is more map integration! 
 
 -
 
@@ -697,6 +693,15 @@ Git commit nov 24th
 
 -
 
-- ***
+
 
 #### Photos of Progress - Sprint 7
+
+Photo of map on App
+![alt text](APPmapintegration.png)
+
+
+Trello Card
+![alt text](TRELLOsprint7.png)
+
+git commit
