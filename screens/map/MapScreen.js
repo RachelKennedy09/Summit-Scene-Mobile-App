@@ -74,8 +74,8 @@ export default function MapScreen() {
       });
 
       setEvents(sorted);
-    } catch (err) {
-      console.log("MapScreen fetch events error:", err.message);
+    } catch (error) {
+      console.error("MapScreen fetch events error:", error.message);
       setError("Could not load events for the map.");
     } finally {
       setLoading(false);
@@ -89,8 +89,8 @@ export default function MapScreen() {
   // Filter events based on town, category, date
   const eventsForMap = useMemo(() => {
     return events.filter((event) => {
-      // Town filter
-      const townMatch = selectedTown === "all" || event.town === selectedTown;
+      // Town filter ("all" means dont filter by town)
+      const townMatch = selectedTown === "All" || event.town === selectedTown;
 
       const categoryMatch =
         selectedCategory === "All" || event.category === selectedCategory;
@@ -115,7 +115,7 @@ export default function MapScreen() {
   function handleMarkerPress(event) {
     navigation.navigate("EventDetail", {
       event,
-      eventId: event.id,
+      eventId: event._id,
     });
   }
 
@@ -150,9 +150,8 @@ export default function MapScreen() {
       </View>
 
       <Text style={styles.filterSummary}>
-        Showing {selectedCategory !== "All" ? `${selectedCategory}` : " all"}
-        events{selectedTown !== "All" ? ` in ${selectedTown}` : ""} on
-        {dateLabel}
+        Showing {selectedCategory !== "All" ? selectedCategory : "All"} events
+        {selectedTown !== "All" ? ` in ${selectedTown}` : ""} on {dateLabel}
       </Text>
 
       {/* Map area */}
@@ -169,7 +168,7 @@ export default function MapScreen() {
               if (!coords) return null; // skip if town missing or unknown
 
               const key =
-                event.id?.toString() ??
+                event._id?.toString() ??
                 `${event.title}-${event.date}-${event.time}`;
 
               const descriptionPieces = [];
