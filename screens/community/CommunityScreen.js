@@ -63,7 +63,7 @@ export default function CommunityScreen({ navigation }) {
       const data = await res.json();
       setPosts(data);
     } catch (error) {
-      console.log("Error fetching community posts:", error);
+      console.errpr("Error fetching community posts:", error);
       setError(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export default function CommunityScreen({ navigation }) {
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
-        style: "destruction",
+        style: "destructive",
         onPress: async () => {
           try {
             const res = await fetch(`${API_BASE_URL}/api/community/${postId}`, {
@@ -95,13 +95,14 @@ export default function CommunityScreen({ navigation }) {
             });
 
             if (!res.ok) {
-              throw new Error("failed to delete");
+              throw new Error("Failed to delete post");
             }
 
             // refresh the feed
             fetchPosts();
           } catch (error) {
-            Alert.alert("Error", error.message);
+            console.error("Error deleting community post:", error);
+            Alert.alert("Error", error.message || "Failed to delete post.");
           }
         },
       },
@@ -173,7 +174,7 @@ export default function CommunityScreen({ navigation }) {
       >
         {loading && (
           <View style={{ marginTop: 20 }}>
-            <Text style={{ color: "white" }}>Loading posts...</Text>
+            <Text style={{ color: colors.textLight }}>Loading posts...</Text>
           </View>
         )}
 
@@ -185,7 +186,7 @@ export default function CommunityScreen({ navigation }) {
               onPress={fetchPosts}
               style={[styles.typePillActive, { padding: 10, marginTop: 10 }]}
             >
-              <Text style={{ color: "white" }}>Try Again</Text>
+              <Text style={{ color: colors.textLight }}>Try Again</Text>
             </Pressable>
           </View>
         )}
