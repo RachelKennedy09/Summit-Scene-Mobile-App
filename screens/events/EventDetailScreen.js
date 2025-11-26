@@ -23,14 +23,14 @@ export default function EventDetailScreen({ route }) {
   const navigation = useNavigation();
   const { user, token } = useAuth();
 
-  // 👇 event passed in from navigate("EventDetail", { event })
+  // event passed in from navigate("EventDetail", { event })
   const { event } = route.params;
 
   // Decide if this event belongs to the logged in business user
   const isOwner =
     !!user &&
     !!event &&
-    !!event.createdBy && // make sure field exists
+    !!event.createdBy &&
     (event.createdBy === user._id || event.createdBy === user.id);
 
   const handleEdit = () => {
@@ -49,13 +49,13 @@ export default function EventDetailScreen({ route }) {
           try {
             await deleteEvent(event._id, token);
 
-            // If myEventsScreen passes a refresh callback, use it
+            // If MyEventsScreen passes a refresh callback, use it
             if (route.params?.onUpdated) {
               route.params.onUpdated();
             }
             navigation.goBack();
           } catch (error) {
-            console.error(error);
+            console.error("Failed to delete event:", error);
             Alert.alert("Error", error.message || "Failed to delete event.");
           }
         },
@@ -131,16 +131,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
   },
-
   heroImage: {
     width: "100%",
     height: 220,
   },
-
   content: {
     padding: 16,
   },
-
   category: {
     fontSize: 13,
     fontWeight: "600",
@@ -149,26 +146,22 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 6,
   },
-
   title: {
     fontSize: 22,
     fontWeight: "700",
     color: colors.textLight,
     marginBottom: 6,
   },
-
   meta: {
     fontSize: 14,
     color: colors.textMuted,
     marginBottom: 4,
   },
-
   location: {
     fontSize: 14,
     color: colors.textLight,
     marginBottom: 16,
   },
-
   sectionHeading: {
     fontSize: 16,
     fontWeight: "600",
@@ -176,20 +169,17 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 8,
   },
-
   description: {
     fontSize: 14,
     color: colors.textMuted,
     lineHeight: 20,
   },
-
   ownerSection: {
     marginTop: 24,
     padding: 16,
     borderRadius: 12,
     backgroundColor: colors.tealTint,
   },
-
   ownerBadge: {
     alignSelf: "flex-start",
     marginBottom: 12,
@@ -203,12 +193,10 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-
   ownerButtonsRow: {
     flexDirection: "row",
     gap: 12,
   },
-
   ownerButton: {
     flex: 1,
     paddingVertical: 10,
@@ -216,15 +204,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   editButton: {
     backgroundColor: colors.teal,
   },
-
   deleteButton: {
     backgroundColor: colors.danger,
   },
-
   ownerButtonText: {
     color: colors.textLight,
     fontWeight: "600",
