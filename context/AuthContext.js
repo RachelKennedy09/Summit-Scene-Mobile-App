@@ -1,15 +1,19 @@
 // AuthContext.js
-// Global auth state (user, token) + login/register/logout functins
-// any screen can know if the user is logged in and call auth actions
-//only long auth instead of on each screen
+// Global auth state (user, token) + login/register/logout/upgrade functions
+// Any screen can know if the user is logged in and call auth actions
+// Centralizes auth logic instead of duplicating it across screens
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Creaete the context object
+// API base URL
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+
+// Create the context object
 const AuthContext = createContext(null);
 
-// Helper hook so it can use `const auth = useAuth()` in screens
+// Helper hook so it can use: const { use, login } = useAuth()
 export function useAuth() {
   const value = useContext(AuthContext);
   if (!value) {
@@ -20,14 +24,13 @@ export function useAuth() {
 
 // Provider component that wraps the app
 export function AuthProvider({ children }) {
-  // STATE: who is logged in and their token and loading flag
-  const [user, setUser] = useState(null); // will hold { id, email, name, createdAt}
+  // STATE: who is logged in, their token, and loading flag
+  // user will hold {_id, email, name, role, createdAt } from backend
+  const [user, setUser] = useState(null);
   const [token, setToken] = useState(null); // JWT from the backend
-  const [isAuthLoading, setIsAuthLoading] = useState(true); // true while resorting session
+  const [isAuthLoading, setIsAuthLoading] = useState(true); // true while restoring session
 
-  const API_BASE_URL = "http://172.28.248.13:4000/api";
-
-  // on app start, tries to restore a saved session from AsyncStorage
+  // on app start, try to restore a saved session from AsyncStorage
   useEffect(() => {
     restoreSession();
   }, []);
@@ -38,12 +41,13 @@ export function AuthProvider({ children }) {
 
       const savedToken = await AsyncStorage.getItem("authToken");
       if (!savedToken) {
-        // no token saved - user is logged ot
+        // No token saved - user is out
         setIsAuthLoading(false);
 
         return;
       }
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${savedToken}`,
@@ -61,12 +65,12 @@ export function AuthProvider({ children }) {
 
       const userData = await response.json();
 
-      // if token is good, restore state
+      // if token is still good, restore state
       setToken(savedToken);
       setUser(userData);
     } catch (error) {
       console.error("Error restoring auth session:", error);
-      //on any error, treat as logged out
+      // On any error, treat as logged out
       setToken(null);
       setUser(null);
       await AsyncStorage.removeItem("authToken");
@@ -75,12 +79,12 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // LOGIN: call backend /auth/login, save token and user
+  // LOGIN: call backend /api/auth/login, save token and user
   async function login({ email, password }) {
     try {
       setIsAuthLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +105,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       await AsyncStorage.setItem("authToken", data.token);
 
-      return data; // screen can react
+      return data; // screen can reactv if needed
     } catch (error) {
       console.error("Error in login:", error);
       throw error; // let screen show an alert
@@ -110,12 +114,12 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // REGISTER: call backend /auth/register, asve token and user
+  // REGISTER: call backend /api/auth/register, asve token and user
   async function register({ name, email, password, role }) {
     try {
       setIsAuthLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +156,7 @@ export function AuthProvider({ children }) {
       setIsAuthLoading(true);
 
       const response = await fetch(
-        `${API_BASE_URL}/users/upgrade-to-business`,
+        `${API_BASE_URL}/api/users/upgrade-to-business`,
         {
           method: "PATCH",
           headers: {
@@ -170,7 +174,8 @@ export function AuthProvider({ children }) {
       }
 
       if (data.user) {
-        setUser(data.user); //update role in context
+        // Update user in context so role changes immediately in UI
+        setUser(data.user);
       }
 
       return data.user;
