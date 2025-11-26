@@ -69,8 +69,10 @@ function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="you@example.com"
+              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               keyboardType="email-address"
+              autoCorrect={false}
             />
           </View>
 
@@ -82,6 +84,7 @@ function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="••••••••"
+              placeholderTextColor={colors.textMuted}
               secureTextEntry
             />
           </View>
@@ -96,11 +99,11 @@ function LoginScreen() {
             disabled={isSubmitting || isAuthLoading}
           >
             <Text style={styles.buttonText}>
-              {isSubmitting || isAuthLoading ? "Loggin in..." : "Log In"}
+              {isSubmitting || isAuthLoading ? "Logging in..." : "Log In"}
             </Text>
           </Pressable>
 
-          {/* Nav link...later will wire to registerscreen */}
+          {/* Nav link to RegisterScreen */}
           <Pressable onPress={() => navigation.navigate("Register")}>
             <Text style={styles.linkText}>Don’t have an account? Sign up</Text>
           </Pressable>
