@@ -127,3 +127,19 @@ User is returned to Login screen
    Token expired?
    If valid → attach req.user.userId for secure operations.
    This system gives SummitScene a professional, scalable auth architecture.
+
+
+
+
+Flo of App.js , RootNavigator and AuthContext
+AuthContext (AuthProvider)
+   │
+   │  exposes { user, token, isAuthLoading, login, register, ... }
+   ▼
+RootNavigator (useAuth)
+   ├─ if (isAuthLoading) → AuthLoadingScreen
+   ├─ if (!user) → Login/Register stack
+   └─ if (user) → tabs + MyEvents + EventDetail + Community screens
+         │
+         └─ TabNavigator (useAuth again)
+              └─ if user.role === "business" → show Post tab

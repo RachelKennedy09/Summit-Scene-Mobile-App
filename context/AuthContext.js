@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
       //on any error, treat as logged out
       setToken(null);
       setUser(null);
-      await AsyncStorage.removeItem("AuthToken");
+      await AsyncStorage.removeItem("authToken");
     } finally {
       setIsAuthLoading(false);
     }

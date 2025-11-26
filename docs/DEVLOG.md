@@ -714,9 +714,9 @@ git commit
 
 ---
 
-<b>Issue:</b>
+<b>Issue: Typo in AuthContext saying AuthToken instead of authToken</b>
 
-<b>Fix:</b> 
+<b>Fix: </b> Corected typo for consistency
 
 ---
 
