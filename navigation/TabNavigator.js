@@ -1,3 +1,5 @@
+//TabNavigator.js
+
 //later will be RootNavigator.js
 
 import React from "react";

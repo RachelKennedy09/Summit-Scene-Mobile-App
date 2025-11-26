@@ -694,3 +694,39 @@ Trello Card
 git commit
 
 ![alt text](COMMITsprint7nov25.png)
+
+
+
+
+## 📅 Sprint #  File Polish (November 25th)
+
+### 🎯 Sprint Goals
+
+
+
+---
+
+### 🔥 Challenges + How I Solved Them
+
+<b>Issue: RootNavigator living inside App.js </b>
+
+<b>Fix:</b> 
+
+---
+
+<b>Issue:</b>
+
+<b>Fix:</b> 
+
+---
+
+### 🌟 Wins + Breakthroughs
+
+
+
+### 📚 What I Learned This Week
+
+
+
+#### Photos of Progress - Sprint 7
+

@@ -1,3 +1,4 @@
+// AuthContext.js
 // Global auth state (user, token) + login/register/logout functins
 // any screen can know if the user is logged in and call auth actions
 //only long auth instead of on each screen
