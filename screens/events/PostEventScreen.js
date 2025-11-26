@@ -59,7 +59,7 @@ export default function PostEventScreen() {
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const handleDateChange = (event, selectedDate) => {
+  const handleDateChange = (_, selectedDate) => {
     setShowDatePicker(false);
     if (!selectedDate) return;
 
@@ -72,7 +72,7 @@ export default function PostEventScreen() {
     setDate(formatted);
   };
 
-  const handleTimeChange = (e, selectedTime) => {
+  const handleTimeChange = (_, selectedTime) => {
     setShowTimePicker(false);
     if (!selectedTime) return;
 
@@ -121,12 +121,12 @@ export default function PostEventScreen() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        console.log("Create event error:", data);
+        console.error("Create event error response:", data);
         throw new Error(data.message || "Failed to create event");
       }
 
       const createdEvent = await response.json();
-      console.log("Event created:", createdEvent);
+      console.info("Event created:", createdEvent);
 
       //  Show success alert, then go to "MyEvents" screen instead of goBack
       Alert.alert("Success", "Your event has been posted!", [
