@@ -175,7 +175,7 @@ export default function MyEventsScreen({ navigation }) {
   function handleDelete(event) {
     Alert.alert(
       "Delete Event",
-      `Are yous ure you want to delete "${event.title}"?`,
+      `Are you sure you want to delete "${event.title}"?`,
       [
         {
           text: "Cancel",
@@ -352,7 +352,9 @@ const styles = StyleSheet.create({
   editButton: {
     backgroundColor: colors.accent,
   },
-  deleteButton: {},
+  deleteButton: {
+    backgroundColor: colors.danger,
+  },
   actionButtonText: {
     color: colors.textDark,
     fontSize: 12,
