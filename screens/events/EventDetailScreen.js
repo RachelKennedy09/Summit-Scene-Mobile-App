@@ -14,8 +14,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
-import { useAuth } from "../context/AuthContext";
-import { deleteEvent } from "../services/eventsApi";
+import { useAuth } from "../../context/AuthContext";
+import { deleteEvent } from "../../services/eventsApi";
 
 export default function EventDetailScreen({ route }) {
   const navigation = useNavigation();

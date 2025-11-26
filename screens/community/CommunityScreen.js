@@ -10,7 +10,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 // post types (backend values and labels)
 const POST_TYPES = [
@@ -135,7 +135,7 @@ export default function CommunityScreen({ navigation }) {
         </View>
         <Pressable
           style={styles.newPostButton}
-          onPress={() => navigation.navigate("CreateCommunityPost")}
+          onPress={() => navigation.navigate("CommunityPost")}
         >
           <Text style={styles.newPostButtonText}>New Post</Text>
         </Pressable>

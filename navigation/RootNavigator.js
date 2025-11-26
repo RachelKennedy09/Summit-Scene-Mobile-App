@@ -6,19 +6,21 @@ import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { useAuth } from "../context/AuthContext";
-
-// Navigators / screens for the app
 import TabNavigator from "./TabNavigator";
-import EventDetailScreen from "../screens/EventDetailScreen";
-import MyEventsScreen from "../screens/MyEventsScreen";
-import EditEventScreen from "../screens/EditEventScreen";
-import CommunityPostScreen from "../screens/CommunityPostScreen";
-import EditCommunityPostScreen from "../screens/EditCommunityPostScreen";
+
+// Events screens
+
+import EventDetailScreen from "../screens/events/EventDetailScreen";
+import MyEventsScreen from "../screens/events/MyEventsScreen";
+import EditEventScreen from "../screens/events/EditEventScreen";
+
+// Community Screens
+import CommunityPostScreen from "../screens/community/CommunityPostScreen";
+import EditCommunityPostScreen from "../screens/community/EditCommunityPostScreen";
 
 // Auth screens
-import LoginScreen from "../screens/LoginScreen";
-import RegisterScreen from "../screens/RegisterScreen";
-
+import LoginScreen from "../screens/auth/LoginScreen";
+import RegisterScreen from "../screens/auth/RegisterScreen";
 const Stack = createNativeStackNavigator();
 
 // Simple loading screen while restoring auth session

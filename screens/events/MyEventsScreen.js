@@ -13,8 +13,8 @@ import {
   RefreshControl,
   Pressable,
 } from "react-native";
-import { useAuth } from "../context/AuthContext";
-import { deleteEvent } from "../services/eventsApi";
+import { useAuth } from "../../context/AuthContext";
+import { deleteEvent } from "../../services/eventsApi";
 
 const API_BASE_URL = "http://172.28.248.13:4000/api";
 

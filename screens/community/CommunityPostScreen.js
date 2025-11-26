@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 const POST_TYPES = [
@@ -25,7 +25,7 @@ const TOWNS = [
   { label: "Lake Louise", value: "Lake Louise" },
 ];
 
-export default function CreateCommunityPostScreen({ navigation }) {
+export default function CommunityPostScreen({ navigation }) {
   const { token } = useAuth();
 
   const [type, setType] = useState("highwayconditions");
