@@ -12,9 +12,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
-import EventCard from "../../components/EventCard";
-import CategoryChips from "../../components/CategoryChips";
-import TownChips from "../../components/TownChips";
+import EventCard from "../../components/cards/EventCard";
+import CategoryChips from "../../components/chips/CategoryChips";
+import TownChips from "../../components/chips/TownChips";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi";
 
 const CATEGORIES = [

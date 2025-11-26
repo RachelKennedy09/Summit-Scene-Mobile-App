@@ -10,8 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 
-import TownChips from "../../components/TownChips.js";
-import CategoryChips from "../../components/CategoryChips.js";
+import TownChips from "../../components/chips/TownChips.js";
+import CategoryChips from "../../components/chips/CategoryChips.js";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
 
 // Static coordinates for each town
