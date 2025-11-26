@@ -25,7 +25,7 @@ export const colors = {
   success: "#22c55e",
   error: "#ef4444",
   warning: "#facc15",
-  colors.successTint: "#022c22",
+  successTint: "#022c22",
 
   // MAP MARKER COLORS
   markerDefault: "#3b82f6",
