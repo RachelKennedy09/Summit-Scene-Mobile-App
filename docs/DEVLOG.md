@@ -634,62 +634,54 @@ Git commit nov 24th
 ### 🎯 Sprint Goals
 
 1. Install and set up the map component
-2. Hook the map tab into navigation
-3. Load events for a selected date
-4. convert events to markers
-5. add a tap marker to go to event detail screen
-6. add a category chips and filter markers by category
+
+2. Hook the Map tab into bottom tab navigation
+
+3. Load events dynamically for a selected date
+
+4. Convert event data into location markers
+
+5. Add tap-on-marker → navigate to Event Detail
+
+6. Add Category Chips and filter markers by category
+
+7. Keep design consistent with Hub filters (Town + Category + Date)
 
 ---
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: Map library not rendering at first</b>
 
-<b>Fix:</b>
-
----
-
-<b>Issue: </b>
-
-<b>Fix:</b>
+<b>Fix:</b> Restarted Expo entirely (full stop + start), ensured the <MapView> was wrapped properly inside a fixed-height parent container with flex: 1 and overflow: hidden.
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Date string comparison not matching real event dates</b>
 
-<b>Fix:</b>
-
----
-
-<b>Issue: </b>
-<b>Fix:</b>
+<b>Fix:</b> Created a helper function:
 
 ---
 
 ### 🌟 Wins + Breakthroughs
 
--
+- Successfully integrated Expo Maps without needing extra native config
 
--
+- Tapping a marker navigates into EventDetail, just like Hub
 
--
+- CategoryChips + TownChips + date system now share patterns from Hub
 
--
+- Map now feels like a professional “Eventbrite-style” map view
 
--
-
--
+- Zero major crashes — everything worked with clean refactoring patterns
 
 ### 📚 What I Learned This Week
 
-- How easy it is more map integration!
+- How easy map integration becomes when using Expo's react-native-maps
 
--
+- How markers can pass entire event objects to navigation
 
--
-
--
+- How to maintain consistent UX between Hub filters and Map filters
 
 #### Photos of Progress - Sprint 7
 
