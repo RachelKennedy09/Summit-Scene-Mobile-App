@@ -167,7 +167,7 @@ export default function MapScreen() {
               if (!coords) return null; // skip if town missing or unknown
 
               const key =
-                event._id?.toString() ??
+                event.id?.toString() ??
                 `${event.title}-${event.date}-${event.time}`;
 
               const descriptionPieces = [];
