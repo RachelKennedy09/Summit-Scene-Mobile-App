@@ -695,14 +695,9 @@ git commit
 
 ![alt text](COMMITsprint7nov25.png)
 
-
-
-
-## 📅 Sprint #  File Polish (November 25th)
+## 📅 Sprint # File Polish (November 25th)
 
 ### 🎯 Sprint Goals
-
-
 
 ---
 
@@ -710,7 +705,7 @@ git commit
 
 <b>Issue: RootNavigator living inside App.js </b>
 
-<b>Fix:</b> 
+<b>Fix:</b>
 
 ---
 
@@ -718,7 +713,8 @@ git commit
 
 <b>Fix: </b> Corected typo for consistency
 
---- 
+---
+
 <b>Issue: Had error for Post New Event in community due to mitch match of routes/navigation.navigate</b>
 
 <b>Fix: </b> correct route mismatch for Post New Event navigation in Community
@@ -727,11 +723,13 @@ git commit
 
 ### 🌟 Wins + Breakthroughs
 
-
-
 ### 📚 What I Learned This Week
-
-
 
 #### Photos of Progress - Sprint 7
 
+Trello cards completed Nov 25th
+![alt text](TrelloNov25.png)
+
+Git Commit Nov 25
+![alt text](<GitCommit25(1).png>)
+![alt text](<GitCommitNov25(2).png>)
