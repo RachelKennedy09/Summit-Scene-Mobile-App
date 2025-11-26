@@ -640,7 +640,6 @@ Git commit nov 24th
 5. add a tap marker to go to event detail screen
 6. add a category chips and filter markers by category
 
-
 ---
 
 ### 🔥 Challenges + How I Solved Them
@@ -682,26 +681,24 @@ Git commit nov 24th
 
 -
 
-
 ### 📚 What I Learned This Week
 
-- How easy it is more map integration! 
+- How easy it is more map integration!
 
 -
 
 -
 
 -
-
-
 
 #### Photos of Progress - Sprint 7
 
 Photo of map on App
 ![alt text](APPmapintegration.png)
 
-
 Trello Card
 ![alt text](TRELLOsprint7.png)
 
 git commit
+
+![alt text](COMMITsprint7nov25.png)
