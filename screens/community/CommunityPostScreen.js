@@ -94,7 +94,7 @@ export default function CommunityPostScreen({ navigation }) {
       setTargetDate(new Date());
       navigation.goBack();
     } catch (error) {
-      console.log("Error creating community post:", error);
+      console.error("Error creating community post:", error);
       setError(error.message || "Something went wrong");
     } finally {
       setSubmitting(false);
@@ -168,7 +168,7 @@ export default function CommunityPostScreen({ navigation }) {
 
         <Text style={styles.label}>Date</Text>
         <Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
-          <Text style={{ color: "#ffffff" }}>
+          <Text style={{ color: colors.textLight }}>
             {targetDate.toLocaleDateString()}
           </Text>
         </Pressable>
