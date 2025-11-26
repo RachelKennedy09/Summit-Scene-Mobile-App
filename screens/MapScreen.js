@@ -1,42 +1,177 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TextInput,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import MapView, { Marker } from "react-native-maps";
 
-const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
+import TownChips from "../components/TownChips";
+import { fetchEvents as fetchEventsFromApi } from "../services/eventsApi.js";
+
+// Static coordinates for each town
+const TOWN_COORDS = {
+  Banff: { latitude: 51.1784, longitude: -115.5708 },
+  Canmore: { latitude: 51.0892, longitude: -115.3593 },
+  "Lake Louise": { latitude: 51.4254, longitude: -116.1773 },
+};
+
+// Map starting position (roughly between Banff & Canmore)
+const INITIAL_REGION = {
+  latitude: 51.18,
+  longitude: -115.57,
+  latitudeDelta: 0.8,
+  longitudeDelta: 0.8,
+};
+
+// Helper: normalize any event.date to "YYYY-MM-DD"
+function toDateOnlyString(value) {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
+}
 
 export default function MapScreen() {
+  // Filter state
+  const [selectedTown, setSelectedTown] = useState("All");
+
+  //Default date = today in YYY-MM-DD
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  });
+
+  // Data + status state
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch events (same helper as Hub for consistency)
+  const loadEvents = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await fetchEventsFromApi();
+
+      const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+      });
+
+      setEvents(sorted);
+    } catch (err) {
+      console.log("MapScreen fetch events error:", err.message);
+      setError("Could not load events for the map.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [loadEvents]);
+
+  // Filter events based on town and data
+  const eventsForMap = useMemo(() => {
+    return events.filter((event) => {
+      // Town filter
+      const townMatch = selectedTown === "all" || event.town === selectedTown;
+
+      // Date filter: only show events that match selectedDate
+      const eventDate = toDateOnlyString(event.date);
+      const selectedDateString = selectedDate?.trim();
+
+      const dateMatch = !selectedDateString || eventDate === selectedDateString;
+
+      return townMatch && dateMatch;
+    });
+  }, [events, selectedTown, selectedDate]);
+
+  // Simple friendly text for the date line
+  const dateLabel = useMemo(() => {
+    if (!selectedDate) return "All dates";
+    return selectedDate;
+  }, [selectedDate]);
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <Text style={styles.heading}>Explore by Map</Text>
       <Text style={styles.subheading}>
-        {" "}
-        Soon you’ll see events pinned across Banff, Canmore & Lake Louise..
+        See events pinned across Banff, Canmore & Lake Louise.
       </Text>
 
-      {/* Filter chips (static for now) */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipRow}
-      >
-        {TOWNS.map((town) => (
-          <Pressable key={town} style={styles.chip}>
-            <Text style={styles.chipText}>{town}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Map of placeholder box */}
-      <View style={styles.mapPlaceholder}>
-        <Text style={styles.mapTitle}>Map coming soon</Text>
-        <Text style={styles.mapText}>
-          This area will show interactive map with event pins and clusters.
-        </Text>
-        <Text style={styles.mapHint}>
-          Backend + map integration happens in later sprints.
-        </Text>
+      {/* Town filter chips (reusing your component) */}
+      <TownChips selectedTown={selectedTown} onSelectTown={setSelectedTown} />
+
+      {/* Date input (simple string for now) */}
+      <View style={styles.dateRow}>
+        <Text style={styles.dateLabel}>Date (YYYY-MM-DD)</Text>
+        <TextInput
+          style={styles.dateInput}
+          value={selectedDate}
+          onChangeText={setSelectedDate}
+          placeholder="YYYY-MM-DD"
+          placeholderTextColor="#64748b"
+        />
       </View>
+
+      <Text style={styles.filterSummary}>
+        Showing events{selectedTown !== "All" ? ` in ${selectedTown}` : ""} on{" "}
+        {dateLabel}
+      </Text>
+
+      {/* Map area */}
+      <View style={styles.mapContainer}>
+        {loading ? (
+          <View style={styles.mapLoading}>
+            <ActivityIndicator size="large" color="#ffffff" />
+            <Text style={styles.loadingText}>Loading map events...</Text>
+          </View>
+        ) : (
+          <MapView style={styles.map} initialRegion={INITIAL_REGION}>
+            {eventsForMap.map((event) => {
+              const coords = TOWN_COORDS[event.town];
+              if (!coords) return null; // skip if town missing or unknown
+
+              const key =
+                event._id?.toString() ??
+                `${event.title}-${event.date}-${event.time}`;
+
+              const descriptionPieces = [];
+              if (event.location) descriptionPieces.push(event.location);
+              if (event.date)
+                descriptionPieces.push(toDateOnlyString(event.date));
+              if (event.time) descriptionPieces.push(event.time);
+              const description = descriptionPieces.join(" • ");
+
+              return (
+                <Marker
+                  key={key}
+                  coordinate={coords}
+                  title={event.title}
+                  description={description}
+                />
+              );
+            })}
+          </MapView>
+        )}
+      </View>
+
+      {!loading && eventsForMap.length === 0 && !error && (
+        <Text style={styles.emptyText}>
+          No events match this town + date. Try another day or town.
+        </Text>
+      )}
     </SafeAreaView>
   );
 }
@@ -44,7 +179,7 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050b12", // slightly darker than Hub
+    backgroundColor: "#050b12",
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -57,55 +192,61 @@ const styles = StyleSheet.create({
   subheading: {
     fontSize: 14,
     color: "#b0c4de",
-    marginBottom: 16,
+    marginBottom: 8,
   },
-  chipRow: {
-    paddingVertical: 4,
-    paddingRight: 8,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  chip: {
-  paddingHorizontal: 12,
-  paddingVertical: 6,
-  borderRadius: 999,
-  borderWidth: 1,
-  borderColor: "#2c3e57",
-  backgroundColor: "#121f33",
-  marginRight: 8,
-  alignSelf: "flex-start",
-},
-  chipText: {
-    color: "#d1e0ff",
+  errorText: {
+    color: "#ffb3b3",
+    marginBottom: 6,
     fontSize: 13,
-    fontWeight: "500",
   },
-  mapPlaceholder: {
+  dateRow: {
+    marginBottom: 8,
+  },
+  dateLabel: {
+    color: "#cbd5f5",
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: "#2c3e57",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    color: "#e2e8f0",
+    backgroundColor: "#121826",
+    fontSize: 14,
+  },
+  filterSummary: {
+    fontSize: 12,
+    color: "#7e8fa8",
+    marginBottom: 8,
+  },
+  mapContainer: {
     flex: 1,
-    marginTop: 16,
     borderRadius: 16,
+    overflow: "hidden", // makes the map corners rounded
     borderWidth: 1,
     borderColor: "#2c3e57",
     backgroundColor: "#0c1624",
-    padding: 16,
+  },
+  map: {
+    flex: 1,
+  },
+  mapLoading: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  mapTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 8,
-  },
-  mapText: {
+  loadingText: {
+    marginTop: 8,
+    color: "#b0c4de",
     fontSize: 14,
-    color: "#c0d0f0",
-    textAlign: "center",
-    marginBottom: 8,
   },
-  mapHint: {
-    fontSize: 12,
-    color: "#7e8fa8",
+  emptyText: {
+    marginTop: 10,
     textAlign: "center",
+    color: "#b0c4de",
+    fontSize: 13,
   },
 });
