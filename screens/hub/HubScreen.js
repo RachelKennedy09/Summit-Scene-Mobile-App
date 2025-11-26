@@ -19,19 +19,6 @@ import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi";
 
 import { colors } from "../../theme/colors";
 
-const CATEGORIES = [
-  "All",
-  "Market",
-  "Wellness",
-  "Music",
-  "Workshop",
-  "Family",
-  "Retail",
-  "Outdoors",
-  "Food & Drink",
-  "Art",
-];
-
 export default function HubScreen() {
   const navigation = useNavigation();
 
@@ -50,12 +37,14 @@ export default function HubScreen() {
         setRefreshing(true);
       }
 
+      // reset any previous error before fetching again
+
       setError(null);
 
-      //  shared API helper
+      //  use shared API helper
       const data = await fetchEventsFromApi();
 
-      //  sort by date
+      //  sort by date (soonest first)
       const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -64,7 +53,7 @@ export default function HubScreen() {
 
       setEvents(sorted);
     } catch (error) {
-      console.log("Error fetching events:", error.message);
+      console.error("Error fetching events:", error.message);
       setError("Could not load events. Pull to refresh to try again.");
     } finally {
       setLoading(false);

@@ -695,7 +695,7 @@ git commit
 
 ![alt text](COMMITsprint7nov25.png)
 
-## 📅 Sprint # File Polish (November 25th)
+## 📅 Sprint #8 File Polish (November 25th)
 
 ### 🎯 Sprint Goals
 
@@ -725,7 +725,7 @@ git commit
 
 ### 📚 What I Learned This Week
 
-#### Photos of Progress - Sprint 7
+#### Photos of Progress - Sprint 8
 
 Trello cards completed Nov 25th
 ![alt text](TrelloNov25.png)
