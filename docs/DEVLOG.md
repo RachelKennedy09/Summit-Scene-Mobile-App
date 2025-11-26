@@ -718,6 +718,11 @@ git commit
 
 <b>Fix: </b> Corected typo for consistency
 
+--- 
+<b>Issue: Had error for Post New Event in community due to mitch match of routes/navigation.navigate</b>
+
+<b>Fix: </b> correct route mismatch for Post New Event navigation in Community
+
 ---
 
 ### 🌟 Wins + Breakthroughs
