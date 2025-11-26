@@ -112,7 +112,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
         {/* Date */}
         <Text style={styles.label}>Date</Text>
         <Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
-          <Text style={{ color: "#ffffff" }}>
+          <Text style={{ color: colors.textLight }}>
             {targetDate.toLocaleDateString()}
           </Text>
         </Pressable>
