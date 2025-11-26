@@ -8,6 +8,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
+import { colors } from "../../theme/colors";
+
 function AccountScreen() {
   const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
   const navigation = useNavigation();
@@ -34,7 +36,7 @@ function AccountScreen() {
   async function handleUpgradeToBusiness() {
     try {
       setIsUpgrading(true);
-      const updated = await upgradeToBusiness();
+      await upgradeToBusiness();
 
       // timeout before showing alert so UI doesnt unmount instantly
       setTimeout(() => {
@@ -137,7 +139,7 @@ export default AccountScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0b1522", // match screen background
+    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,
@@ -147,25 +149,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#ffffff",
+    color: colors.textLight,
     marginBottom: 16,
   },
   subtitle: {
     fontSize: 14,
-    color: "#cbd5e1",
+    color: colors.textMuted,
   },
   card: {
-    backgroundColor: "#111827",
+    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#1f2937",
+    borderColor: colors.border,
   },
   greeting: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#e5e7eb",
+    color: colors.textLight,
     marginBottom: 12,
   },
   row: {
@@ -174,50 +176,53 @@ const styles = StyleSheet.create({
   },
   label: {
     width: 110,
-    color: "#9ca3af",
+    color: colors.textMuted,
     fontSize: 14,
   },
   value: {
     flex: 1,
-    color: "#e5e7eb",
+    color: colors.textLight,
     fontSize: 14,
   },
 
-  // styles for "View My Events" button
+  // "View My Events" button (for business accounts)
   accountButton: {
-    backgroundColor: "#e2a59bff",
+    backgroundColor: colors.cta,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
     marginBottom: 16,
   },
   accountButtonText: {
-    color: "#0f172a",
+    color: colors.primary, // matches how you use cta on other screens
     fontWeight: "700",
     fontSize: 15,
   },
+
+  // "Upgrade to business" button (for locals)
   accountButtonSecondary: {
-    backgroundColor: "#1f2933",
+    backgroundColor: colors.secondary,
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 10,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#38bdf8",
+    borderColor: colors.accent,
   },
   accountButtonSecondaryText: {
-    color: "#e5e7eb",
+    color: colors.textLight,
     fontWeight: "600",
     fontSize: 14,
     marginBottom: 4,
   },
   accountButtonSecondarySubtext: {
-    color: "#9ca3af",
+    color: colors.textMuted,
     fontSize: 12,
   },
 
+  // Log out button
   button: {
-    backgroundColor: "#ef4444",
+    backgroundColor: colors.danger,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
@@ -226,13 +231,13 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: "#f9fafb",
+    color: colors.textLight,
     fontWeight: "700",
     fontSize: 16,
   },
   helperText: {
     marginTop: 12,
-    color: "#9ca3af",
+    color: colors.textMuted,
     fontSize: 12,
   },
 });

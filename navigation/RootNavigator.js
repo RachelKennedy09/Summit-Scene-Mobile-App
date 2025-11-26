@@ -1,5 +1,5 @@
 // navigation/RootNavigator.js
-// Decides which staack to show based on auth state (logged in vs logged out)
+// Decides which stack to show based on auth state (logged in vs logged out)
 
 import React from "react";
 import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
@@ -21,13 +21,18 @@ import EditCommunityPostScreen from "../screens/community/EditCommunityPostScree
 // Auth screens
 import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
+
+import { colors } from "../theme/colors";
+
 const Stack = createNativeStackNavigator();
+
+import { colors } from "../theme/colors";
 
 // Simple loading screen while restoring auth session
 function AuthLoadingScreen() {
   return (
     <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="large" color={colors.textLight} />
       <Text style={styles.loadingText}>Loading Summit Scene...</Text>
     </View>
   );
@@ -100,13 +105,13 @@ export default function RootNavigator() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#0b1522",
+    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   loadingText: {
     marginTop: 12,
-    color: "#e2e8f0",
+    color: colors.textMuted,
     fontSize: 14,
   },
 });

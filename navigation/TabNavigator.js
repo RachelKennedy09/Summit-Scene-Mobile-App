@@ -1,6 +1,6 @@
-//TabNavigator.js
-
-//later will be RootNavigator.js
+// TabNavigator.js
+// Bottom tab navigation for the app — Hub, Map, Community, Account
+// Businesses also get a "Post Event" tab
 
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -18,7 +18,7 @@ const Tab = createBottomTabNavigator();
 export default function TabNavigator() {
   const { user } = useAuth();
 
-  // Treat missing user or missing roles as non-business
+  // If no user or missing role -> treat as non-business
   const isBusiness = user?.role === "business";
 
   return (
@@ -31,7 +31,7 @@ export default function TabNavigator() {
 
       <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
 
-      {/*  Only show if user is a business */}
+      {/* Only business users see Post Event */}
       {isBusiness && (
         <Tab.Screen
           name="Post"
@@ -45,6 +45,7 @@ export default function TabNavigator() {
         component={CommunityScreen}
         options={{ title: "Community" }}
       />
+
       <Tab.Screen
         name="Account"
         component={AccountScreen}
