@@ -8,8 +8,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
+import { useNavigation } from "@react-navigation/native";
 
 import TownChips from "../components/TownChips";
+import CategoryChips from "../components/CategoryChips.js";
 import { fetchEvents as fetchEventsFromApi } from "../services/eventsApi.js";
 
 // Static coordinates for each town
@@ -35,10 +37,13 @@ function toDateOnlyString(value) {
 }
 
 export default function MapScreen() {
+  const navigation = useNavigation();
+
   // Filter state
   const [selectedTown, setSelectedTown] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  //Default date = today in YYY-MM-DD
+  //Default date = today in YYYY-MM-DD
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -52,7 +57,7 @@ export default function MapScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch events (same helper as Hub for consistency)
+  // Fetch events (same helper as Hub, with sorting, for consistency)
   const loadEvents = useCallback(async () => {
     try {
       setLoading(true);
@@ -79,11 +84,14 @@ export default function MapScreen() {
     loadEvents();
   }, [loadEvents]);
 
-  // Filter events based on town and data
+  // Filter events based on town, category, date
   const eventsForMap = useMemo(() => {
     return events.filter((event) => {
       // Town filter
       const townMatch = selectedTown === "all" || event.town === selectedTown;
+
+      const categoryMatch =
+        selectedCategory === "All" || event.category === selectedCategory;
 
       // Date filter: only show events that match selectedDate
       const eventDate = toDateOnlyString(event.date);
@@ -91,15 +99,23 @@ export default function MapScreen() {
 
       const dateMatch = !selectedDateString || eventDate === selectedDateString;
 
-      return townMatch && dateMatch;
+      return townMatch && categoryMatch && dateMatch;
     });
-  }, [events, selectedTown, selectedDate]);
+  }, [events, selectedTown, selectedCategory, selectedDate]);
 
   // Simple friendly text for the date line
   const dateLabel = useMemo(() => {
     if (!selectedDate) return "All dates";
     return selectedDate;
   }, [selectedDate]);
+
+  // when user taps a marker go to EventDetail
+  function handleMarkerPress(event) {
+    navigation.navigate("EventDetail", {
+      event,
+      eventId: event.id,
+    });
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -110,10 +126,16 @@ export default function MapScreen() {
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Town filter chips (reusing your component) */}
+      {/* Town filter chips  */}
       <TownChips selectedTown={selectedTown} onSelectTown={setSelectedTown} />
 
-      {/* Date input (simple string for now) */}
+      {/* Category filters chips */}
+      <CategoryChips
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
+
+      {/* Date input */}
       <View style={styles.dateRow}>
         <Text style={styles.dateLabel}>Date (YYYY-MM-DD)</Text>
         <TextInput
@@ -126,7 +148,8 @@ export default function MapScreen() {
       </View>
 
       <Text style={styles.filterSummary}>
-        Showing events{selectedTown !== "All" ? ` in ${selectedTown}` : ""} on{" "}
+        Showing {selectedCategory !== "All" ? `${selectedCategory}` : " all"}
+        events{selectedTown !== "All" ? ` in ${selectedTown}` : ""} on
         {dateLabel}
       </Text>
 
@@ -160,6 +183,7 @@ export default function MapScreen() {
                   coordinate={coords}
                   title={event.title}
                   description={description}
+                  onPress={() => handleMarkerPress(event)}
                 />
               );
             })}
@@ -225,7 +249,7 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     borderRadius: 16,
-    overflow: "hidden", // makes the map corners rounded
+    overflow: "hidden",
     borderWidth: 1,
     borderColor: "#2c3e57",
     backgroundColor: "#0c1624",
