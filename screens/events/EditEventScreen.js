@@ -69,7 +69,7 @@ export default function EditEventScreen({ route, navigation }) {
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const handleDateChange = (e, selectedDate) => {
+  const handleDateChange = (_, selectedDate) => {
     setShowDatePicker(false);
     if (!selectedDate) return;
 
@@ -82,7 +82,7 @@ export default function EditEventScreen({ route, navigation }) {
     setDate(formatted);
   };
 
-  const handleTimeChange = (e, selectedTime) => {
+  const handleTimeChange = (_, selectedTime) => {
     setShowTimePicker(false);
     if (!selectedTime) return;
 
@@ -124,7 +124,7 @@ export default function EditEventScreen({ route, navigation }) {
 
       // call shared API helper to update
       const updatedEvent = await updateEvent(event._id, payload, token);
-      console.log("Event updated:", updatedEvent);
+      console.info("Event updated:", updatedEvent);
 
       Alert.alert("Updated", "Your event has been updated.", [
         {
