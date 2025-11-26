@@ -46,7 +46,7 @@ function RegisterScreen() {
 
     try {
       await register({ name, email, password, role });
-      //after successful registration, user is logged in automatically/
+      // after successful registration, user is logged in automatically
       // navigation will switch based on user later
     } catch (error) {
       console.error("Register failed:", error);
@@ -80,7 +80,7 @@ function RegisterScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Your name"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
@@ -92,7 +92,7 @@ function RegisterScreen() {
               value={email}
               onChangeText={setEmail}
               placeholder="you@example.com"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               keyboardType="email-address"
             />
@@ -106,7 +106,7 @@ function RegisterScreen() {
               value={password}
               onChangeText={setPassword}
               placeholder="Create a password"
-              placeholderTextColor="#64748b"
+              placeholderTextColor={colors.textMuted}
               secureTextEntry
             />
           </View>
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   },
   roleOptionSelected: {
     borderColor: colors.success,
-    backgroundColor: "#022c22",
+    backgroundColor: colors.successTint,
   },
   roleTitle: {
     fontWeight: "600",
