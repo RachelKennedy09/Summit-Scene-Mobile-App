@@ -26,7 +26,8 @@ export default function EventCard({ event, onPress }) {
         ) : null}
 
         <Text style={styles.datetime}>
-          {event.date} {event.date ? `• ${event.time}` : ""}
+          {event.date ? event.date : ""}
+          {event.date ? `• ${event.time}` : ""}
         </Text>
       </View>
     </Pressable>
