@@ -17,6 +17,7 @@ export default function TownChips({ selectedTown, onSelectTown }) {
       >
         {TOWNS.map((town) => {
           const isActive = selectedTown === town;
+
           return (
             <Pressable
               key={town}

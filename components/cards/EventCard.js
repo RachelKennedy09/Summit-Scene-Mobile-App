@@ -1,12 +1,12 @@
-// Reusable card for dsplaying a single event on the Hub (taken from hubscreen)
-// visual component
+// Reusable card for displaying a single event on the Hub
 
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-
 import { colors } from "../../theme/colors";
 
 export default function EventCard({ event, onPress }) {
+  const hasDate = Boolean(event.date);
+
   return (
     <Pressable
       onPress={onPress}
@@ -16,18 +16,23 @@ export default function EventCard({ event, onPress }) {
       ]}
     >
       <View style={styles.card}>
+        {/* Category */}
         {event.category ? (
           <Text style={styles.category}>{event.category}</Text>
         ) : null}
+
+        {/* Title */}
         <Text style={styles.title}>{event.title}</Text>
 
+        {/* Location */}
         {event.location ? (
           <Text style={styles.location}>{event.location}</Text>
         ) : null}
 
+        {/* Date + Time */}
         <Text style={styles.datetime}>
-          {event.date ? event.date : ""}
-          {event.date ? `• ${event.time}` : ""}
+          {hasDate ? event.date : ""}
+          {hasDate && event.time ? ` • ${event.time}` : ""}
         </Text>
       </View>
     </Pressable>
