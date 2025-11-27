@@ -1,20 +1,52 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+// screens/MapScreen.js
+
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import {
   View,
   Text,
   StyleSheet,
   ActivityIndicator,
-  TextInput,
+  Pressable,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 
-import TownChips from "../../components/chips/TownChips.js";
-import CategoryChips from "../../components/chips/CategoryChips.js";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
-
 import { colors } from "../../theme/colors.js";
+
+// Simple list of towns for the selector modal
+const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
+
+// list of categories for selector modal
+const CATEGORIES = [
+  "All",
+  "Market",
+  "Wellness",
+  "Music",
+  "Workshop",
+  "Family",
+  "Retail",
+  "Outdoors",
+  "Food",
+  "Art",
+];
+
+// Date filter options (relative ranges)
+const DATE_FILTERS = [
+  "All",
+  "Today",
+  "Next 3 days",
+  "Next 7 days",
+  "Next 30 days",
+];
 
 // Static coordinates for each town
 const TOWN_COORDS = {
@@ -31,8 +63,15 @@ const INITIAL_REGION = {
   longitudeDelta: 0.8,
 };
 
-// Helper: normalize any event.date to "YYYY-MM-DD"
+// Helper: normalize any event.date to "YYYY-MM-DD" (for marker description)
 function toDateOnlyString(value) {
+  if (!value) return null;
+
+  // If already looks like YYYY-MM-DD, just return it
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
   return d.toISOString().slice(0, 10);
@@ -40,19 +79,17 @@ function toDateOnlyString(value) {
 
 export default function MapScreen() {
   const navigation = useNavigation();
+  const mapRef = useRef(null); // reference to the MapView
 
   // Filter state
   const [selectedTown, setSelectedTown] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedDateFilter, setSelectedDateFilter] = useState("All");
 
-  //Default date = today in YYYY-MM-DD
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  });
+  // Modal state
+  const [isTownModalVisible, setIsTownModalVisible] = useState(false);
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
 
   // Data + status state
   const [events, setEvents] = useState([]);
@@ -86,38 +123,139 @@ export default function MapScreen() {
     loadEvents();
   }, [loadEvents]);
 
-  // Filter events based on town, category, date
+  // Filter events based on town, category, date RANGE (same logic as Hub)
   const eventsForMap = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    let rangeStart = null;
+    let rangeEnd = null;
+
+    if (selectedDateFilter === "Today") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 1);
+    } else if (selectedDateFilter === "Next 3 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 3);
+    } else if (selectedDateFilter === "Next 7 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 7);
+    } else if (selectedDateFilter === "Next 30 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 30);
+    }
+
     return events.filter((event) => {
-      // Town filter ("all" means dont filter by town)
+      // Town filter
       const townMatch = selectedTown === "All" || event.town === selectedTown;
 
+      // Category filter
       const categoryMatch =
         selectedCategory === "All" || event.category === selectedCategory;
 
-      // Date filter: only show events that match selectedDate
-      const eventDate = toDateOnlyString(event.date);
-      const selectedDateString = selectedDate?.trim();
+      // Date filter
+      let dateMatch = true;
 
-      const dateMatch = !selectedDateString || eventDate === selectedDateString;
+      if (selectedDateFilter !== "All") {
+        if (!event.date || typeof event.date !== "string") {
+          dateMatch = false;
+        } else {
+          const [y, m, d] = event.date.split("-").map(Number);
+
+          if (!y || !m || !d) {
+            dateMatch = false;
+          } else {
+            const eventDay = new Date(y, m - 1, d); // local start-of-day
+
+            if (rangeStart && rangeEnd) {
+              dateMatch = eventDay >= rangeStart && eventDay < rangeEnd;
+            }
+          }
+        }
+      }
 
       return townMatch && categoryMatch && dateMatch;
     });
-  }, [events, selectedTown, selectedCategory, selectedDate]);
+  }, [events, selectedTown, selectedCategory, selectedDateFilter]);
 
-  // Simple friendly text for the date line
-  const dateLabel = useMemo(() => {
-    if (!selectedDate) return "All dates";
-    return selectedDate;
-  }, [selectedDate]);
+  // Friendly text for the summary line
+  const filterSummary = useMemo(() => {
+    const count = eventsForMap.length;
 
-  // when user taps a marker go to EventDetail
+    const townLabel = selectedTown === "All" ? "all towns" : ` ${selectedTown}`;
+    const categoryLabel =
+      selectedCategory === "All"
+        ? "all categories"
+        : ` ${selectedCategory.toLowerCase()}`;
+
+    const dateLabel =
+      selectedDateFilter === "All"
+        ? ""
+        : ` (${selectedDateFilter.toLowerCase()})`;
+
+    if (count === 0) {
+      return "No events match your current map filters.";
+    }
+
+    if (count === 1) {
+      return `Showing 1 event in ${townLabel} for ${categoryLabel}${dateLabel}.`;
+    }
+
+    return `Showing ${count} events in ${townLabel} for ${categoryLabel}${dateLabel}.`;
+  }, [eventsForMap.length, selectedTown, selectedCategory, selectedDateFilter]);
+
+  // 🔹 Animate camera when selectedTown changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    let targetRegion = INITIAL_REGION;
+
+    if (selectedTown !== "All") {
+      const coords = TOWN_COORDS[selectedTown];
+      if (coords) {
+        targetRegion = {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          latitudeDelta: 0.12, // tighter zoom for town
+          longitudeDelta: 0.18,
+        };
+      }
+    }
+
+    mapRef.current.animateToRegion(targetRegion, 800);
+  }, [selectedTown]);
+
+  // When the user taps a marker go to EventDetail
   function handleMarkerPress(event) {
     navigation.navigate("EventDetail", {
       event,
       eventId: event._id,
     });
   }
+
+  // --- Handlers for modal selections ---
+  const handleSelectTown = (town) => {
+    setSelectedTown(town);
+    setIsTownModalVisible(false);
+  };
+
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category);
+    setIsCategoryModalVisible(false);
+  };
+
+  const handleSelectDateFilter = (filter) => {
+    setSelectedDateFilter(filter);
+    setIsDateModalVisible(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,31 +266,45 @@ export default function MapScreen() {
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Town filter chips  */}
-      <TownChips selectedTown={selectedTown} onSelectTown={setSelectedTown} />
+      {/* Pills row – same layout as HubScreen */}
+      <View style={styles.pillRow}>
+        {/* Town Pill */}
+        <Pressable
+          style={styles.pill}
+          onPress={() => setIsTownModalVisible(true)}
+        >
+          <Text style={styles.pillLabel}>Town</Text>
+          <Text style={styles.pillValue}>
+            {selectedTown === "All" ? "All towns ▾" : `${selectedTown} ▾`}
+          </Text>
+        </Pressable>
 
-      {/* Category filters chips */}
-      <CategoryChips
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
+        {/* Category Pill */}
+        <Pressable
+          style={styles.pill}
+          onPress={() => setIsCategoryModalVisible(true)}
+        >
+          <Text style={styles.pillLabel}>Category</Text>
+          <Text style={styles.pillValue}>
+            {selectedCategory === "All"
+              ? "All categories ▾"
+              : `${selectedCategory} ▾`}
+          </Text>
+        </Pressable>
 
-      {/* Date input */}
-      <View style={styles.dateRow}>
-        <Text style={styles.dateLabel}>Date (YYYY-MM-DD)</Text>
-        <TextInput
-          style={styles.dateInput}
-          value={selectedDate}
-          onChangeText={setSelectedDate}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor="#64748b"
-        />
+        {/* Date Pill */}
+        <Pressable
+          style={styles.pill}
+          onPress={() => setIsDateModalVisible(true)}
+        >
+          <Text style={styles.pillLabel}>Date</Text>
+          <Text style={styles.pillValue}>{selectedDateFilter} ▾</Text>
+        </Pressable>
       </View>
 
-      <Text style={styles.filterSummary}>
-        Showing {selectedCategory !== "All" ? selectedCategory : "All"} events
-        {selectedTown !== "All" ? ` in ${selectedTown}` : ""} on {dateLabel}
-      </Text>
+      <View style={styles.sectionDivider} />
+
+      <Text style={styles.filterSummaryText}>{filterSummary}</Text>
 
       {/* Map area */}
       <View style={styles.mapContainer}>
@@ -162,7 +314,11 @@ export default function MapScreen() {
             <Text style={styles.loadingText}>Loading map events...</Text>
           </View>
         ) : (
-          <MapView style={styles.map} initialRegion={INITIAL_REGION}>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            initialRegion={INITIAL_REGION}
+          >
             {eventsForMap.map((event) => {
               const coords = TOWN_COORDS[event.town];
               if (!coords) return null; // skip if town missing or unknown
@@ -194,9 +350,144 @@ export default function MapScreen() {
 
       {!loading && eventsForMap.length === 0 && !error && (
         <Text style={styles.emptyText}>
-          No events match this town + date. Try another day or town.
+          No events match this town + date range. Try another filter combo.
         </Text>
       )}
+
+      {/* Town Selector Modal */}
+      <Modal
+        visible={isTownModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsTownModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a town</Text>
+
+            {TOWNS.map((town) => {
+              const isSelected = town === selectedTown;
+              return (
+                <Pressable
+                  key={town}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectTown(town)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {town === "All" ? "All towns" : town}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsTownModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Category Selector Modal */}
+      <Modal
+        visible={isCategoryModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsCategoryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a category</Text>
+
+            {CATEGORIES.map((category) => {
+              const isSelected = category === selectedCategory;
+              return (
+                <Pressable
+                  key={category}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectCategory(category)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {category === "All" ? "All categories" : category}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsCategoryModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Date Selector Modal */}
+      <Modal
+        visible={isDateModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsDateModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a date range</Text>
+
+            {DATE_FILTERS.map((filter) => {
+              const isSelected = filter === selectedDateFilter;
+              return (
+                <Pressable
+                  key={filter}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectDateFilter(filter)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {filter}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsDateModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -224,29 +515,46 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontSize: 13,
   },
-  dateRow: {
-    marginBottom: 8,
+
+  // ---- Pills (copied to match HubScreen style) ----
+  pillRow: {
+    gap: 12,
+    marginBottom: 12,
   },
-  dateLabel: {
-    color: colors.textLight,
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  dateInput: {
+  pill: {
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: colors.secondary,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    color: colors.textLight,
-    backgroundColor: colors.secondary,
-    fontSize: 14,
   },
-  filterSummary: {
-    fontSize: 12,
+  pillLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  pillValue: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.textLight,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginTop: 4,
+    marginBottom: 6,
+  },
+  filterSummaryText: {
+    fontSize: 13,
     color: colors.textMuted,
     marginBottom: 8,
   },
+
+  // ---- Map ----
   mapContainer: {
     flex: 1,
     borderRadius: 16,
@@ -273,5 +581,66 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textMuted,
     fontSize: 13,
+  },
+
+  // ----- Modal styles (same as Hub) -----
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCard: {
+    width: "85%",
+    maxHeight: "70%",
+    backgroundColor: colors.secondary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.textLight,
+    marginBottom: 12,
+  },
+  townOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    marginBottom: 8,
+    backgroundColor: colors.cardDark,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  townOptionSelected: {
+    backgroundColor: colors.tealTint,
+    borderColor: colors.teal,
+  },
+  townOptionText: {
+    fontSize: 15,
+    color: colors.textLight,
+  },
+  townOptionTextSelected: {
+    fontWeight: "700",
+  },
+  townCheckMark: {
+    fontSize: 16,
+    color: colors.accent,
+  },
+  modalCloseButton: {
+    marginTop: 8,
+    alignSelf: "flex-end",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  modalCloseText: {
+    fontSize: 14,
+    color: colors.textMuted,
   },
 });
