@@ -798,7 +798,7 @@ FrontEnd File Clean up Git Commit
 ![alt text](<devlogimages/GitCommitNov26(2).png>)
 
 BackEnd File clean up Git Commit
-![alt text](<GitCommitNov26(3).png>)
+![alt text](<devlogimages/GitCommitNov26(3).png>)
 
 Sprint 8 done Trello cards
 ![alt text](devlogimages/Sprint8Done.png)
@@ -828,3 +828,11 @@ Sprint 8 done Trello cards
 6. Better handling on the "Time Picker" on PostEventScreen so people can choose start and end times easier, and click confirm/cancel for easier handling
 
 #### Photos of Progress - Sprint 9
+
+Trello Cards for Hubscreen and Event Polish
+
+![alt text](devlogimages/TrelloCardEventAndHubPolish.png)
+
+Git commit for HubScreen and Event Polish
+
+![alt text](devlogimages/GitCommitNov27PolishHubEvent.png)
