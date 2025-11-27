@@ -10,10 +10,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
 
+// Single place for our token key
+const TOKEN_KEY = "authToken";
+
 // Create the context object
 const AuthContext = createContext(null);
 
-// Helper hook so it can use: const { use, login } = useAuth()
+// Helper hook so it can use: const { user, login } = useAuth()
 export function useAuth() {
   const value = useContext(AuthContext);
   if (!value) {
@@ -39,14 +42,15 @@ export function AuthProvider({ children }) {
     try {
       setIsAuthLoading(true);
 
-      const savedToken = await AsyncStorage.getItem("authToken");
+      const savedToken = await AsyncStorage.getItem(TOKEN_KEY);
       if (!savedToken) {
         // No token saved - user is out
-        setIsAuthLoading(false);
-
+        setToken(null);
+        setUser(null);
         return;
       }
 
+      // Try to fetch current user using /auth/me
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "GET",
         headers: {
@@ -55,17 +59,18 @@ export function AuthProvider({ children }) {
       });
 
       if (!response.ok) {
-        //Token is invalid or expired - clear it
-        await AsyncStorage.removeItem("authToken");
+        // Token is invalid or expired - clear it
+        await AsyncStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);
-        setIsAuthLoading(false);
         return;
       }
 
-      const userData = await response.json();
+      const data = await response.json();
+      // Handle both { user: {...} } and raw user object shapes
+      const userData = data.user || data;
 
-      // if token is still good, restore state
+      // If token is still good, restore state
       setToken(savedToken);
       setUser(userData);
     } catch (error) {
@@ -73,7 +78,7 @@ export function AuthProvider({ children }) {
       // On any error, treat as logged out
       setToken(null);
       setUser(null);
-      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem(TOKEN_KEY);
     } finally {
       setIsAuthLoading(false);
     }
@@ -103,9 +108,9 @@ export function AuthProvider({ children }) {
       // Save token and user in state and Async storage
       setToken(data.token);
       setUser(data.user);
-      await AsyncStorage.setItem("authToken", data.token);
+      await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
-      return data; // screen can reactv if needed
+      return data; // screen can react if needed
     } catch (error) {
       console.error("Error in login:", error);
       throw error; // let screen show an alert
@@ -114,7 +119,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // REGISTER: call backend /api/auth/register, asve token and user
+  // REGISTER: call backend /api/auth/register, save token and user
   async function register({ name, email, password, role }) {
     try {
       setIsAuthLoading(true);
@@ -135,7 +140,7 @@ export function AuthProvider({ children }) {
 
       setToken(data.token);
       setUser(data.user);
-      await AsyncStorage.setItem("authToken", data.token);
+      await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
       return data;
     } catch (error) {
@@ -193,7 +198,7 @@ export function AuthProvider({ children }) {
       setIsAuthLoading(true);
       setUser(null);
       setToken(null);
-      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem(TOKEN_KEY);
     } catch (error) {
       console.error("Error in logout:", error);
     } finally {

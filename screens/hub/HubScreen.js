@@ -14,6 +14,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
+import { useAuth } from "../../context/AuthContext";
+
 import EventCard from "../../components/cards/EventCard";
 //  Removing Chips for the New UI Sprint (9)
 // import CategoryChips from "../../components/chips/CategoryChips";
@@ -49,6 +51,9 @@ const DATE_FILTERS = [
 ];
 
 export default function HubScreen() {
+  const { user } = useAuth();
+  const displayName = user?.name || user?.email || "there";
+
   const navigation = useNavigation();
 
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -292,7 +297,11 @@ export default function HubScreen() {
         }
         ListHeaderComponent={
           <View style={styles.headerContainer}>
-            <Text style={styles.heading}>Welcome to your Summit Scene Hub</Text>
+            <Text style={styles.heading}>Hello {displayName}!</Text>
+
+            <Text style={styles.subheading}>
+              Welcome to your Summit Scene Hub
+            </Text>
             <Text style={styles.subheading}>
               Choose a town and category to start exploring events near you.
             </Text>

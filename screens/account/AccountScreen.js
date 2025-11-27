@@ -75,6 +75,10 @@ function AccountScreen() {
 
         <View style={styles.card}>
           <Text style={styles.greeting}>Hi, {displayName}</Text>
+          <Text style={styles.roleTag}>
+            You’re logged in as a{" "}
+            {user.role === "business" ? "Business" : "Local"} account
+          </Text>
 
           <View style={styles.row}>
             <Text style={styles.label}>Email:</Text>
@@ -170,6 +174,14 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     marginBottom: 12,
   },
+  roleTag: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: colors.textMuted,
+    marginBottom: 14,
+    marginTop: -6,
+  },
+
   row: {
     flexDirection: "row",
     marginBottom: 8,
