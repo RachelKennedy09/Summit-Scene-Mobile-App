@@ -6,18 +6,21 @@ import { colors } from "../../theme/colors";
 
 export default function EventCard({ event, onPress }) {
   if (!event) return null;
-
   const hasDate = Boolean(event.date);
-  const hasTime = Boolean(event.time);
+  const hasStartTime = Boolean(event.time);
+  const hasEndTime = Boolean(event.endTime);
 
-  // Build a friendlier date/time label, but keep same data
   let dateTimeLabel = "Date & time TBA";
 
-  if (hasDate && hasTime) {
+  if (hasDate && hasStartTime && hasEndTime) {
+    dateTimeLabel = `${event.date} • ${event.time} – ${event.endTime}`;
+  } else if (hasDate && hasStartTime) {
     dateTimeLabel = `${event.date} • ${event.time}`;
   } else if (hasDate) {
     dateTimeLabel = event.date;
-  } else if (hasTime) {
+  } else if (hasStartTime && hasEndTime) {
+    dateTimeLabel = `${event.time} – ${event.endTime}`;
+  } else if (hasStartTime) {
     dateTimeLabel = event.time;
   }
 

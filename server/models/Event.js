@@ -54,6 +54,11 @@ const eventSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // Optional end time string, e.g. "9:00 PM"
+    endTime: {
+      type: String,
+      trim: true,
+    },
 
     // Venue or meeting location, e.g. "High Rollers Banff"
     location: {

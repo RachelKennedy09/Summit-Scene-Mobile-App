@@ -80,7 +80,8 @@ export default function EventDetailScreen({ route }) {
   const description = event.description || "No detailed description added yet.";
 
   const hasDate = Boolean(event.date);
-  const hasTime = Boolean(event.time);
+  const hasStartTime = Boolean(event.time);
+  const hasEndTime = Boolean(event.endTime);
 
   // Friendlier date label
   let dateLabel = "Date TBA";
@@ -97,7 +98,14 @@ export default function EventDetailScreen({ route }) {
     }
   }
 
-  const timeLabel = hasTime ? event.time : "Time TBA";
+  let timeLabel = "Time TBA";
+  if (hasStartTime && hasEndTime) {
+    timeLabel = `${event.time} – ${event.endTime}`;
+  } else if (hasStartTime) {
+    timeLabel = event.time;
+  } else if (hasEndTime) {
+    timeLabel = `Until ${event.endTime}`;
+  }
 
   const handleOpenMaps = () => {
     const query = encodeURIComponent(location || town || title);

@@ -805,9 +805,11 @@ Sprint 8 done Trello cards
 
 ---
 
-## 📅 Sprint #9 HubScreen.js Polish (November 27th)
+## 📅 Sprint #9 Polishing (November 27)
 
-### Sprint Goals
+
+### HubScreen.js Polish 
+#### Sprint Goals
 
 1. Add Hero Section
 2. Create Pill Buttons component
@@ -817,4 +819,13 @@ Sprint 8 done Trello cards
 6. add fresh sstyling to event cards
 7. add date pill and logic
 
+
+
+### EventDetailScreen.js Polish
+1. Add event end time to event model
+2. 
+
+
 #### Photos of Progress - Sprint 9
+
+

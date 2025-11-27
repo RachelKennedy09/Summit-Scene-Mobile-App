@@ -47,8 +47,12 @@ export default function PostEventScreen() {
   // Date + Time state
   const [dateObj, setDateObj] = useState(new Date()); // Date object for picker
   const [date, setDate] = useState(""); // "YYYY-MM-DD"
+
   const [timeObj, setTimeObj] = useState(new Date());
   const [time, setTime] = useState(""); // "7:00 PM"
+
+  const [endTimeObj, setEndTimeObj] = useState(new Date()); // NEW: end time object
+  const [endTime, setEndTime] = useState(""); // "9:00 PM"
 
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +60,7 @@ export default function PostEventScreen() {
   // Picker visibility toggles
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false); // NEW
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
@@ -72,20 +77,30 @@ export default function PostEventScreen() {
     setDate(formatted);
   };
 
-  const handleTimeChange = (_, selectedTime) => {
-    setShowTimePicker(false);
-    if (!selectedTime) return;
-
-    setTimeObj(selectedTime);
-
+  const formatTime = (selectedTime) => {
     let hours = selectedTime.getHours();
     const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
     const isPM = hours >= 12;
     const displayHours = ((hours + 11) % 12) + 1; // 0–23 -> 1–12
     const suffix = isPM ? "PM" : "AM";
 
-    const formatted = `${displayHours}:${minutes} ${suffix}`;
-    setTime(formatted);
+    return `${displayHours}:${minutes} ${suffix}`;
+  };
+
+  const handleTimeChange = (_, selectedTime) => {
+    setShowTimePicker(false);
+    if (!selectedTime) return;
+
+    setTimeObj(selectedTime);
+    setTime(formatTime(selectedTime));
+  };
+
+  const handleEndTimeChange = (_, selectedTime) => {
+    setShowEndTimePicker(false);
+    if (!selectedTime) return;
+
+    setEndTimeObj(selectedTime);
+    setEndTime(formatTime(selectedTime));
   };
 
   const handleSubmit = async () => {
@@ -114,7 +129,8 @@ export default function PostEventScreen() {
           town,
           category,
           date, // "YYYY-MM-DD"
-          time, // "7:00 PM" or ""
+          time, // start time (optional)
+          endTime, // end time (optional)
           location,
         }),
       });
@@ -128,7 +144,7 @@ export default function PostEventScreen() {
       const createdEvent = await response.json();
       console.info("Event created:", createdEvent);
 
-      //  Show success alert, then go to "MyEvents" screen instead of goBack
+      // Show success alert, then go to "MyEvents" screen instead of goBack
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
@@ -139,10 +155,12 @@ export default function PostEventScreen() {
             setLocation("");
             setDate("");
             setTime("");
+            setEndTime("");
             setTown(TOWNS[0]);
             setCategory(FORM_CATEGORIES[0]);
             setDateObj(new Date());
             setTimeObj(new Date());
+            setEndTimeObj(new Date());
 
             // Navigate to MyEvents so the user can confirm it's listed
             navigation.navigate("MyEvents");
@@ -202,14 +220,27 @@ export default function PostEventScreen() {
           </View>
         </Pressable>
 
-        {/* Time */}
-        <Text style={styles.label}>Time</Text>
+        {/* Start Time */}
+        <Text style={styles.label}>Start time (optional)</Text>
         <Pressable onPress={() => setShowTimePicker(true)}>
           <View pointerEvents="none">
             <TextInput
               style={styles.input}
-              placeholder="Select time (optional)"
+              placeholder="Select start time"
               value={time}
+              editable={false}
+            />
+          </View>
+        </Pressable>
+
+        {/* End Time */}
+        <Text style={styles.label}>End time (optional)</Text>
+        <Pressable onPress={() => setShowEndTimePicker(true)}>
+          <View pointerEvents="none">
+            <TextInput
+              style={styles.input}
+              placeholder="Select end time"
+              value={endTime}
               editable={false}
             />
           </View>
@@ -344,6 +375,26 @@ export default function PostEventScreen() {
                 mode="time"
                 display={Platform.OS === "ios" ? "spinner" : "clock"}
                 onChange={handleTimeChange}
+              />
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* End Time Picker Modal */}
+      {showEndTimePicker && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowEndTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.pickerModalContent}>
+              <DateTimePicker
+                value={endTimeObj}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "clock"}
+                onChange={handleEndTimeChange}
               />
             </View>
           </View>

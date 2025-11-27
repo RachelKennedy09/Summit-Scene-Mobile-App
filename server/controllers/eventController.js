@@ -37,6 +37,7 @@ export async function createEvent(req, res) {
       category,
       date,
       time,
+      endTime,
       location,
       imageUrl,
     } = req.body || {};
@@ -55,6 +56,7 @@ export async function createEvent(req, res) {
       category,
       date,
       time,
+      endTime,
       location,
       imageUrl,
       createdBy: userId,
@@ -122,6 +124,7 @@ export async function updateEvent(req, res) {
       category,
       date,
       time,
+      endTime,
       location,
       imageUrl,
     } = req.body || {};
@@ -132,6 +135,7 @@ export async function updateEvent(req, res) {
     if (category !== undefined) event.category = category;
     if (date !== undefined) event.date = date;
     if (time !== undefined) event.time = time;
+    if (endTime !== undefined) event.endTime = endTime;
     if (location !== undefined) event.location = location;
     if (imageUrl !== undefined) event.imageUrl = imageUrl;
 
