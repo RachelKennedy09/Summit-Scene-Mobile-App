@@ -834,6 +834,23 @@ Sprint 8 done Trello cards
 2. Add " Youre logged in as a business/local user"
 3. Add "Hello, ${NAME}, Welcome to your summit scene hub
 
+### Map Polish
+
+1. Add Town, Category, Date pills like HubScreen
+2. Zoom effect when choosing a town on map
+
+
+### Community Polish
+1. Town filter pills with a modal
+2. Summary line after choosing town
+3. Show an identity to the posts (Who posted)
+4. Avatar?
+5. Reply options
+
+
+
+
+
 #### Photos of Progress - Sprint 9
 
 Trello Cards for Hubscreen and Event Polish

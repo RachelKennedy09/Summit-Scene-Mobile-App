@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,7 +25,7 @@ const POST_TYPES = [
 export default function CommunityScreen({ navigation }) {
   const [selectedType, setSelectedType] = useState("eventbuddy");
 
-  // mock data later api
+  // posts from API
   const [posts, setPosts] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -63,7 +64,7 @@ export default function CommunityScreen({ navigation }) {
       const data = await res.json();
       setPosts(data);
     } catch (error) {
-      console.errpr("Error fetching community posts:", error);
+      console.error("Error fetching community posts:", error);
       setError(error.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -125,6 +126,18 @@ export default function CommunityScreen({ navigation }) {
     return postUserId === userId;
   }
 
+  // Helper: derive author identity info from post.user + post.name
+  function getPostAuthor(post) {
+    const userObj =
+      typeof post.user === "object" && post.user !== null ? post.user : null;
+
+    const name = userObj?.name || post.name || "SummitScene member";
+    const email = userObj?.email || "";
+    const role = userObj?.role || "local"; // e.g. "local" or "business"
+
+    return { name, email, role };
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -167,14 +180,26 @@ export default function CommunityScreen({ navigation }) {
         })}
       </View>
 
+      {/* Result summary */}
+      <Text style={styles.summaryText}>
+        {loading
+          ? "Loading posts..."
+          : filteredPosts.length === 0
+          ? "No posts here yet. Be the first to share something."
+          : `Showing ${filteredPosts.length} post${
+              filteredPosts.length > 1 ? "s" : ""
+            } in this board.`}
+      </Text>
+
       {/*  Posts list for the selected board  */}
       <ScrollView
         contentContainerStyle={styles.sectionsContainer}
         showsVerticalScrollIndicator={false}
       >
         {loading && (
-          <View style={{ marginTop: 20 }}>
-            <Text style={{ color: colors.textLight }}>Loading posts...</Text>
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color={colors.textLight} />
+            <Text style={styles.loadingText}>Loading posts...</Text>
           </View>
         )}
 
@@ -196,32 +221,60 @@ export default function CommunityScreen({ navigation }) {
           !error &&
           filteredPosts.map((post) => {
             const isOwner = isPostOwner(post);
+            const { name, email, role } = getPostAuthor(post);
+
+            const createdDate = new Date(post.createdAt);
 
             return (
               <View key={post._id ?? post.id} style={styles.sectionCard}>
+                {/* Identity row */}
                 <View style={styles.cardHeaderRow}>
-                  <Text style={styles.sectionTitle}>{post.title}</Text>
-                  <Text style={styles.townTag}>{post.town}</Text>
+                  {/* Left: avatar + name + timestamps */}
+                  <View style={styles.authorRow}>
+                    <View style={styles.avatarCircle}>
+                      <Text style={styles.avatarInitial}>
+                        {name.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View style={styles.authorTextCol}>
+                      <Text style={styles.authorNameText}>{name}</Text>
+                      <Text style={styles.timestampText}>
+                        {createdDate.toLocaleDateString()} •{" "}
+                        {createdDate.toLocaleTimeString([], {
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                      {email ? (
+                        <Text style={styles.authorEmailText}>{email}</Text>
+                      ) : null}
+                    </View>
+                  </View>
+
+                  {/* Right: town + role + date badge + owner badge */}
+                  <View style={styles.badgeColumn}>
+                    <Text style={styles.townTag}>{post.town}</Text>
+
+                    <Text style={styles.roleBadge}>
+                      {role === "business" ? "Business host" : "Local member"}
+                    </Text>
+
+                    <Text style={styles.dateBadge}>
+                      For:{" "}
+                      {new Date(post.targetDate).toLocaleDateString()}
+                    </Text>
+
+                    {isOwner && (
+                      <Text style={styles.ownerBadge}>You</Text>
+                    )}
+                  </View>
                 </View>
 
-                {/* Name + posted time */}
-                <Text style={styles.timestampText}>
-                  {post.name ? `${post.name} • ` : ""}
-                  {new Date(post.createdAt).toLocaleDateString()} •{" "}
-                  {new Date(post.createdAt).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </Text>
-
-                {/* Required event/ride date */}
-                <Text style={styles.dateText}>
-                  For: {new Date(post.targetDate).toLocaleDateString()}
-                </Text>
-
+                {/* Title + body */}
+                <Text style={styles.sectionTitle}>{post.title}</Text>
                 <Text style={styles.sectionText}>{post.body}</Text>
 
-                {/* Owner-only delete button */}
+                {/* Owner-only delete/edit buttons */}
                 {isOwner && (
                   <View style={styles.ownerActionsRow}>
                     <Pressable
@@ -234,7 +287,9 @@ export default function CommunityScreen({ navigation }) {
                     </Pressable>
                     <Pressable
                       style={styles.deleteButton}
-                      onPress={() => handleDeletePost(post._id || post.id)}
+                      onPress={() =>
+                        handleDeletePost(post._id || post.id)
+                      }
                     >
                       <Text style={styles.deleteButtonText}>Delete</Text>
                     </Pressable>
@@ -303,7 +358,7 @@ const styles = StyleSheet.create({
   typeRow: {
     flexDirection: "row",
     gap: 8,
-    marginBottom: 16,
+    marginBottom: 8,
   },
 
   typePill: {
@@ -330,6 +385,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
+  summaryText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginBottom: 8,
+  },
+
   /* ---- SECTIONS / CARDS ---- */
   sectionsContainer: {
     paddingBottom: 32,
@@ -348,21 +409,90 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 6,
+    marginBottom: 10,
+  },
+
+  /* identity block */
+  authorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+    marginRight: 8,
+  },
+
+  avatarCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.cardDark,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+
+  avatarInitial: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+
+  authorTextCol: {
+    flexShrink: 1,
+  },
+
+  authorNameText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textLight,
+  },
+
+  authorEmailText: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  timestampText: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  badgeColumn: {
+    alignItems: "flex-end",
+    gap: 4,
+  },
+
+  townTag: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+
+  roleBadge: {
+    fontSize: 11,
+    color: colors.textLight,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: colors.cardDark,
+  },
+
+  dateBadge: {
+    fontSize: 11,
+    color: colors.textMuted,
+  },
+
+  ownerBadge: {
+    fontSize: 11,
+    color: colors.accent,
+    fontWeight: "700",
   },
 
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: colors.textLight,
-    flex: 1,
-    marginRight: 8,
-  },
-
-  townTag: {
-    fontSize: 12,
-    color: colors.textMuted,
-    opacity: 0.9,
+    marginBottom: 4,
   },
 
   sectionText: {
@@ -392,18 +522,12 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  dateText: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 4,
-  },
-
   /* ---- OWNER BUTTONS ---- */
   ownerActionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 8,
-    marginTop: 10,
+    marginTop: 12,
   },
 
   editButton: {
@@ -429,6 +553,19 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: colors.textLight,
     fontWeight: "600",
+    fontSize: 13,
+  },
+
+  /* ---- LOADING ROW ---- */
+  loadingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 16,
+  },
+
+  loadingText: {
+    color: colors.textLight,
     fontSize: 13,
   },
 });
