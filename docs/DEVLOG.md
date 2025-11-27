@@ -408,6 +408,7 @@ November 18th
 Success on creating POST /api/events and MongoDB receiving. Frontend Backend connected
 
 Console-log of event posted
+
 ![alt text](devlogimages/ConsoleLogSuccessEvent.png)
 
 MongoDB event poseted
@@ -422,6 +423,7 @@ Github Commit for November 18th
 November 19th
 
 Trello Card (finished)
+
 ![alt text](devlogimages/Sprint4.png)
 
 Github commit for November 19th (Wired hubscreen to only real events instead of mock)
@@ -510,25 +512,32 @@ success POST /api/auth/register with new role "local" or "business"
 ![alt text](devlogimages/TCPostRoleSucess.png)
 
 success POST as Business role
-![alt text](TCSucessPostAsBusiness.png)
+
+![alt text](devlogimages/TCSucessPostAsBusiness.png)
 
 success create local user
-![alt text](MONGODBsuccesslocalroleuser.png)
+
+![alt text](devlogimages/MONGODBsuccesslocalroleuser.png)
 
 success business role in MONGODB
-![alt text](MONGODBsuccessbusinessroleuser.png)
+
+![alt text](devlogimages/MONGODBsuccessbusinessroleuser.png)
 
 APP photo of new "View My Events" on account screen
+
 ![alt text](devlogimages/APPviewmyeventsscreen.png)
 
 APP photo of new "MyEvents" screen
+
 ![alt text](APPmyeventsscreen.png)
 
 Git commit
-![alt text](CommitNov20.png)
+
+![alt text](devlogimages/CommitNov20.png)
 
 Sprint 5 done
-![alt text](Sprint5.png)
+
+![alt text](devlogimages/Sprint5.png)
 
 ---
 
@@ -611,23 +620,32 @@ Ensured targetDate is always a valid new Date() and removed the TextInput to avo
 #### Photos of Progress - Sprint 6
 
 MONGODB success event community post
-![alt text](MONGODBEventBuddyPostSuccess.png)
+
+![alt text](devlogimages/MONGODBEventBuddyPostSuccess.png)
 
 Trello Card Sprint 6 Nov 23
-![alt text](<Sprint6(23rd).png>)
+
+![alt text](<devlogimages/Sprint6(23rd).png>)
 
 Git Commit Nov 23rd
+
 ![alt text](devlogimages/CommitNov23.png)
 
 Photo of edit delete buttons added
-![alt text](editanddeletebuttons.png)
+
+![alt text](devlogimages/editanddeletebuttons.png)
+
 photo of edit screen
-![alt text](EditScreenSuccess.png)
+
+![alt text](devlogimages/EditScreenSuccess.png)
+
 Trello Card Sprint 6 Nov 24th (Edit/Delete buttons done)
-![alt text](Sprint6done.png)
+
+![alt text](devlogimages/Sprint6done.png)
 
 Git commit nov 24th
-![alt text](COMMITnov24.png)
+
+![alt text](devlogimages/COMMITnov24.png)
 
 ## 📅 Sprint #7 (November 25th)
 
@@ -686,18 +704,34 @@ Git commit nov 24th
 #### Photos of Progress - Sprint 7
 
 Photo of map on App
-![alt text](APPmapintegration.png)
+
+![alt text](devlogimages/APPmapintegration.png)
 
 Trello Card
-![alt text](TRELLOsprint7.png)
+
+![alt text](devlogimages/TRELLOsprint7.png)
 
 git commit
 
-![alt text](COMMITsprint7nov25.png)
+![alt text](devlogimages/COMMITsprint7nov25.png)
 
 ## 📅 Sprint #8 File Polish (November 25th)
 
-### 🎯 Sprint Goals
+### Sprint Goals
+
+1. Remove noisy console.log statements and switch to proper console.error for backend errors.
+
+2. Standardize error messages and HTTP status codes across all API endpoints.
+
+3. Clean up all controller logic to follow the same structure and flow.
+
+4. Improve validation and data integrity for Events and Community Posts.
+
+5. Ensure role-based access control (business vs local users) works cleanly.
+
+6. Add clear explanatory comments for maintainability and professor readability.
+
+7. Polish all Mongoose models for safety, readability, and consistency.
 
 ---
 
@@ -721,22 +755,49 @@ git commit
 
 ---
 
+<b>Issue: Inconsistent error handling across controllers </b>
+
+<b>Fix: </b> Standardized everything to: console.error
+
+---
+
+<b>Issue: Email case sensitivity could cause duplicate accounts</b>
+
+<b>Fix: </b> Normalized email to lowercase in both register and login routes.
+
+---
+
 ### 🌟 Wins + Breakthroughs
 
+- All backend files now follow a clean, consistent, professional structure.
+- Every route now has proper validation, error handling, and comments explaining the flow.
+- Models are validated and include schema-level protections, enums, and virtuals.
+- The codebase is now much easier to debug and maintain long-term.
+
 ### 📚 What I Learned This Week
+
+- How to use Mongoose models effectively with enums, virtuals, and validation rules.
+- The difference between frontend logging vs backend logging (only errors belong in logs for backend).
+- How to design clean REST API endpoints that are easy for mobile apps to consume.
+- How to build consistent API responses that make debugging easier across the entire app.
 
 #### Photos of Progress - Sprint 8
 
 Trello cards completed Nov 25th
-![alt text](TrelloNov25.png)
+
+![alt text](devlogimages/TrelloNov25.png)
 
 Git Commit Nov 25
-![alt text](<GitCommit25(1).png>)
-![alt text](<GitCommitNov25(2).png>)
+
+![alt text](<devlogimages/GitCommit25(1).png>)
+![alt text](<devlogimages/GitCommitNov25(2).png>)
 
 FrontEnd File Clean up Git Commit
-![alt text](<GitCommitNov26(1).png>)
-![alt text](<GitCommitNov26(2).png>)
+
+![alt text](<devlogimages/GitCommitNov26(1).png>)
+![alt text](<devlogimages/GitCommitNov26(2).png>)
 
 BackEnd File clean up Git Commit
 ![alt text](<GitCommitNov26(3).png>)
+
+Sprint 8 done Trello cards

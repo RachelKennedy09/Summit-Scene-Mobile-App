@@ -26,8 +26,6 @@ import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator();
 
-import { colors } from "../theme/colors";
-
 // Simple loading screen while restoring auth session
 function AuthLoadingScreen() {
   return (
