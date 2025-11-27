@@ -120,7 +120,7 @@ export async function updateEvent(req, res) {
     }
 
     // Check ownership
-    if (event.createdBy.toString() !== userId) {
+    if (!event.createdBy || event.createdBy.toString() !== userId) {
       return res
         .status(403)
         .json({ message: "You are not allowed to edit this event." });

@@ -826,13 +826,13 @@ Sprint 8 done Trello cards
 4. Local users = Past events completely removed from Event Hub
 5. Better handling on the "Date Picker" on PostEventScreen so people can choose todays date easier, and click confirm/cancel for easier handling
 6. Better handling on the "Time Picker" on PostEventScreen so people can choose start and end times easier, and click confirm/cancel for easier handling
-
+7. Edit "EditEventScreen" after making changes to PostEventScreen
 
 ### Account Polish
 1. Add token key so user doesnt get logged out/memory loss when rloading the application
 2. Add " Youre logged in as a business/local user"
 3. Add "Hello, ${NAME}, Welcome to your summit scene hub
-4. 
+   
 
 #### Photos of Progress - Sprint 9
 

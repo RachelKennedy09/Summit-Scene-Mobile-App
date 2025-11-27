@@ -80,10 +80,10 @@ export async function deleteEvent(eventId, token) {
 export async function updateEvent(eventId, eventData, token) {
   try {
     const response = await fetch(`${BASE_URL}/api/events/${eventId}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: JSON.stringify(eventData),
     });
@@ -91,7 +91,10 @@ export async function updateEvent(eventId, eventData, token) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(data.message || "Error updating event");
+      console.error("updateEvent error response:", data);
+      const message =
+        data?.message || `Error updating event (status ${response.status})`;
+      throw new Error(message);
     }
 
     return data;

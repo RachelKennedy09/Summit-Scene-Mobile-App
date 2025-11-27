@@ -36,29 +36,69 @@ const CATEGORIES = [
   "Art",
 ];
 
+// All will not be in the categories dropdown menu
 const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
+
+// ---- helpers for time parsing/formatting ----
+function parseTimeStringToDate(timeStr) {
+  if (!timeStr) return new Date();
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return new Date();
+
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  const meridiem = match[3].toUpperCase();
+
+  if (meridiem === "PM" && hours !== 12) hours += 12;
+  if (meridiem === "AM" && hours === 12) hours = 0;
+
+  const d = new Date();
+  d.setHours(hours, minutes, 0, 0);
+  return d;
+}
+
+function formatTime(selectedTime) {
+  let hours = selectedTime.getHours();
+  const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
+  const isPM = hours >= 12;
+  const displayHours = ((hours + 11) % 12) + 1; // 0–23 -> 1–12
+  const suffix = isPM ? "PM" : "AM";
+
+  return `${displayHours}:${minutes} ${suffix}`;
+}
 
 export default function EditEventScreen({ route, navigation }) {
   const { token } = useAuth();
-  const { event } = route.params; // event passed from EventDetailScreen
+  const { event, onUpdated } = route.params; // event passed from EventDetail/MyEvents
 
   // ----- INITIAL STATE FROM EXISTING EVENT -----
   const [title, setTitle] = useState(event.title || "");
   const [description, setDescription] = useState(event.description || "");
-  const [town, setTown] = useState(event.town || TOWNS[0]);
+  const [town, setTown] = useState(
+    event.town && TOWNS.includes(event.town) ? event.town : TOWNS[0]
+  );
   const [category, setCategory] = useState(
     FORM_CATEGORIES.includes(event.category)
       ? event.category
       : FORM_CATEGORIES[0]
   );
 
-  // Date and Time state
+  // Date state
   const initialDateObj = event.date ? new Date(event.date) : new Date();
   const [dateObj, setDateObj] = useState(initialDateObj);
   const [date, setDate] = useState(event.date || ""); // "YYYY-MM-DD"
 
-  const [timeObj, setTimeObj] = useState(new Date());
-  const [time, setTime] = useState(event.time || ""); // "7:00 PM" or ""
+  // Start time state
+  const initialTimeStr = event.time || "";
+  const [timeObj, setTimeObj] = useState(parseTimeStringToDate(initialTimeStr));
+  const [time, setTime] = useState(initialTimeStr);
+
+  // End time state
+  const initialEndTimeStr = event.endTime || "";
+  const [endTimeObj, setEndTimeObj] = useState(
+    parseTimeStringToDate(initialEndTimeStr)
+  );
+  const [endTime, setEndTime] = useState(initialEndTimeStr);
 
   const [location, setLocation] = useState(event.location || "");
   const [loading, setLoading] = useState(false);
@@ -66,36 +106,52 @@ export default function EditEventScreen({ route, navigation }) {
   // Picker visibility toggles
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  const handleDateChange = (_, selectedDate) => {
-    setShowDatePicker(false);
-    if (!selectedDate) return;
-
-    setDateObj(selectedDate);
-
-    const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(selectedDate.getDate()).padStart(2, "0");
-    const formatted = `${year}-${month}-${day}`;
-    setDate(formatted);
+  // ---- DATE HANDLING (same pattern as PostEvent) ----
+  const applyDateFromDateObj = (jsDate) => {
+    const year = jsDate.getFullYear();
+    const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+    const day = String(jsDate.getDate()).padStart(2, "0");
+    setDate(`${year}-${month}-${day}`);
   };
 
+  // only update temp date; confirm button commits it
+  const handleDateChange = (_, selectedDate) => {
+    if (selectedDate) {
+      setDateObj(selectedDate);
+    }
+  };
+
+  const handleConfirmDate = () => {
+    applyDateFromDateObj(dateObj);
+    setShowDatePicker(false);
+  };
+
+  // ---- START TIME HANDLING ----
   const handleTimeChange = (_, selectedTime) => {
+    if (selectedTime) {
+      setTimeObj(selectedTime);
+    }
+  };
+
+  const handleConfirmTime = () => {
+    setTime(formatTime(timeObj));
     setShowTimePicker(false);
-    if (!selectedTime) return;
+  };
 
-    setTimeObj(selectedTime);
+  // ---- END TIME HANDLING ----
+  const handleEndTimeChange = (_, selectedTime) => {
+    if (selectedTime) {
+      setEndTimeObj(selectedTime);
+    }
+  };
 
-    let hours = selectedTime.getHours();
-    const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
-    const isPM = hours >= 12;
-    const displayHours = ((hours + 11) % 12) + 1; // 0–23 -> 1–12
-    const suffix = isPM ? "PM" : "AM";
-
-    const formatted = `${displayHours}:${minutes} ${suffix}`;
-    setTime(formatted);
+  const handleConfirmEndTime = () => {
+    setEndTime(formatTime(endTimeObj));
+    setShowEndTimePicker(false);
   };
 
   const handleSubmit = async () => {
@@ -118,19 +174,23 @@ export default function EditEventScreen({ route, navigation }) {
         town,
         category,
         date,
-        time,
+        time, // start time (optional)
+        endTime, // end time (optional)
         location,
       };
 
-      // call shared API helper to update
       const updatedEvent = await updateEvent(event._id, payload, token);
       console.info("Event updated:", updatedEvent);
+
+      // Let parent refresh if it passed a callback
+      if (typeof onUpdated === "function") {
+        onUpdated();
+      }
 
       Alert.alert("Updated", "Your event has been updated.", [
         {
           text: "OK",
           onPress: () => {
-            // Go back to MyEvents so they can see the updated info
             navigation.navigate("MyEvents");
           },
         },
@@ -188,14 +248,27 @@ export default function EditEventScreen({ route, navigation }) {
           </View>
         </Pressable>
 
-        {/* Time */}
-        <Text style={styles.label}>Time</Text>
+        {/* Start Time */}
+        <Text style={styles.label}>Start time (optional)</Text>
         <Pressable onPress={() => setShowTimePicker(true)}>
           <View pointerEvents="none">
             <TextInput
               style={styles.input}
-              placeholder="Select time (optional)"
+              placeholder="Select start time"
               value={time}
+              editable={false}
+            />
+          </View>
+        </Pressable>
+
+        {/* End Time */}
+        <Text style={styles.label}>End time (optional)</Text>
+        <Pressable onPress={() => setShowEndTimePicker(true)}>
+          <View pointerEvents="none">
+            <TextInput
+              style={styles.input}
+              placeholder="Select end time"
+              value={endTime}
               editable={false}
             />
           </View>
@@ -311,12 +384,26 @@ export default function EditEventScreen({ route, navigation }) {
                 display={Platform.OS === "ios" ? "inline" : "calendar"}
                 onChange={handleDateChange}
               />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmDate}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this date</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
       )}
 
-      {/* Time Picker Modal */}
+      {/* Start Time Picker Modal */}
       {showTimePicker && (
         <Modal
           transparent
@@ -331,6 +418,54 @@ export default function EditEventScreen({ route, navigation }) {
                 display={Platform.OS === "ios" ? "spinner" : "clock"}
                 onChange={handleTimeChange}
               />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmTime}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* End Time Picker Modal */}
+      {showEndTimePicker && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowEndTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.pickerModalContent}>
+              <DateTimePicker
+                value={endTimeObj}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "clock"}
+                onChange={handleEndTimeChange}
+              />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowEndTimePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmEndTime}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
@@ -342,7 +477,7 @@ export default function EditEventScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary, // was "#0B1520"
+    backgroundColor: colors.primary,
   },
   container: {
     padding: 16,
@@ -351,37 +486,37 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 16,
-    color: colors.textLight, // was "#FFFFFF"
+    color: colors.textLight,
   },
   label: {
     fontSize: 14,
     marginBottom: 4,
-    color: colors.textMuted, // was "#C4D0E0"
+    color: colors.textMuted,
   },
   input: {
-    backgroundColor: colors.secondary, // was "#1B2532"
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
-    color: colors.textLight, // was "#FFFFFF"
+    color: colors.textLight,
   },
   textArea: {
     height: 100,
     textAlignVertical: "top",
   },
   selectButton: {
-    backgroundColor: colors.secondary, // was "#1B2532"
+    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginBottom: 12,
   },
   selectButtonText: {
-    color: colors.textLight, // was "#FFFFFF"
+    color: colors.textLight,
   },
   button: {
-    backgroundColor: colors.cta, // was "#FF8A3D"
+    backgroundColor: colors.cta,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",
@@ -392,23 +527,23 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: colors.primary, // was "#0B1520"
+    color: colors.primary,
     fontWeight: "700",
     fontSize: 16,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)", // overlay: fine to keep as rgba literal
+    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   modalContent: {
-    backgroundColor: colors.primary, // was "#0B1520"
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
   modalTitle: {
-    color: colors.textLight, // was "#FFFFFF"
+    color: colors.textLight,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
@@ -417,7 +552,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   modalOptionText: {
-    color: colors.textLight, // was "#FFFFFF"
+    color: colors.textLight,
     fontSize: 16,
   },
   modalCancel: {
@@ -425,12 +560,38 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   modalCancelText: {
-    color: colors.cta, // was "#FF8A3D"
+    color: colors.cta,
     fontSize: 14,
   },
   pickerModalContent: {
-    backgroundColor: colors.primary, // was "#0B1520"
+    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
+  },
+  pickerButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
+    gap: 8,
+  },
+  pickerSecondaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  pickerSecondaryText: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
+  pickerPrimaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: colors.cta,
+  },
+  pickerPrimaryText: {
+    color: colors.primary,
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
