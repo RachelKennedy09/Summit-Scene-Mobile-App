@@ -120,6 +120,27 @@ export default function HubScreen() {
     return `No ${selectedCategory} events found in ${selectedTown}.`;
   }, [selectedCategory, selectedTown]);
 
+  // NEW: friendly summary of what we're showing
+  const resultSummary = useMemo(() => {
+    const count = eventsToShow.length;
+
+    const townLabel = selectedTown === "All" ? "all towns" : ` ${selectedTown}`;
+    const categoryLabel =
+      selectedCategory === "All"
+        ? "all categories"
+        : ` ${selectedCategory.toLowerCase()}`;
+
+    if (count === 0) {
+      return "No events match your current filters.";
+    }
+
+    if (count === 1) {
+      return `Showing 1 event in ${townLabel} for ${categoryLabel}.`;
+    }
+
+    return `Showing ${count} events in ${townLabel} for ${categoryLabel}.`;
+  }, [eventsToShow.length, selectedTown, selectedCategory]);
+
   if (loading && !refreshing && events.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
@@ -220,6 +241,9 @@ export default function HubScreen() {
             </View>
 
             <View style={styles.sectionDivider} />
+
+            {/* NEW: Filter summary */}
+            <Text style={styles.filterSummaryText}>{resultSummary}</Text>
           </View>
         }
         ListEmptyComponent={
@@ -335,7 +359,7 @@ const styles = StyleSheet.create({
   },
 
   headerContainer: {
-    marginBottom: 12,
+    marginBottom: 20,
   },
 
   heading: {
@@ -357,7 +381,7 @@ const styles = StyleSheet.create({
   },
 
   pillRow: {
-    gap: 12, // if gap errors on your RN version, remove this and use marginBottom on each pill
+    gap: 12,
     marginBottom: 12,
   },
 
@@ -388,15 +412,24 @@ const styles = StyleSheet.create({
   sectionDivider: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.15)",
-    marginTop: 12,
+    marginTop: 8,
+    marginBottom: 6,
+  },
+
+  // NEW: summary under filters
+  filterSummaryText: {
+    fontSize: 13,
+    color: colors.textMuted,
   },
 
   listContent: {
-    paddingBottom: 24,
+    paddingTop: 4,
+    paddingBottom: 32,
   },
 
   emptyContainer: {
-    paddingBottom: 24,
+    paddingTop: 8,
+    paddingBottom: 32,
   },
 
   emptyText: {
