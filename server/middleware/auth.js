@@ -1,12 +1,13 @@
-// reusable middleware to protect routes with JWT auth
-// any route that should be "logged-in only"(valid token) can use this middleware
+// server/middleware/auth.js
+// Reusable middleware to protect routes with JWT auth.
+// Any route that should be "logged-in only" can use this middleware.
 
 import jwt from "jsonwebtoken";
 
 export default function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  // Expectheader: "Authorization: Bearer <token>"
+  // Expect header: "Authorization: Bearer <token>"
   if (!authHeader) {
     return res
       .status(401)
@@ -23,12 +24,13 @@ export default function authMiddleware(req, res, next) {
   try {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      throw new Error("JWT_SECRET is not set in environment variables");
+      throw new Error("JWT_SECRET is not set in environment variables.");
     }
 
-    // decoded will have whatever i put inside jwt.sign({ userId, role }, ...)
+    // decoded contains whatever you put into JWT (userId, role)
     const decoded = jwt.verify(token, secret);
-    // attach to request so later handlers can use req.user.userId
+
+    // Attach payload to request so controllers can use req.user.userId
     req.user = decoded;
 
     next();
@@ -36,6 +38,6 @@ export default function authMiddleware(req, res, next) {
     console.error("authMiddleware error:", error.message);
     return res
       .status(401)
-      .json({ message: "Invalid or expired token. Please log in again" });
+      .json({ message: "Invalid or expired token. Please log in again." });
   }
 }
