@@ -73,7 +73,7 @@ export default function PostEventScreen() {
     setDate(`${year}-${month}-${day}`);
   };
 
-  // only update the selected date in state; confirmation button will commit it
+  // DATE: only update temp date; confirmation button will commit it
   const handleDateChange = (_, selectedDate) => {
     if (selectedDate) {
       setDateObj(selectedDate);
@@ -95,20 +95,28 @@ export default function PostEventScreen() {
     return `${displayHours}:${minutes} ${suffix}`;
   };
 
+  // START TIME: update temp object only
   const handleTimeChange = (_, selectedTime) => {
-    setShowTimePicker(false);
-    if (!selectedTime) return;
-
-    setTimeObj(selectedTime);
-    setTime(formatTime(selectedTime));
+    if (selectedTime) {
+      setTimeObj(selectedTime);
+    }
   };
 
-  const handleEndTimeChange = (_, selectedTime) => {
-    setShowEndTimePicker(false);
-    if (!selectedTime) return;
+  const handleConfirmTime = () => {
+    setTime(formatTime(timeObj));
+    setShowTimePicker(false);
+  };
 
-    setEndTimeObj(selectedTime);
-    setEndTime(formatTime(selectedTime));
+  // END TIME: update temp object only
+  const handleEndTimeChange = (_, selectedTime) => {
+    if (selectedTime) {
+      setEndTimeObj(selectedTime);
+    }
+  };
+
+  const handleConfirmEndTime = () => {
+    setEndTime(formatTime(endTimeObj));
+    setShowEndTimePicker(false);
   };
 
   const handleSubmit = async () => {
@@ -396,6 +404,20 @@ export default function PostEventScreen() {
                 display={Platform.OS === "ios" ? "spinner" : "clock"}
                 onChange={handleTimeChange}
               />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmTime}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
@@ -416,6 +438,20 @@ export default function PostEventScreen() {
                 display={Platform.OS === "ios" ? "spinner" : "clock"}
                 onChange={handleEndTimeChange}
               />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowEndTimePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmEndTime}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
