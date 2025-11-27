@@ -818,11 +818,12 @@ Sprint 8 done Trello cards
 5. hook pills to existing filters
 6. add date pill and logic
 
-### EventDetailScreen.js Polish
+### Event Polish
 
 1. Add event end time to event model
 2. add fresh styling to event cards
 3. Business users = "My Past Events" \*\*\*PLEASE NOTE: for development and grading purposes, I left the date handling to be able to choose a PAST date, so you can see the "My past events" feature. Otherwise I would add error handling so people couldnt post an event on a already past date.
 4. Local users = Past events completely removed from Event Hub
+5. Better handling on the "Date Picker" on PostEventScreen so people can choose todays date easier, and click confirm/cancel for easier handling
 
 #### Photos of Progress - Sprint 9

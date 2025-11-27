@@ -51,7 +51,7 @@ export default function PostEventScreen() {
   const [timeObj, setTimeObj] = useState(new Date());
   const [time, setTime] = useState(""); // "7:00 PM"
 
-  const [endTimeObj, setEndTimeObj] = useState(new Date()); // NEW: end time object
+  const [endTimeObj, setEndTimeObj] = useState(new Date()); // end time object
   const [endTime, setEndTime] = useState(""); // "9:00 PM"
 
   const [location, setLocation] = useState("");
@@ -60,21 +60,29 @@ export default function PostEventScreen() {
   // Picker visibility toggles
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false); // NEW
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
+  // --- Helpers for formatting dates/times ---
+
+  const applyDateFromDateObj = (jsDate) => {
+    const year = jsDate.getFullYear();
+    const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+    const day = String(jsDate.getDate()).padStart(2, "0");
+    setDate(`${year}-${month}-${day}`);
+  };
+
+  // only update the selected date in state; confirmation button will commit it
   const handleDateChange = (_, selectedDate) => {
+    if (selectedDate) {
+      setDateObj(selectedDate);
+    }
+  };
+
+  const handleConfirmDate = () => {
+    applyDateFromDateObj(dateObj);
     setShowDatePicker(false);
-    if (!selectedDate) return;
-
-    setDateObj(selectedDate);
-
-    const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(selectedDate.getDate()).padStart(2, "0");
-    const formatted = `${year}-${month}-${day}`;
-    setDate(formatted);
   };
 
   const formatTime = (selectedTime) => {
@@ -144,7 +152,6 @@ export default function PostEventScreen() {
       const createdEvent = await response.json();
       console.info("Event created:", createdEvent);
 
-      // Show success alert, then go to "MyEvents" screen instead of goBack
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
@@ -162,7 +169,6 @@ export default function PostEventScreen() {
             setTimeObj(new Date());
             setEndTimeObj(new Date());
 
-            // Navigate to MyEvents so the user can confirm it's listed
             navigation.navigate("MyEvents");
           },
         },
@@ -356,6 +362,20 @@ export default function PostEventScreen() {
                 display={Platform.OS === "ios" ? "inline" : "calendar"}
                 onChange={handleDateChange}
               />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerPrimaryButton}
+                  onPress={handleConfirmDate}
+                >
+                  <Text style={styles.pickerPrimaryText}>Use this date</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </Modal>
@@ -515,5 +535,36 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
+  },
+
+  pickerButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
+    gap: 8,
+  },
+
+  pickerSecondaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+
+  pickerSecondaryText: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
+
+  pickerPrimaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: colors.cta,
+  },
+
+  pickerPrimaryText: {
+    color: colors.primary,
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
