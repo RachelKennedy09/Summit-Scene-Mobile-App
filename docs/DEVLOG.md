@@ -807,8 +807,8 @@ Sprint 8 done Trello cards
 
 ## 📅 Sprint #9 Polishing (November 27)
 
+### HubScreen.js Polish
 
-### HubScreen.js Polish 
 #### Sprint Goals
 
 1. Add Hero Section
@@ -816,16 +816,13 @@ Sprint 8 done Trello cards
 3. Create town modal selecter
 4. Create category modal selecter
 5. hook pills to existing filters
-6. add fresh sstyling to event cards
-7. add date pill and logic
-
-
+6. add date pill and logic
 
 ### EventDetailScreen.js Polish
-1. Add event end time to event model
-2. 
 
+1. Add event end time to event model
+2. add fresh styling to event cards
+3. Business users = "My Past Events" \*\*\*PLEASE NOTE: for development and grading purposes, I left the date handling to be able to choose a PAST date, so you can see the "My past events" feature. Otherwise I would add error handling so people couldnt post an event on a already past date.
+4. Local users = Past events completely removed from Event Hub
 
 #### Photos of Progress - Sprint 9
-
-

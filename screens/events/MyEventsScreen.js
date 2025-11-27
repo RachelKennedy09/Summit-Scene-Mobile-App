@@ -1,6 +1,6 @@
 // screens/MyEventsScreen.js
 // Shows events created by the currently logged-in user
-//Let business users manage their own events in one place
+// Let business users manage their own events in one place
 
 import React, { useEffect, useState, useCallback } from "react";
 import {
@@ -81,7 +81,45 @@ export default function MyEventsScreen({ navigation }) {
     }
   }, []);
 
+  // ---- Split into upcoming + past based on today's date ----
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const todayStr = `${year}-${month}-${day}`;
+
+  const upcomingEvents = events.filter(
+    (event) => event.date && event.date >= todayStr
+  );
+  const pastEvents = events.filter(
+    (event) => event.date && event.date < todayStr
+  );
+
+  function buildDateTimeLabel(item) {
+    const hasDate = Boolean(item.date);
+    const hasStartTime = Boolean(item.time);
+    const hasEndTime = Boolean(item.endTime);
+
+    let label = "Date & time TBA";
+
+    if (hasDate && hasStartTime && hasEndTime) {
+      label = `${item.date} • ${item.time} – ${item.endTime}`;
+    } else if (hasDate && hasStartTime) {
+      label = `${item.date} • ${item.time}`;
+    } else if (hasDate) {
+      label = item.date;
+    } else if (hasStartTime && hasEndTime) {
+      label = `${item.time} – ${item.endTime}`;
+    } else if (hasStartTime) {
+      label = item.time;
+    }
+
+    return label;
+  }
+
   function renderEventItem({ item }) {
+    const dateTimeLabel = buildDateTimeLabel(item);
+
     return (
       <View style={styles.card}>
         {/* Tap the main card to open EventDetail */}
@@ -98,9 +136,7 @@ export default function MyEventsScreen({ navigation }) {
           <Text style={styles.meta}>
             {item.town} • {item.category}
           </Text>
-          <Text style={styles.dateText}>
-            {item.date} {item.time ? `• ${item.time}` : ""}
-          </Text>
+          <Text style={styles.dateText}>{dateTimeLabel}</Text>
           {item.location ? (
             <Text style={styles.location}>{item.location}</Text>
           ) : null}
@@ -215,8 +251,8 @@ export default function MyEventsScreen({ navigation }) {
       <Text style={styles.screenSubtitle}>
         Events created by {user?.name || user?.email}
       </Text>
-      {/* 🔹 Quick shortcut to Post Event tab */}
 
+      {/* 🔹 Quick shortcut to Post Event tab */}
       {isBusiness && (
         <Pressable
           style={styles.primaryButton}
@@ -226,15 +262,37 @@ export default function MyEventsScreen({ navigation }) {
         </Pressable>
       )}
 
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item._id}
-        renderItem={renderEventItem}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        }
-      />
+      {/* Upcoming Events */}
+      {upcomingEvents.length > 0 && (
+        <>
+          <Text style={styles.sectionHeading}>My Upcoming Events</Text>
+          <FlatList
+            data={upcomingEvents}
+            keyExtractor={(item) => item._id}
+            renderItem={renderEventItem}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+            }
+          />
+        </>
+      )}
+
+      {/* Past Events */}
+      {pastEvents.length > 0 && (
+        <>
+          <Text style={styles.sectionHeading}>My Past Events</Text>
+          <FlatList
+            data={pastEvents}
+            keyExtractor={(item) => item._id}
+            renderItem={renderEventItem}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+            }
+          />
+        </>
+      )}
     </View>
   );
 }
@@ -257,8 +315,15 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: 12,
   },
+  sectionHeading: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textLight,
+    marginTop: 16,
+    marginBottom: 8,
+  },
   listContent: {
-    paddingBottom: 24,
+    paddingBottom: 8,
   },
   card: {
     backgroundColor: colors.secondary,
@@ -333,6 +398,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
+    marginTop: 8,
   },
   primaryButtonText: {
     color: colors.textDark,

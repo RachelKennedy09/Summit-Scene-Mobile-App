@@ -6,11 +6,22 @@ import Event from "../models/Event.js";
 
 // GET /api/events
 // Return all events
+// Return only upcoming events (today or later)
 export async function getAllEvents(req, res) {
   try {
-    // simple "find all", sorted by date ascending
-    const events = await Event.find().sort({ date: 1 });
-    return res.json(events); // 200 OK by default
+    // Build today's date in YYYY-MM-DD format
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${year}-${month}-${day}`;
+
+    // Only events on or after today
+    const events = await Event.find({ date: { $gte: todayStr } }).sort({
+      date: 1,
+    });
+
+    return res.json(events);
   } catch (error) {
     console.error("Error fetching events:", error.message);
     return res.status(500).json({
@@ -19,7 +30,6 @@ export async function getAllEvents(req, res) {
     });
   }
 }
-
 // POST /api/events
 // Create a new event: reads data from req.body, validates required fields,
 // saves to MongoDB, and returns the saved event.
