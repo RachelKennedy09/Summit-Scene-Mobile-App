@@ -802,3 +802,19 @@ BackEnd File clean up Git Commit
 
 Sprint 8 done Trello cards
 ![alt text](devlogimages/Sprint8Done.png)
+
+---
+
+## 📅 Sprint #9 HubScreen.js Polish (November 27th)
+
+### Sprint Goals
+
+1. Add Hero Section
+2. Create Pill Buttons component
+3. Create town modal selecter
+4. Create category modal selecter
+5. hook pills to existing filters
+6. add fresh sstyling to event cards
+7. add date pill and logic
+
+#### Photos of Progress - Sprint 9
