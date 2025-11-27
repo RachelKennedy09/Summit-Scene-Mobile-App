@@ -1,50 +1,60 @@
-// entry point for Summit Scene backend (API server)
+// entry point for Summit Scene backend (API server) (boots the app)
 
-import express from "express";
-import cors from "cors";
-import { connectDB } from "./config/db.js";
+import express from "express"; // Routing and Server logic
+import cors from "cors"; // Expo/React Native can talk to this server
+import { connectDB } from "./config/db.js"; // MongoDB helper
 import eventRoutes from "./routes/events.js";
 import authRouter from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import communityRoutes from "./routes/community.js";
 
-// create the express app
+// Create the Express app
 const app = express();
 
 //Global middleware
-app.use(cors()); // allow requests from expo app
-app.use(express.json()); //allow JSON in request bodies
+app.use(cors()); // Allow requests from Expo / web clients on other origins
+app.use(express.json()); // Parse incoming JSON request bodies into req.body
 
-// auth routes
-app.use("/api/auth", authRouter);
-
-app.use("/api/users", userRoutes);
-
-//simple test route
-app.get("/", (req, res) => {
-  res.json({
-    message: "summitScene API is running (ESM)",
-  });
+// Health check route
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "SummitScene API is healthy" });
 });
 
-// middleware for community routes
-app.use("/api/community", communityRoutes);
+// Auth and user routes
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRoutes);
 
-// events routes for anything starting with /api/events
+// Community and Events routes
+app.use("/api/community", communityRoutes);
 app.use("/api/events", eventRoutes);
 
-// port for the backend
+//simple root route
+app.get("/", (req, res) => {
+  res.json({ message: "SummitScene API is running" });
+});
+
+// Port configuration ( from env in production, 4000 by default in dev)
 const PORT = process.env.PORT || 4000;
 
-//start function that connects to DB THEN starts server
+// Start function: connect to DB, then start server
 async function startServer() {
-  //connect to mongodb
-  await connectDB();
-
-  //only start the server if DB connection worked
-  app.listen(PORT, () => {
-    console.log(`SummitScene API listening on port ${PORT}`);
-  });
+  try {
+    //connect to mongodb
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(` SummitScene API listening on port ${PORT}`);
+      if (process.env.NODE_ENV) {
+        console.log(`Environment: ${process.env.NODE_ENV}`);
+      }
+    });
+  } catch (error) {
+    console.error(" Failed to start server:", error.message);
+    // If DB connection fails, exit with non-zero code
+    process.exit(1);
+  }
 }
-//call the start function
+
+// Call the startup process
 startServer();
+
+// export default app;
