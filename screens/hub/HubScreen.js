@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Pressable,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -21,6 +22,9 @@ import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi";
 
 import { colors } from "../../theme/colors";
 
+// Simple list of towns for the selector modal
+const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
+
 export default function HubScreen() {
   const navigation = useNavigation();
 
@@ -30,6 +34,9 @@ export default function HubScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+
+  // NEW: controls whether the Town selector modal is visible
+  const [isTownModalVisible, setIsTownModalVisible] = useState(false);
 
   const loadEvents = useCallback(async (isRefresh = false) => {
     try {
@@ -129,6 +136,12 @@ export default function HubScreen() {
     />
   );
 
+  // When the user taps a town option inside the modal
+  const handleSelectTown = (town) => {
+    setSelectedTown(town);
+    setIsTownModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -163,12 +176,12 @@ export default function HubScreen() {
               {/* Town Pill */}
               <Pressable
                 style={styles.pill}
-                onPress={() => {
-                  // TODO (Sprint 9): Open town selector modal here
-                }}
+                onPress={() => setIsTownModalVisible(true)}
               >
                 <Text style={styles.pillLabel}>Town</Text>
-                <Text style={styles.pillValue}>Select town ▾</Text>
+                <Text style={styles.pillValue}>
+                  {selectedTown === "All" ? "All towns ▾" : `${selectedTown} ▾`}
+                </Text>
               </Pressable>
 
               {/* Category Pill */}
@@ -179,7 +192,11 @@ export default function HubScreen() {
                 }}
               >
                 <Text style={styles.pillLabel}>Category</Text>
-                <Text style={styles.pillValue}>Select category ▾</Text>
+                <Text style={styles.pillValue}>
+                  {selectedCategory === "All"
+                    ? "All categories ▾"
+                    : `${selectedCategory} ▾`}
+                </Text>
               </Pressable>
             </View>
 
@@ -196,6 +213,51 @@ export default function HubScreen() {
           <ActivityIndicator size="large" color="#ffffff" />
         </View>
       )}
+
+      {/* Town Selector Modal */}
+      <Modal
+        visible={isTownModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsTownModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a town</Text>
+
+            {TOWNS.map((town) => {
+              const isSelected = town === selectedTown;
+              return (
+                <Pressable
+                  key={town}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectTown(town)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {town === "All" ? "All towns" : town}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsTownModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -231,7 +293,7 @@ const styles = StyleSheet.create({
   },
 
   pillRow: {
-    gap: 12,
+    gap: 12, 
     marginBottom: 12,
   },
 
@@ -298,5 +360,70 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(9, 13, 17, 0.6)",
+  },
+
+  // ----- Modal styles -----
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalCard: {
+    width: "85%",
+    maxHeight: "70%",
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.textLight,
+    marginBottom: 12,
+  },
+
+  townOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    marginBottom: 8,
+    backgroundColor: "rgba(255,255,255,0.04)",
+  },
+
+  townOptionSelected: {
+    backgroundColor: "rgba(255,255,255,0.16)",
+  },
+
+  townOptionText: {
+    fontSize: 15,
+    color: colors.textLight,
+  },
+
+  townOptionTextSelected: {
+    fontWeight: "700",
+  },
+
+  townCheckMark: {
+    fontSize: 16,
+    color: colors.textLight,
+  },
+
+  modalCloseButton: {
+    marginTop: 8,
+    alignSelf: "flex-end",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+
+  modalCloseText: {
+    fontSize: 14,
+    color: colors.textLight,
   },
 });
