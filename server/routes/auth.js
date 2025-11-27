@@ -1,6 +1,6 @@
-// Register and Login
-// WHAT: Auth routes for SummitScene
-// WHY: Let clients create accounts and receive JWT tokens for secure requests
+// server/routes/auth.js
+// Auth routes for SummitScene
+// Let clients create accounts and receive JWT tokens for secure requests
 
 import express from "express";
 import bcrypt from "bcrypt";
