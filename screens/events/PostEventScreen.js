@@ -68,21 +68,15 @@ export default function PostEventScreen() {
     setShowDatePicker(false);
     if (!selectedDate) return;
 
-    // Save original for the picker UI
     setDateObj(selectedDate);
 
-    // Adjust for timezone so we treat the chosen calendar day as a pure local date
-    const local = new Date(
-      selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
-    );
-
-    const year = local.getUTCFullYear();
-    const month = String(local.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(local.getUTCDate()).padStart(2, "0");
-
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
     const formatted = `${year}-${month}-${day}`;
     setDate(formatted);
   };
+
   const formatTime = (selectedTime) => {
     let hours = selectedTime.getHours();
     const minutes = String(selectedTime.getMinutes()).padStart(2, "0");

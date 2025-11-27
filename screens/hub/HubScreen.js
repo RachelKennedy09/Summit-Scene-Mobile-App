@@ -144,21 +144,21 @@ export default function HubScreen() {
       const townMatch = selectedTown === "All" || event.town === selectedTown;
 
       // Date filter
+      // Date filter
       let dateMatch = true;
-      if (selectedDateFilter !== "All dates") {
-        if (!event.date) {
+
+      // Only apply a range filter when user picked something other than "All"
+      if (selectedDateFilter !== "All") {
+        if (!event.date || typeof event.date !== "string") {
           dateMatch = false;
         } else {
-          const eventDateObj = new Date(event.date);
-          if (isNaN(eventDateObj)) {
+          // Expecting "YYYY-MM-DD" – parse manually to avoid timezone issues
+          const [y, m, d] = event.date.split("-").map(Number);
+
+          if (!y || !m || !d) {
             dateMatch = false;
           } else {
-            // normalize event date to start-of-day
-            const eventDay = new Date(
-              eventDateObj.getFullYear(),
-              eventDateObj.getMonth(),
-              eventDateObj.getDate()
-            );
+            const eventDay = new Date(y, m - 1, d); // local start-of-day
 
             if (rangeStart && rangeEnd) {
               dateMatch = eventDay >= rangeStart && eventDay < rangeEnd;
@@ -175,7 +175,7 @@ export default function HubScreen() {
     if (
       selectedCategory === "All" &&
       selectedTown === "All" &&
-      selectedDateFilter === "All dates"
+      selectedDateFilter === "All"
     ) {
       return "No events available yet. Check back soon!";
     }
@@ -188,7 +188,7 @@ export default function HubScreen() {
       return `No ${selectedCategory} events found. Try another category or town.`;
     }
 
-    if (selectedDateFilter !== "All dates") {
+    if (selectedDateFilter !== "All") {
       return `No events match your filters for ${selectedDateFilter.toLowerCase()}.`;
     }
 
@@ -205,7 +205,7 @@ export default function HubScreen() {
         : ` ${selectedCategory.toLowerCase()}`;
 
     const dateLabel =
-      selectedDateFilter === "All dates"
+      selectedDateFilter === "All"
         ? ""
         : ` (${selectedDateFilter.toLowerCase()})`;
 
