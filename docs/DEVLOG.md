@@ -734,6 +734,6 @@ Git Commit Nov 25
 ![alt text](<GitCommit25(1).png>)
 ![alt text](<GitCommitNov25(2).png>)
 
-
 FrontEnd File Clean up Git Commit
-
+![alt text](<GitCommitNov26(1).png>)
+![alt text](<GitCommitNov26(2).png>)
