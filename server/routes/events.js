@@ -21,15 +21,15 @@ const router = express.Router();
 // Anyone can see all events (used by Hub and Map screens)
 router.get("/", getAllEvents);
 
+// GET /api/events/mine
+// Logged-in users can see events they created (typically business accounts)
+router.get("/mine", authMiddleware, getMyEvents);
+
 // GET /api/events/:id
 // Anyone can see detailed info for a single event
 router.get("/:id", getEventById);
 
 // PROTECTED ROUTES
-
-// GET /api/events/mine
-// Logged-in users can see events they created (typically business accounts)
-router.get("/mine", authMiddleware, getMyEvents);
 
 // POST /api/events
 // Only logged-in "business" role users can create events
