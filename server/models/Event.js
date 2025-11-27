@@ -1,43 +1,73 @@
-// Event model for SummitScene evens (Banff, Canmore, Lake Louise, etc.)
+// Event model for SummitScene events (Banff, Canmore, Lake Louise, etc.)
 
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
+    // Short title for the event card
     title: {
       type: String,
-      required: true, //every event needs a title
+      required: [true, "Event title is required"],
       trim: true,
     },
+
+    // Longer description shown on the EventDetail screen
     description: {
       type: String,
       trim: true,
     },
+
+    // Which mountain town this event belongs to
     town: {
-      type: String, // Banff, Canmore, Lake Louise
-      required: true,
+      type: String,
+      required: [true, "Town is required"],
       trim: true,
       enum: ["Banff", "Canmore", "Lake Louise"],
     },
+
+    // Category for filtering (chips on Hub/Map screens)
     category: {
-      type: String, // Live music, Market, Family
+      type: String,
       trim: true,
+      enum: [
+        "Music",
+        "Food & Drink",
+        "Retail",
+        "Outdoors",
+        "Family",
+        "Markets",
+        "Other",
+      ],
+      default: "Other",
     },
+
+    // Event date in YYYY-MM-DD format (string on purpose to avoid timezone issues)
     date: {
-      type: String, // or date type maybe
-      required: true,
+      type: String,
+      required: [true, "Event date is required"],
+      // Basic format check for YYYY-MM-DD
+      match: [/^\d{4}-\d{2}-\d{2}$/, "Date must be in format YYYY-MM-DD"],
     },
+
+    // Optional time string shown on cards/details, e.g. "7:00 PM"
     time: {
-      type: String, // "7:00 PM"
+      type: String,
+      trim: true,
     },
+
+    // Venue or meeting location, e.g. "High Rollers Banff"
     location: {
-      type: String, // "High Rollers Banff"
+      type: String,
       trim: true,
     },
+
+    // Optional poster image URL (used for hero image on EventDetail)
     imageUrl: {
-      type: String, //optional poster image URL
+      type: String,
       trim: true,
     },
+
+    // Which user created this event (business owner)
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -45,9 +75,21 @@ const eventSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // adds CreateAt and updatedat automatically
+    // Automatically adds createdAt / updatedAt
+    timestamps: true,
+
+    // Include virtual fields when converting to JSON / objects
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
+//  quick label for debugging / logs
+eventSchema.virtual("summary").get(function () {
+  return `${this.title} (${this.town}) on ${this.date}`;
+});
+
+// Create the "events" collection in MongoDB
 const Event = mongoose.model("Event", eventSchema);
+
 export default Event;
