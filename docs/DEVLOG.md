@@ -829,10 +829,10 @@ Sprint 8 done Trello cards
 7. Edit "EditEventScreen" after making changes to PostEventScreen
 
 ### Account Polish
+
 1. Add token key so user doesnt get logged out/memory loss when rloading the application
 2. Add " Youre logged in as a business/local user"
 3. Add "Hello, ${NAME}, Welcome to your summit scene hub
-   
 
 #### Photos of Progress - Sprint 9
 
@@ -843,3 +843,12 @@ Trello Cards for Hubscreen and Event Polish
 Git commit for HubScreen and Event Polish
 
 ![alt text](devlogimages/GitCommitNov27PolishHubEvent.png)
+
+App ScreenShot For Town Category Date pills
+![alt text](devlogimages/APPTown,Cat,DatePicker.png)
+
+App Screenshot for "Date Picker" user friendly
+![alt text](devlogimages/APPDatePicker.png)
+
+App Screenshot for "time picker' user friendly
+![alt text](devlogimages/APPTimePicker.png)
