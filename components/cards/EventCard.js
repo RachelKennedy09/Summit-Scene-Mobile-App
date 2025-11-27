@@ -33,22 +33,34 @@ export default function EventCard({ event, onPress }) {
       ]}
     >
       <View style={styles.card}>
-        {/* Category pill */}
-        {event.category ? (
-          <View style={styles.categoryPill}>
-            <Text style={styles.categoryText}>{event.category}</Text>
-          </View>
-        ) : null}
+        {/* Category + town row */}
+        <View style={styles.topRow}>
+          {event.category ? (
+            <View style={styles.categoryPill}>
+              <Text style={styles.categoryText}>{event.category}</Text>
+            </View>
+          ) : (
+            <View />
+          )}
+
+          {event.town ? (
+            <Text style={styles.townText}>{event.town}</Text>
+          ) : null}
+        </View>
 
         {/* Title */}
-        <Text style={styles.title}>{event.title || "Untitled event"}</Text>
+        <Text style={styles.title} numberOfLines={2}>
+          {event.title || "Untitled event"}
+        </Text>
 
         {/* Location */}
         {event.location ? (
-          <Text style={styles.location}>{event.location}</Text>
+          <Text style={styles.location} numberOfLines={1}>
+            📍 {event.location}
+          </Text>
         ) : null}
 
-        {/* Date + Time */}
+        {/* Date + time */}
         <Text style={styles.datetime}>{dateTimeLabel}</Text>
       </View>
     </Pressable>
@@ -57,35 +69,35 @@ export default function EventCard({ event, onPress }) {
 
 const styles = StyleSheet.create({
   cardWrapper: {
-    borderRadius: 16,
+    borderRadius: 14,
     marginBottom: 12,
   },
 
   cardPressed: {
-    opacity: 0.8,
-    transform: [{ scale: 0.98 }],
+    opacity: 0.85,
+    transform: [{ scale: 0.99 }],
   },
 
   card: {
     backgroundColor: colors.secondary,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+  },
+
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
   },
 
   categoryPill: {
-    alignSelf: "flex-start",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    marginBottom: 6,
+    backgroundColor: colors.tealTint,
   },
 
   categoryText: {
@@ -96,21 +108,28 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
+  townText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: "500",
+  },
+
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: colors.textLight,
-    marginBottom: 6,
+    marginBottom: 4,
   },
 
   location: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textLight,
-    marginBottom: 4,
+    marginBottom: 2,
   },
 
   datetime: {
     fontSize: 12,
     color: colors.textMuted,
+    marginTop: 2,
   },
 });
