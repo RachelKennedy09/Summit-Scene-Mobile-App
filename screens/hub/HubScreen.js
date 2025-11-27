@@ -39,11 +39,22 @@ const CATEGORIES = [
   "Art",
 ];
 
+// Date filter options (relative ranges)
+const DATE_FILTERS = [
+  "All",
+  "Today",
+  "Next 3 days",
+  "Next 7 days",
+  "Next 30 days",
+];
+
 export default function HubScreen() {
   const navigation = useNavigation();
 
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedTown, setSelectedTown] = useState("All");
+  const [selectedDateFilter, setSelectedDateFilter] = useState("All");
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -52,6 +63,7 @@ export default function HubScreen() {
   //controls whether the Town selector modal is visible
   const [isTownModalVisible, setIsTownModalVisible] = useState(false);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
 
   const loadEvents = useCallback(async (isRefresh = false) => {
     try {
@@ -94,33 +106,95 @@ export default function HubScreen() {
   };
 
   const eventsToShow = useMemo(() => {
+    // Helper to compute date range based on selectedDateFilter
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    let rangeStart = null;
+    let rangeEnd = null;
+
+    if (selectedDateFilter === "Today") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 1); // [today, today+1)
+    } else if (selectedDateFilter === "Next 3 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 3);
+    } else if (selectedDateFilter === "Next 7 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 7);
+    } else if (selectedDateFilter === "Next 30 days") {
+      rangeStart = todayStart;
+      rangeEnd = new Date(todayStart);
+      rangeEnd.setDate(rangeEnd.getDate() + 30);
+    }
+
     return events.filter((event) => {
+      // Category filter
       const categoryMatch =
         selectedCategory === "All" || event.category === selectedCategory;
 
+      // Town filter
       const townMatch = selectedTown === "All" || event.town === selectedTown;
 
-      return categoryMatch && townMatch;
+      // Date filter
+      let dateMatch = true;
+      if (selectedDateFilter !== "All dates") {
+        if (!event.date) {
+          dateMatch = false;
+        } else {
+          const eventDateObj = new Date(event.date);
+          if (isNaN(eventDateObj)) {
+            dateMatch = false;
+          } else {
+            // normalize event date to start-of-day
+            const eventDay = new Date(
+              eventDateObj.getFullYear(),
+              eventDateObj.getMonth(),
+              eventDateObj.getDate()
+            );
+
+            if (rangeStart && rangeEnd) {
+              dateMatch = eventDay >= rangeStart && eventDay < rangeEnd;
+            }
+          }
+        }
+      }
+
+      return categoryMatch && townMatch && dateMatch;
     });
-  }, [events, selectedCategory, selectedTown]);
+  }, [events, selectedCategory, selectedTown, selectedDateFilter]);
 
   const emptyMessage = useMemo(() => {
-    if (selectedCategory === "All" && selectedTown === "All") {
+    if (
+      selectedCategory === "All" &&
+      selectedTown === "All" &&
+      selectedDateFilter === "All dates"
+    ) {
       return "No events available yet. Check back soon!";
     }
 
-    if (selectedCategory === "All") {
+    if (selectedCategory === "All" && selectedTown !== "All") {
       return `No events found in ${selectedTown}. Try another town or check back later.`;
     }
 
-    if (selectedTown === "All") {
+    if (selectedTown === "All" && selectedCategory !== "All") {
       return `No ${selectedCategory} events found. Try another category or town.`;
     }
 
-    return `No ${selectedCategory} events found in ${selectedTown}.`;
-  }, [selectedCategory, selectedTown]);
+    if (selectedDateFilter !== "All dates") {
+      return `No events match your filters for ${selectedDateFilter.toLowerCase()}.`;
+    }
 
-  // NEW: friendly summary of what we're showing
+    return `No ${selectedCategory} events found in ${selectedTown}.`;
+  }, [selectedCategory, selectedTown, selectedDateFilter]);
+  // Friendly summary of what we're showing
   const resultSummary = useMemo(() => {
     const count = eventsToShow.length;
 
@@ -130,16 +204,21 @@ export default function HubScreen() {
         ? "all categories"
         : ` ${selectedCategory.toLowerCase()}`;
 
+    const dateLabel =
+      selectedDateFilter === "All dates"
+        ? ""
+        : ` (${selectedDateFilter.toLowerCase()})`;
+
     if (count === 0) {
       return "No events match your current filters.";
     }
 
     if (count === 1) {
-      return `Showing 1 event in ${townLabel} for ${categoryLabel}.`;
+      return `Showing 1 event in ${townLabel} for ${categoryLabel}${dateLabel}.`;
     }
 
-    return `Showing ${count} events in ${townLabel} for ${categoryLabel}.`;
-  }, [eventsToShow.length, selectedTown, selectedCategory]);
+    return `Showing ${count} events in ${townLabel} for ${categoryLabel}${dateLabel}.`;
+  }, [eventsToShow.length, selectedTown, selectedCategory, selectedDateFilter]);
 
   if (loading && !refreshing && events.length === 0) {
     return (
@@ -182,6 +261,12 @@ export default function HubScreen() {
   const handleSelectCategory = (category) => {
     setSelectedCategory(category);
     setIsCategoryModalVisible(false);
+  };
+
+  // When the user taps a date filter option inside the modal
+  const handleSelectDateFilter = (filter) => {
+    setSelectedDateFilter(filter);
+    setIsDateModalVisible(false);
   };
 
   return (
@@ -238,11 +323,20 @@ export default function HubScreen() {
                     : `${selectedCategory} ▾`}
                 </Text>
               </Pressable>
+
+              {/* Date Pill */}
+              <Pressable
+                style={styles.pill}
+                onPress={() => setIsDateModalVisible(true)}
+              >
+                <Text style={styles.pillLabel}>Date</Text>
+                <Text style={styles.pillValue}>{selectedDateFilter} ▾</Text>
+              </Pressable>
             </View>
 
             <View style={styles.sectionDivider} />
 
-            {/* NEW: Filter summary */}
+            {/* Filter summary */}
             <Text style={styles.filterSummaryText}>{resultSummary}</Text>
           </View>
         }
@@ -346,6 +440,51 @@ export default function HubScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Date Selector Modal */}
+      <Modal
+        visible={isDateModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsDateModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a date range</Text>
+
+            {DATE_FILTERS.map((filter) => {
+              const isSelected = filter === selectedDateFilter;
+              return (
+                <Pressable
+                  key={filter}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectDateFilter(filter)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {filter}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsDateModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -368,6 +507,7 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     marginBottom: 4,
   },
+
   subheading: {
     fontSize: 14,
     color: colors.textLight,
@@ -389,15 +529,15 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: colors.secondary,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.25)",
+    borderColor: colors.border,
   },
 
   pillLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.textLight,
+    color: colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 2,
@@ -411,12 +551,12 @@ const styles = StyleSheet.create({
 
   sectionDivider: {
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: colors.border,
     marginTop: 8,
     marginBottom: 6,
   },
 
-  // NEW: summary under filters
+  // summary under filters
   filterSummaryText: {
     fontSize: 13,
     color: colors.textMuted,
@@ -444,10 +584,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   loadingText: {
     marginTop: 8,
     color: colors.textMuted,
   },
+
   refreshOverlay: {
     position: "absolute",
     top: 0,
@@ -456,13 +598,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(9, 13, 17, 0.6)",
+    backgroundColor: "#0b1522cc",
   },
 
   // ----- Modal styles -----
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.65)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -470,10 +612,12 @@ const styles = StyleSheet.create({
   modalCard: {
     width: "85%",
     maxHeight: "70%",
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
   modalTitle: {
@@ -491,11 +635,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 999,
     marginBottom: 8,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    backgroundColor: colors.cardDark,
+    borderWidth: 1,
+    borderColor: "transparent",
   },
 
   townOptionSelected: {
-    backgroundColor: "rgba(255,255,255,0.16)",
+    backgroundColor: colors.tealTint,
+    borderColor: colors.teal,
   },
 
   townOptionText: {
@@ -509,7 +656,7 @@ const styles = StyleSheet.create({
 
   townCheckMark: {
     fontSize: 16,
-    color: colors.textLight,
+    color: colors.accent,
   },
 
   modalCloseButton: {
@@ -521,6 +668,6 @@ const styles = StyleSheet.create({
 
   modalCloseText: {
     fontSize: 14,
-    color: colors.textLight,
+    color: colors.textMuted,
   },
 });
