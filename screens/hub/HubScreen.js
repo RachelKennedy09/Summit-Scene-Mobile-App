@@ -8,13 +8,15 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
 import EventCard from "../../components/cards/EventCard";
-import CategoryChips from "../../components/chips/CategoryChips";
-import TownChips from "../../components/chips/TownChips";
+//  Removing Chips for the New UI Sprint (9)
+// import CategoryChips from "../../components/chips/CategoryChips";
+// import TownChips from "../../components/chips/TownChips";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi";
 
 import { colors } from "../../theme/colors";
@@ -129,20 +131,6 @@ export default function HubScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>SummitScene Hub</Text>
-      <Text style={styles.subheading}>
-        Upcoming events in Banff, Canmore & Lake Louise
-      </Text>
-
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-      <TownChips selectedTown={selectedTown} onSelectTown={setSelectedTown} />
-
-      <CategoryChips
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-
       <FlatList
         data={eventsToShow}
         keyExtractor={(item) =>
@@ -161,6 +149,42 @@ export default function HubScreen() {
             colors={["transparent"]}
             progressBackgroundColor="transparent"
           />
+        }
+        ListHeaderComponent={
+          <View style={styles.headerContainer}>
+            <Text style={styles.heading}>Welcome to your Summit Scene Hub</Text>
+            <Text style={styles.subheading}>
+              Choose a town and category to start exploring events near you.
+            </Text>
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <View style={styles.pillRow}>
+              {/* Town Pill */}
+              <Pressable
+                style={styles.pill}
+                onPress={() => {
+                  // TODO (Sprint 9): Open town selector modal here
+                }}
+              >
+                <Text style={styles.pillLabel}>Town</Text>
+                <Text style={styles.pillValue}>Select town ▾</Text>
+              </Pressable>
+
+              {/* Category Pill */}
+              <Pressable
+                style={styles.pill}
+                onPress={() => {
+                  // TODO (Sprint 9): Open category selector modal here
+                }}
+              >
+                <Text style={styles.pillLabel}>Category</Text>
+                <Text style={styles.pillValue}>Select category ▾</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.sectionDivider} />
+          </View>
         }
         ListEmptyComponent={
           <Text style={styles.emptyText}>{emptyMessage}</Text>
@@ -183,6 +207,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
   },
+
+  headerContainer: {
+    marginBottom: 12,
+  },
+
   heading: {
     fontSize: 24,
     fontWeight: "700",
@@ -194,26 +223,63 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     marginBottom: 12,
   },
+
   errorText: {
     color: colors.error,
     marginBottom: 8,
     fontSize: 13,
   },
+
+  pillRow: {
+    gap: 12,
+    marginBottom: 12,
+  },
+
+  pill: {
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+
+  pillLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textLight,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+
+  pillValue: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: colors.textLight,
+  },
+
+  sectionDivider: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    marginTop: 12,
+  },
+
   listContent: {
     paddingBottom: 24,
   },
+
   emptyContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 24,
+    paddingBottom: 24,
   },
+
   emptyText: {
     marginTop: 24,
     textAlign: "center",
     color: colors.textMuted,
     fontSize: 14,
   },
+
   center: {
     flex: 1,
     alignItems: "center",
@@ -231,7 +297,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
-
     backgroundColor: "rgba(9, 13, 17, 0.6)",
   },
 });
