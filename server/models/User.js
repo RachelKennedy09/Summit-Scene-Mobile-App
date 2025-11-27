@@ -1,43 +1,61 @@
-//mongoose model for app users
-//stores login info in MongoDB (email, password hash, name, timestamps etc)
+// Mongoose model for application users
+// Stores login credentials (email, passwordHash, role) and basic profile info
 
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    //unique email for each user
+    // Unique email for each user
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
     },
-    //hashed password, NOT plain text
+
+    // Hashed password (stored securely — never plain text)
     passwordHash: {
       type: String,
       required: true,
     },
-    // display name for Account screen
+
+    // Display name shown in the Account screen
     name: {
       type: String,
       trim: true,
     },
-    // role for permissions ("local" vs "business")
+
+    // Role defines permissions: "local" users or "business" owners
     role: {
       type: String,
-      enum: ["local", "business"], //locks to only local or business
-      default: "local", // if not provided, treat as local user
+      enum: ["local", "business"],
+      default: "local",
       required: true,
     },
   },
   {
-    // Adds created/At /updatedAt automatically
+    // Automatically creates createdAt / updatedAt
     timestamps: true,
+
+    // Include virtuals when converting to JSON
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
-// create the "users" collection in <MmongoDB
+//  shows email without sensitive info
+userSchema.virtual("safeProfile").get(function () {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    role: this.role,
+  };
+});
+
+// Create the "users" collection in MongoDB
 const User = mongoose.model("User", userSchema);
 
 export default User;
