@@ -25,6 +25,20 @@ import { colors } from "../../theme/colors";
 // Simple list of towns for the selector modal
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
 
+// list of categories for selector modal
+const CATEGORIES = [
+  "All",
+  "Market",
+  "Wellness",
+  "Music",
+  "Workshop",
+  "Family",
+  "Retail",
+  "Outdoors",
+  "Food",
+  "Art",
+];
+
 export default function HubScreen() {
   const navigation = useNavigation();
 
@@ -35,8 +49,9 @@ export default function HubScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  // NEW: controls whether the Town selector modal is visible
+  //controls whether the Town selector modal is visible
   const [isTownModalVisible, setIsTownModalVisible] = useState(false);
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
 
   const loadEvents = useCallback(async (isRefresh = false) => {
     try {
@@ -142,6 +157,12 @@ export default function HubScreen() {
     setIsTownModalVisible(false);
   };
 
+  // When the user taps a category option inside the modal
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category);
+    setIsCategoryModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -187,9 +208,7 @@ export default function HubScreen() {
               {/* Category Pill */}
               <Pressable
                 style={styles.pill}
-                onPress={() => {
-                  // TODO (Sprint 9): Open category selector modal here
-                }}
+                onPress={() => setIsCategoryModalVisible(true)}
               >
                 <Text style={styles.pillLabel}>Category</Text>
                 <Text style={styles.pillValue}>
@@ -258,6 +277,51 @@ export default function HubScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Category Selector Modal */}
+      <Modal
+        visible={isCategoryModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsCategoryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Choose a category</Text>
+
+            {CATEGORIES.map((category) => {
+              const isSelected = category === selectedCategory;
+              return (
+                <Pressable
+                  key={category}
+                  style={[
+                    styles.townOption,
+                    isSelected && styles.townOptionSelected,
+                  ]}
+                  onPress={() => handleSelectCategory(category)}
+                >
+                  <Text
+                    style={[
+                      styles.townOptionText,
+                      isSelected && styles.townOptionTextSelected,
+                    ]}
+                  >
+                    {category === "All" ? "All categories" : category}
+                  </Text>
+                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                </Pressable>
+              );
+            })}
+
+            <Pressable
+              style={styles.modalCloseButton}
+              onPress={() => setIsCategoryModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -293,7 +357,7 @@ const styles = StyleSheet.create({
   },
 
   pillRow: {
-    gap: 12, 
+    gap: 12, // if gap errors on your RN version, remove this and use marginBottom on each pill
     marginBottom: 12,
   },
 
