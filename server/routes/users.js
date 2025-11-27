@@ -1,9 +1,10 @@
-// user-related routes ( upgrade account)
-// let local users upgrade toa  business account wihtout creating a new one
+// server/routes/users.js
+// User-related routes (upgrade account)
+// Let local users upgrade to a business account without creating a new one
 
 import express from "express";
 import authMiddleware from "../middleware/auth.js";
-import User from "../models/User.js"
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const router = express.Router();
   AUTH: required (must be logged in)
 
   FLOW:
-  1) Read userId from JWT (authMiddleware)
+  1) Read userId from JWT (authMiddleware attaches req.user)
   2) Find user in MongoDB
   3) If already business -> 400
   4) Set role = "business", save
@@ -31,7 +32,7 @@ router.patch("/upgrade-to-business", authMiddleware, async (req, res) => {
     if (user.role === "business") {
       return res
         .status(400)
-        .json({ message: "Account is already a business account" });
+        .json({ message: "Account is already a business account." });
     }
 
     user.role = "business";
@@ -48,11 +49,11 @@ router.patch("/upgrade-to-business", authMiddleware, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error upgrading to business:", error);
-    res.status(500).json({ message: "Server error while upgrading account." });
+    console.error("Error upgrading to business:", error.message);
+    res
+      .status(500)
+      .json({ message: "Server error while upgrading account." });
   }
 });
-
-
 
 export default router;
