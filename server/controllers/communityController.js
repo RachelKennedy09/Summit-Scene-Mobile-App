@@ -1,13 +1,16 @@
 // server/controllers/communityController.js
 // Logic for handling community-related API requests
+
 import CommunityPost from "../models/CommunityPost.js";
 
 // GET /api/community?type=highwayconditions&town=Banff
 export async function getCommunityPosts(req, res) {
   try {
-    const { type, town, title, body, targetDate } = req.query;
+    const { type, town } = req.query;
 
     const filter = {};
+
+    // Optional filters
     if (type) filter.type = type;
     if (town) filter.town = town;
 
@@ -15,28 +18,36 @@ export async function getCommunityPosts(req, res) {
       .populate("user", "name email role")
       .sort({ createdAt: -1 });
 
-    res.json(posts);
+    return res.json(posts);
   } catch (error) {
-    console.error("Error fetching community posts", error);
-    res.status(500).json({ error: "Failed to load community posts" });
+    console.error("Error fetching community posts:", error.message);
+    return res.status(500).json({
+      message: "Failed to load community posts.",
+      error: error.message,
+    });
   }
 }
 
 // POST /api/community
+// Create a new community post
 export async function createCommunityPost(req, res) {
   try {
-    // authMiddleware (from your README) sets: req.user.userId
+    // authMiddleware sets: req.user.userId
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized: missing user id" });
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: missing user ID." });
     }
 
-    const { type, town, title, body, targetDate, name } = req.body;
+    const { type, town, title, body, targetDate, name } = req.body || {};
 
-    if (!name || !targetDate) {
-      return res
-        .status(400)
-        .json({ error: "Name and date are required for community posts." });
+    // Basic validation
+    if (!name || !type || !town || !title || !body || !targetDate) {
+      return res.status(400).json({
+        message:
+          "Name, type, town, title, body, and date are required for community posts.",
+      });
     }
 
     const newPost = await CommunityPost.create({
@@ -49,82 +60,95 @@ export async function createCommunityPost(req, res) {
       targetDate,
     });
 
-    res.status(201).json(newPost);
+    return res.status(201).json(newPost);
   } catch (error) {
-    console.error("Error creating post", error);
-    res.status(500).json({ error: "Failed to create post" });
+    console.error("Error creating community post:", error.message);
+    return res.status(500).json({
+      message: "Failed to create community post.",
+      error: error.message,
+    });
   }
 }
 
+// DELETE /api/community/:id
 export async function deleteCommunityPost(req, res) {
   try {
     const postId = req.params.id;
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ error: "Not authorized" });
+      return res.status(401).json({ message: "Not authorized." });
     }
 
     const post = await CommunityPost.findById(postId);
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({ message: "Post not found." });
     }
 
-    // only owner can delete
+    // Only owner can delete
     if (post.user.toString() !== userId.toString()) {
-      return res.status(403).json({ error: "You cannot delete this post" });
+      return res.status(403).json({ message: "You cannot delete this post." });
     }
 
     await CommunityPost.findByIdAndDelete(postId);
 
-    return res.json({ message: "post deleted" });
+    return res.json({ message: "Post deleted successfully." });
   } catch (error) {
-    console.error("Error deleting community post:", error);
-    res.status(500).json({ error: "Failed to delete post" });
+    console.error("Error deleting community post:", error.message);
+    return res.status(500).json({
+      message: "Failed to delete community post.",
+      error: error.message,
+    });
   }
 }
 
-// update a community post (title, body, targetDate only)
+// PUT /api/community/:id
+// Update a community post (title, body, targetDate only)
 export async function updateCommunityPost(req, res) {
   try {
     const postId = req.params.id;
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ error: "not authorized" });
+      return res.status(401).json({ message: "Not authorized." });
     }
 
-    // find the post first
+    // Find the post first
     const post = await CommunityPost.findById(postId);
 
     if (!post) {
-      return res.status(404).json({ error: "Post not found" });
+      return res.status(404).json({ message: "Post not found." });
     }
 
-    //only the user can edit
+    // Only the owner can edit
     if (post.user.toString() !== userId.toString()) {
-      return res.status(403).json({ error: "You cannot edit this post" });
+      return res.status(403).json({ message: "You cannot edit this post." });
     }
 
-    // pull the fields we allow to be edited
-    const { title, body, targetDate } = req.body;
+    // Pull the fields we allow to be edited
+    const { title, body, targetDate } = req.body || {};
 
-    // title, body, and date are required rest stays same
+    // title, body, and date are required for updates
     if (!title || !body || !targetDate) {
       return res.status(400).json({
-        error: "Title, body, and date are required to update a post",
+        message: "Title, body, and date are required to update a post.",
       });
     }
+
     // Update only these fields
     post.title = title;
     post.body = body;
     post.targetDate = targetDate;
+
     const updated = await post.save();
 
     return res.json(updated);
   } catch (error) {
-    console.error("Error updating community post:", error);
-    res.status(500).json({ error: "Failed to update post" });
+    console.error("Error updating community post:", error.message);
+    return res.status(500).json({
+      message: "Failed to update community post.",
+      error: error.message,
+    });
   }
 }
