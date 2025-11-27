@@ -7,6 +7,7 @@ import {
   createCommunityPost,
   deleteCommunityPost,
   updateCommunityPost,
+  addCommunityReply, // ⬅️ NEW
 } from "../controllers/communityController.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -30,5 +31,9 @@ router.delete("/:id", authMiddleware, deleteCommunityPost);
 // PUT /api/community/:id
 // Update a community post by ID
 router.put("/:id", authMiddleware, updateCommunityPost);
+
+// POST /api/community/:postId/replies
+// Add a reply under a community post
+router.post("/:postId/replies", authMiddleware, addCommunityReply);
 
 export default router;

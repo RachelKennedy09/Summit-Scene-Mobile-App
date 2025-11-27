@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  TextInput, // ⬅️ NEW
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,6 +31,10 @@ export default function CommunityScreen({ navigation }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [replyForPostId, setReplyForPostId] = useState(null); // which post is being replied to
+  const [replyText, setReplyText] = useState("");
+  const [submittingReply, setSubmittingReply] = useState(false);
 
   const { user, token } = useAuth(); //get JWT token
 
@@ -109,6 +114,44 @@ export default function CommunityScreen({ navigation }) {
       },
     ]);
   };
+
+  async function handleReplySubmit(postId) {
+    if (!replyText.trim()) {
+      Alert.alert("Reply required", "Please write something before sending.");
+      return;
+    }
+
+    try {
+      setSubmittingReply(true);
+
+      const res = await fetch(
+        `${API_BASE_URL}/api/community/${postId}/replies`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ body: replyText }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        throw new Error(errorBody.message || "Failed to send reply.");
+      }
+
+      // Clear local reply state and refresh posts
+      setReplyText("");
+      setReplyForPostId(null);
+      fetchPosts();
+    } catch (error) {
+      console.error("Error sending reply:", error);
+      Alert.alert("Error", error.message || "Failed to send reply.");
+    } finally {
+      setSubmittingReply(false);
+    }
+  }
 
   function isPostOwner(post) {
     if (!user) return false;
@@ -224,9 +267,11 @@ export default function CommunityScreen({ navigation }) {
             const { name, email, role } = getPostAuthor(post);
 
             const createdDate = new Date(post.createdAt);
+            const postId = post._id ?? post.id;
+            const isReplyOpen = replyForPostId === postId;
 
             return (
-              <View key={post._id ?? post.id} style={styles.sectionCard}>
+              <View key={postId} style={styles.sectionCard}>
                 {/* Identity row */}
                 <View style={styles.cardHeaderRow}>
                   {/* Left: avatar + name + timestamps */}
@@ -260,13 +305,10 @@ export default function CommunityScreen({ navigation }) {
                     </Text>
 
                     <Text style={styles.dateBadge}>
-                      For:{" "}
-                      {new Date(post.targetDate).toLocaleDateString()}
+                      For: {new Date(post.targetDate).toLocaleDateString()}
                     </Text>
 
-                    {isOwner && (
-                      <Text style={styles.ownerBadge}>You</Text>
-                    )}
+                    {isOwner && <Text style={styles.ownerBadge}>You</Text>}
                   </View>
                 </View>
 
@@ -287,11 +329,94 @@ export default function CommunityScreen({ navigation }) {
                     </Pressable>
                     <Pressable
                       style={styles.deleteButton}
-                      onPress={() =>
-                        handleDeletePost(post._id || post.id)
-                      }
+                      onPress={() => handleDeletePost(postId)}
                     >
                       <Text style={styles.deleteButtonText}>Delete</Text>
+                    </Pressable>
+                  </View>
+                )}
+
+                {/* Divider before replies */}
+                <View style={styles.replyDivider} />
+
+                {/* Replies list */}
+                {Array.isArray(post.replies) && post.replies.length > 0 && (
+                  <View style={styles.repliesContainer}>
+                    {post.replies.map((reply) => {
+                      const replyCreated = new Date(reply.createdAt);
+                      const replyKey =
+                        reply._id ?? replyCreated.getTime().toString();
+
+                      return (
+                        <View key={replyKey} style={styles.replyRow}>
+                          <View style={styles.replyAvatar}>
+                            <Text style={styles.replyAvatarInitial}>
+                              {(reply.name || "M").charAt(0).toUpperCase()}
+                            </Text>
+                          </View>
+                          <View style={styles.replyContent}>
+                            <Text style={styles.replyMeta}>
+                              <Text style={styles.replyAuthor}>
+                                {reply.name || "Member"}
+                              </Text>{" "}
+                              •{" "}
+                              {replyCreated.toLocaleTimeString([], {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })}
+                            </Text>
+                            <Text style={styles.replyBodyText}>
+                              {reply.body}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+
+                {/* Reply toggle + input */}
+                <View style={styles.replyActionsRow}>
+                  <Pressable
+                    style={styles.replyButton}
+                    onPress={() => {
+                      if (isReplyOpen) {
+                        setReplyForPostId(null);
+                        setReplyText("");
+                      } else {
+                        setReplyForPostId(postId);
+                        setReplyText("");
+                      }
+                    }}
+                  >
+                    <Text style={styles.replyButtonText}>
+                      {isReplyOpen ? "Cancel" : "Reply"}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                {isReplyOpen && (
+                  <View style={styles.replyInputContainer}>
+                    <TextInput
+                      style={styles.replyInput}
+                      value={replyText}
+                      onChangeText={setReplyText}
+                      placeholder="Write a reply..."
+                      placeholderTextColor={colors.textMuted}
+                      multiline
+                    />
+                    <Pressable
+                      style={[
+                        styles.sendReplyButton,
+                        (!replyText.trim() || submittingReply) &&
+                          styles.sendReplyButtonDisabled,
+                      ]}
+                      onPress={() => handleReplySubmit(postId)}
+                      disabled={!replyText.trim() || submittingReply}
+                    >
+                      <Text style={styles.sendReplyButtonText}>
+                        {submittingReply ? "Sending..." : "Send"}
+                      </Text>
                     </Pressable>
                   </View>
                 )}
@@ -567,5 +692,112 @@ const styles = StyleSheet.create({
   loadingText: {
     color: colors.textLight,
     fontSize: 13,
+  },
+
+  /* ---- REPLIES ---- */
+  replyDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+
+  repliesContainer: {
+    gap: 8,
+    marginBottom: 8,
+  },
+
+  replyRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  replyAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.cardDark,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+
+  replyAvatarInitial: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textLight,
+  },
+
+  replyContent: {
+    flex: 1,
+  },
+
+  replyMeta: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 2,
+  },
+
+  replyAuthor: {
+    fontWeight: "600",
+    color: colors.textLight,
+  },
+
+  replyBodyText: {
+    fontSize: 13,
+    color: colors.textMuted,
+  },
+
+  replyActionsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginTop: 4,
+  },
+
+  replyButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+
+  replyButtonText: {
+    fontSize: 13,
+    color: colors.accent,
+    fontWeight: "600",
+  },
+
+  replyInputContainer: {
+    marginTop: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.primary,
+    padding: 8,
+    gap: 6,
+  },
+
+  replyInput: {
+    minHeight: 40,
+    maxHeight: 120,
+    color: colors.textLight,
+    fontSize: 13,
+  },
+
+  sendReplyButton: {
+    alignSelf: "flex-end",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: colors.accent,
+  },
+
+  sendReplyButtonDisabled: {
+    opacity: 0.6,
+  },
+
+  sendReplyButtonText: {
+    color: colors.textLight,
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

@@ -4,6 +4,17 @@
 
 import mongoose from "mongoose";
 
+const { Schema } = mongoose;
+
+const communityReplySchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User" }, // who replied
+    name: { type: String }, // snapshot of name when they replied
+    body: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
 const communityPostSchema = new mongoose.Schema(
   {
     // Reference to the user who created the post
@@ -14,9 +25,7 @@ const communityPostSchema = new mongoose.Schema(
     },
 
     // Post type controls which community section it appears in
-    // - "highwayconditions" -> road reports, delays, snow, etc.
-    // - "rideshare"         -> looking for/hosting rides
-    // - "eventbuddy"        -> looking for people to go to events with
+
     type: {
       type: String,
       enum: ["highwayconditions", "rideshare", "eventbuddy"],
@@ -57,6 +66,9 @@ const communityPostSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+
+    // replies array
+    replies: [communityReplySchema],
   },
   {
     // Automatically adds createdAt / updatedAt

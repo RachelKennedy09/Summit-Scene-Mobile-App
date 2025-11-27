@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ const TOWNS = [
 ];
 
 export default function CommunityPostScreen({ navigation }) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const [type, setType] = useState("highwayconditions");
   const [town, setTown] = useState("Banff");
@@ -42,6 +42,29 @@ export default function CommunityPostScreen({ navigation }) {
 
   const API_BASE_URL =
     process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+
+  // Pre-fill name from logged-in user if available
+  useEffect(() => {
+    if (!name && user) {
+      const inferredName = user.name || user.email || "";
+      if (inferredName) {
+        setName(inferredName);
+      }
+    }
+  }, [user, name]);
+
+  const detailsPlaceholder = useMemo(() => {
+    if (type === "highwayconditions") {
+      return "Road, pass, or parking lot conditions. Add time, direction, and any hazards.";
+    }
+    if (type === "rideshare") {
+      return "Where you're leaving from, time, number of seats, gear space, and cost split if any.";
+    }
+    if (type === "eventbuddy") {
+      return "Which event, date, meetup spot, vibe you're looking for (chill night, dancing, etc.).";
+    }
+    return "Add helpful info (conditions, times, meetup spot, etc.)";
+  }, [type]);
 
   async function handleSubmit() {
     // basic validation
@@ -87,11 +110,14 @@ export default function CommunityPostScreen({ navigation }) {
 
       await res.json();
 
-      Alert.alert("Post shared!", "Your community post has been created.");
-      setName("");
+      Alert.alert(
+        "Post shared!",
+        "Your community post has been created. Other members can now reply under your post."
+      );
       setTitle("");
       setBody("");
       setTargetDate(new Date());
+      // keep name as-is so next post is easier
       navigation.goBack();
     } catch (error) {
       console.error("Error creating community post:", error);
@@ -109,10 +135,11 @@ export default function CommunityPostScreen({ navigation }) {
       >
         <Text style={styles.heading}>New Community Post</Text>
         <Text style={styles.subheading}>
-          Share highway conditions, rides, or find an event buddy.
+          Share highway conditions, rides, or find an event buddy. Your name
+          will show on this post so neighbours know who they’re connecting with.
         </Text>
 
-        {/* Type selector (very simple pills) */}
+        {/* Type selector (board) */}
         <Text style={styles.label}>Board</Text>
         <View style={styles.row}>
           {POST_TYPES.map((option) => {
@@ -163,9 +190,11 @@ export default function CommunityPostScreen({ navigation }) {
           value={name}
           onChangeText={setName}
         />
+        <Text style={styles.helperText}>
+          This name appears on your post and replies thread.
+        </Text>
 
-        {/*  Date and Time */}
-
+        {/* Date */}
         <Text style={styles.label}>Date</Text>
         <Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
           <Text style={{ color: colors.textLight }}>
@@ -204,13 +233,17 @@ export default function CommunityPostScreen({ navigation }) {
         <Text style={styles.label}>Details</Text>
         <TextInput
           style={[styles.input, styles.inputMultiline]}
-          placeholder="Add helpful info (conditions, times, meetup spot, etc.)"
+          placeholder={detailsPlaceholder}
           placeholderTextColor="#66758a"
           value={body}
           onChangeText={setBody}
           multiline
           numberOfLines={4}
         />
+        <Text style={styles.helperText}>
+          Replies are public. Avoid sharing phone numbers or emails unless
+          you’re comfortable doing so.
+        </Text>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -231,7 +264,7 @@ export default function CommunityPostScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary, // was "#050b12"
+    backgroundColor: colors.primary,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -241,19 +274,24 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight, // was "#ffffff"
+    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: colors.textMuted, // was "#b0c4de"
+    color: colors.textMuted,
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
-    color: colors.textMuted, // was "#c0d0f0"
+    color: colors.textMuted,
     marginBottom: 6,
     marginTop: 12,
+  },
+  helperText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 4,
   },
   row: {
     flexDirection: "row",

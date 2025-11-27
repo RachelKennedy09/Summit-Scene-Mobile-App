@@ -152,3 +152,53 @@ export async function updateCommunityPost(req, res) {
     });
   }
 }
+
+// POST /api/community/:postId/replies
+// Add a reply to a community post
+export async function addCommunityReply(req, res) {
+  try {
+    const { postId } = req.params;
+    const { body } = req.body || {};
+
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Not authorized." });
+    }
+
+    if (!body || !body.trim()) {
+      return res
+        .status(400)
+        .json({ message: "Reply text (body) is required." });
+    }
+
+    const post = await CommunityPost.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    const replyName =
+      req.user?.name || req.user?.email || "SummitScene member";
+
+    post.replies.push({
+      user: userId,
+      name: replyName,
+      body: body.trim(),
+    });
+
+    await post.save();
+
+    // Optionally populate user again for returning
+    const populated = await post.populate("user", "name email role");
+
+    return res.status(201).json({
+      message: "Reply added successfully.",
+      post: populated,
+    });
+  } catch (error) {
+    console.error("Error adding community reply:", error.message);
+    return res.status(500).json({
+      message: "Failed to add reply.",
+      error: error.message,
+    });
+  }
+}
