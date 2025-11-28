@@ -64,63 +64,82 @@ MongoDB Reply array
 GitCommit Nov 27th
 ![alt text](devlogimages/GitcommitNov27.png)
 
-## Sprint 10: Local Profiles + Community Acces
+## Sprint 10: Local Profiles + Community Access
 
 ### 🎯 Sprint Goals
 
-1.
+1. Add rich user profiles (avatar, town, bio, lookingFor, Instagram, website).
 
-2.
+2. Integrate profiles into Community posts with a “View Profile” modal.
+3. Allow locals and businesses to edit their profile details (new EditProfileScreen).
+4. Differentiate Local vs Business profile wording (“Community Profile” vs “Event Posting Profile”).
+5. Add role-based profile preview in Account screen.
+6. Begin setting up user profile update route on backend (PATCH /api/users/update-profile).
 
 ---
 
 ### 🔥 Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: Enum validation blocked real towns (e.g. "lake louise").</b> When registering, the backend refused certain valid towns because the town enum was too strict.
 
-## <b>Fix: </b>
+## <b>Fix:</b>
 
-<b>Issue: </b>
+Relaxed validation -> changed enum to lowercase: true or broader allowed values. Registration now accepts real places like Lake Louise.
 
-<b>Fix:</b>
+<b>Issue: : Profile information cluttered the Community cards and became overwhelming. </b> Showing town, email, lookingFor, Instagram, and business website inside each post made the cards feel busy and messy.
 
----
-
-<b>Issue:</b>
-
-<b>Fix:</b>
+<b>Fix:</b> Created a clean “View Profile” modal → displays a user’s full profile in a separate focused view.
+Community cards now stay clean and readable.
 
 ---
 
-<b>Issue: </b>
-<b>Fix:</b>
+<b>Issue: Business and Local users needed different profile contexts.</b> Locals use profiles for Community, while businesses use profiles for Event Hosting — but wording was identical, causing confusion.
+
+<b>Fix:</b> Added role-based UI copy:
+
+Local: “Community profile — This is how your profile appears on Community posts and replies.”
+
+Business: “Event posting profile — This is how your profile appears when you host events.”
+
+This makes the experience personalized and professional.
 
 ---
 
 ### 🌟 Wins + Breakthroughs
 
--
+- Added full role-based profiles with clean editing UX.
 
--
+- Community posts now show a profile modal, not cluttered cards.
 
--
+- Introduced a dedicated AccountStack for cleaner navigation architecture.
 
--
+- Profile section on AccountScreen now adapts to Local vs Business.
 
--
+- Registration fully supports richer fields without crashing.
 
--
+- Laid foundation for changing email/password in a future sprint.
 
 ### 📚 What I Learned
 
--
+- How to create role-specific UI experiences using conditional rendering.
 
--
+- How to extend auth models and pass additional profile fields.
 
--
+- How UX clarity significantly improves when data is separated from UI (modal vs card clutter).
 
--
+---
+
+### photos of progress Sprint 10
 
 Issue Photo With lake lousie enum: too strict when registering
 
 ![alt text](devlogimages/TERMINALerrorenum.png)
+
+Profile building for Locals
+![alt text](devlogimages/APPprofilelocal.png)
+
+Profile buildling for Business
+![alt text](devlogimages/APPProfilebusiness.png)
+
+
+
