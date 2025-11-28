@@ -74,7 +74,7 @@ GitCommit Nov 27th
 3. Allow locals and businesses to edit their profile details (new EditProfileScreen).
 4. Differentiate Local vs Business profile wording (“Community Profile” vs “Event Posting Profile”).
 5. Add role-based profile preview in Account screen.
-6. Begin setting up user profile update route on backend (PATCH /api/users/update-profile).
+6. Set up user profile update route on backend (PATCH /api/users/update-profile).
 
 ---
 
@@ -139,7 +139,14 @@ Profile building for Locals
 ![alt text](devlogimages/APPprofilelocal.png)
 
 Profile buildling for Business
-![alt text](devlogimages/APPProfilebusiness.png)
+![alt text](devlogimages/APPProfilebusiness.png)Tre
 
+Trello Card done for Sprint 11
+![alt text](devlogimages/TRELLOsprint11done.png)
 
+Git commit
+![alt text](devlogimages/GitCommitSprint11.png)
 
+## Sprint 11:
+
+### Sprint Goals

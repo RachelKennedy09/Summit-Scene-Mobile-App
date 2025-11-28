@@ -278,7 +278,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     upgradeToBusiness,
-    updateProfile, // 🆕 expose this to screens
+    updateProfile, // expose this to screens
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
