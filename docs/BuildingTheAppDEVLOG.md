@@ -647,7 +647,7 @@ Git commit nov 24th
 
 ![alt text](devlogimages/COMMITnov24.png)
 
-## 📅 Sprint #7 (November 25th)
+## 📅 Sprint #7 Map Tab (November 25th-26th)
 
 ### 🎯 Sprint Goals
 
@@ -844,8 +844,7 @@ Sprint 8 done Trello cards
 1. Town filter pills with a modal
 2. Summary line after choosing town
 3. Show an identity to the posts (Who posted)
-4. Avatar?
-5. Reply options
+4. Reply options
 
 #### Photos of Progress - Sprint 9
 
