@@ -1,28 +1,27 @@
 // eventsApi.js
 // Small helper for talking to the SummitScene backend
 
-import { apiFetch } from "./apiClient";
-
 const BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
 
 /* --------------------------------------------------
    FETCH ALL EVENTS
 -------------------------------------------------- */
-export async function fetchEvents({ token, logout } = {}) {
+export async function fetchEvents() {
   try {
-    const response = await apiFetch(`${BASE_URL}/api/events`, {
-      method: "GET",
-      token,
-      logout,
-    });
+    const response = await fetch(`${BASE_URL}/api/events`);
 
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(`Failed to fetch events (${response.status})`);
+    }
+
+    return await response.json(); // array
   } catch (error) {
     console.error("fetchEvents error:", error.message);
     throw error;
   }
 }
+
 /* --------------------------------------------------
    CREATE EVENT  (Business only)
 -------------------------------------------------- */
