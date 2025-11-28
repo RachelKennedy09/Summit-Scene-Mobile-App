@@ -56,7 +56,7 @@ router.post("/register", async (req, res) => {
     } = req.body || {};
 
     // Basic validation
-    if (!email || !password || !nmame) {
+    if (!email || !password || !name) {
       return res
         .status(400)
         .json({ message: "Name, Email, and password are required." });

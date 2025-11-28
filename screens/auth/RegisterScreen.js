@@ -68,8 +68,15 @@ function RegisterScreen() {
       // after successful registration, user is logged in automatically
       // navigation will switch based on user later
     } catch (error) {
-      console.error("Register failed:", error);
-      Alert.alert("Registration failed", error.message || "Please try again.");
+      console.error("Error in /register:", error);
+
+      if (error.name === "ValidationError") {
+        return res
+          .status(400)
+          .json({ message: "Please check your details and try again." });
+      }
+
+      res.status(500).json({ message: "Server error during registration." });
     } finally {
       setIsSubmitting(false);
     }
@@ -200,6 +207,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="Banff, Canmore, Lake Louise... Visiting?"
+                    placeholderTextColor={colors.textMuted}
                     value={town}
                     onChangeText={setTown}
                   />
@@ -209,6 +217,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="https://example.com/your-photo.jpg"
+                    placeholderTextColor={colors.textMuted}
                     value={avatarUrl}
                     onChangeText={setAvatarUrl}
                   />
@@ -221,6 +230,7 @@ function RegisterScreen() {
                       { height: 80, textAlignVertical: "top" },
                     ]}
                     placeholder="Tell locals who you are and what you love..."
+                    placeholderTextColor={colors.textMuted}
                     multiline
                     numberOfLines={3}
                     value={bio}
@@ -235,6 +245,7 @@ function RegisterScreen() {
                       { height: 60, textAlignVertical: "top" },
                     ]}
                     placeholder="Markets, yoga buddies, music nights, hiking friends..."
+                    placeholderTextColor={colors.textMuted}
                     multiline
                     numberOfLines={2}
                     value={lookingFor}
@@ -246,6 +257,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="@yourhandle"
+                    placeholderTextColor={colors.textMuted}
                     value={instagram}
                     onChangeText={setInstagram}
                   />
@@ -266,6 +278,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="Banff, Canmore, Lake Louise..."
+                    placeholderTextColor={colors.textMuted}
                     value={town}
                     onChangeText={setTown}
                   />
@@ -280,6 +293,7 @@ function RegisterScreen() {
                       { height: 60, textAlignVertical: "top" },
                     ]}
                     placeholder="Cafe, yoga studio, live music venue, shop..."
+                    placeholderTextColor={colors.textMuted}
                     multiline
                     numberOfLines={2}
                     value={lookingFor} // reused field, just different meaning for business
@@ -291,6 +305,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="https://your-business.com"
+                    placeholderTextColor={colors.textMuted}
                     value={website}
                     onChangeText={setWebsite}
                   />
@@ -300,6 +315,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="https://example.com/your-shop-front.jpg"
+                    placeholderTextColor={colors.textMuted}
                     value={avatarUrl} // reuse avatarUrl as 'business photo'
                     onChangeText={setAvatarUrl}
                   />
@@ -309,6 +325,7 @@ function RegisterScreen() {
                   <TextInput
                     style={styles.input}
                     placeholder="@yourbusiness"
+                    placeholderTextColor={colors.textMuted}
                     value={instagram}
                     onChangeText={setInstagram}
                   />

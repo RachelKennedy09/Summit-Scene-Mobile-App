@@ -1,4 +1,3 @@
-
 ## 📅 Sprint #9 Polishing (November 27)
 
 ### HubScreen.js Polish
@@ -65,7 +64,6 @@ MongoDB Reply array
 GitCommit Nov 27th
 ![alt text](devlogimages/GitcommitNov27.png)
 
-
 ## Sprint 10: Local Profiles + Community Acces
 
 ### 🎯 Sprint Goals
@@ -74,15 +72,13 @@ GitCommit Nov 27th
 
 2.
 
-
 ---
 
 ### 🔥 Challenges + How I Solved Them
 
 <b>Issue: </b>
 
-<b>Fix: </b>
----
+## <b>Fix: </b>
 
 <b>Issue: </b>
 
@@ -97,30 +93,34 @@ GitCommit Nov 27th
 ---
 
 <b>Issue: </b>
-<b>Fix:</b> 
+<b>Fix:</b>
+
 ---
 
 ### 🌟 Wins + Breakthroughs
 
-- 
+-
 
-- 
+-
 
-- 
+-
 
-- 
+-
 
-- 
+-
 
-- 
-
+-
 
 ### 📚 What I Learned
 
-- 
+-
 
-- 
+-
 
-- 
+-
 
-- 
+-
+
+Issue Photo With lake lousie enum: too strict when registering
+
+![alt text](devlogimages/TERMINALerrorenum.png)

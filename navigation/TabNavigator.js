@@ -27,6 +27,7 @@ export default function TabNavigator() {
         headerShown: false,
       }}
     >
+      {/* Everyone gets Hub and Map */}
       <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
 
       <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
@@ -49,6 +50,7 @@ export default function TabNavigator() {
         />
       )}
 
+      {/* Everyone gets account */}
       <Tab.Screen
         name="Account"
         component={AccountScreen}

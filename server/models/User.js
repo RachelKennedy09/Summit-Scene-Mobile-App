@@ -42,10 +42,10 @@ const userSchema = new mongoose.Schema(
     },
     town: {
       type: String,
-      enum: ["Banff", "Canmore", "Lake Louise", "Other"],
-      default: "Banff", 
+      trim: true,
+      maxlength: 60,
     },
-     bio: {
+    bio: {
       type: String,
       maxlength: 300, // keep it short + friendly
     },
@@ -59,7 +59,6 @@ const userSchema = new mongoose.Schema(
     website: {
       type: String, // Business only for their business website
     },
-
   },
   {
     // Automatically creates createdAt / updatedAt
