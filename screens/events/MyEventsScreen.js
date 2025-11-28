@@ -18,6 +18,7 @@ import { deleteEvent } from "../../services/eventsApi";
 
 import { colors } from "../../theme/colors";
 
+
 const API_BASE_URL = "http://172.28.248.13:4000/api";
 
 export default function MyEventsScreen({ navigation }) {

@@ -27,17 +27,26 @@ export default function authMiddleware(req, res, next) {
       throw new Error("JWT_SECRET is not set in environment variables.");
     }
 
-    // decoded contains whatever you put into JWT (userId, role)
+    // decoded contains whatever you put into JWT (userId, name, email, role, etc.)
     const decoded = jwt.verify(token, secret);
 
-    // Attach payload to request so controllers can use req.user.userId
+    // Attach payload to request so controllers can use req.user.userId, req.user.name, etc.
     req.user = decoded;
 
-    next();
+    return next();
   } catch (error) {
     console.error("authMiddleware error:", error.message);
+
+    // ⬇️ Special handling for expired tokens
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "Token expired. Please log in again." });
+    }
+
+    // Everything else = invalid token
     return res
       .status(401)
-      .json({ message: "Invalid or expired token. Please log in again." });
+      .json({ message: "Invalid token. Please log in again." });
   }
 }

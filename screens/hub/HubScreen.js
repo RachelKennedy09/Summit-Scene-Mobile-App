@@ -51,7 +51,7 @@ const DATE_FILTERS = [
 ];
 
 export default function HubScreen() {
-  const { user } = useAuth();
+  const { user, token, logout } = useAuth();
   const displayName = user?.name || user?.email || "there";
 
   const navigation = useNavigation();
@@ -70,37 +70,47 @@ export default function HubScreen() {
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
 
-  const loadEvents = useCallback(async (isRefresh = false) => {
-    try {
-      if (!isRefresh) {
-        setLoading(true);
-      } else {
-        setRefreshing(true);
+  const loadEvents = useCallback(
+    async (isRefresh = false) => {
+      try {
+        if (!isRefresh) {
+          setLoading(true);
+        } else {
+          setRefreshing(true);
+        }
+
+        // reset any previous error before fetching again
+        setError(null);
+
+        //  use shared API helper (now protected with token + logout)
+        const data = await fetchEventsFromApi({ token, logout });
+
+        //  sort by date (soonest first)
+        const sorted = (Array.isArray(data) ? data : [])
+          .slice()
+          .sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+          });
+
+        setEvents(sorted);
+      } catch (error) {
+        console.error("Error fetching events:", error.message);
+
+        // If apiClient already handled 401 + logout, don't show extra error text
+        if (error.message === "Unauthorized") {
+          return;
+        }
+
+        setError("Could not load events. Pull to refresh to try again.");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      // reset any previous error before fetching again
-
-      setError(null);
-
-      //  use shared API helper
-      const data = await fetchEventsFromApi();
-
-      //  sort by date (soonest first)
-      const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateA - dateB;
-      });
-
-      setEvents(sorted);
-    } catch (error) {
-      console.error("Error fetching events:", error.message);
-      setError("Could not load events. Pull to refresh to try again.");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+    },
+    [token, logout]
+  );
 
   useEffect(() => {
     loadEvents(false);
@@ -148,7 +158,6 @@ export default function HubScreen() {
       // Town filter
       const townMatch = selectedTown === "All" || event.town === selectedTown;
 
-      // Date filter
       // Date filter
       let dateMatch = true;
 
@@ -199,6 +208,7 @@ export default function HubScreen() {
 
     return `No ${selectedCategory} events found in ${selectedTown}.`;
   }, [selectedCategory, selectedTown, selectedDateFilter]);
+
   // Friendly summary of what we're showing
   const resultSummary = useMemo(() => {
     const count = eventsToShow.length;
