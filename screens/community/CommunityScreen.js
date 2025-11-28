@@ -1,3 +1,5 @@
+// screens/community/CommunityScreen.js
+
 import React, { useState, useMemo, useCallback } from "react";
 import {
   View,
@@ -15,8 +17,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "../../context/AuthContext";
-
 import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 // post types (backend values and labels)
 const POST_TYPES = [
@@ -40,7 +42,8 @@ export default function CommunityScreen({ navigation }) {
 
   const [profileUser, setProfileUser] = useState(null);
 
-  const { user, token } = useAuth(); //get JWT token
+  const { user, token } = useAuth(); // get JWT token
+  const { theme } = useTheme();
 
   const API_BASE_URL =
     process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
@@ -82,8 +85,6 @@ export default function CommunityScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      // When the screen comes into focus (first load OR coming back),
-      // fetch the posts for the current board
       fetchPosts();
     }, [fetchPosts])
   );
@@ -160,11 +161,9 @@ export default function CommunityScreen({ navigation }) {
   function isPostOwner(post) {
     if (!user) return false;
 
-    // Logged-in user id (support _id or id)
     const userId = user._id || user.id;
     if (!userId) return false;
 
-    // Post owner id can be a string or a populated object
     const postUserId =
       typeof post.user === "string" ? post.user : post.user?._id;
 
@@ -222,7 +221,6 @@ export default function CommunityScreen({ navigation }) {
         throw new Error(data.message || "Failed to update like.");
       }
 
-      // simplest: reload posts from server
       fetchPosts();
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -231,18 +229,22 @@ export default function CommunityScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       {/* Header */}
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.heading}>Community</Text>
-          <Text style={styles.subheading}>
+          <Text style={[styles.heading, { color: theme.textMain }]}>
+            Community
+          </Text>
+          <Text style={[styles.subheading, { color: theme.textMuted }]}>
             A space for locals to share road conditions, rides, and event
             buddies.
           </Text>
         </View>
         <Pressable
-          style={styles.newPostButton}
+          style={[styles.newPostButton, { backgroundColor: theme.accent }]}
           onPress={() => navigation.navigate("CommunityPost")}
         >
           <Text style={styles.newPostButtonText}>New Post</Text>
@@ -257,12 +259,26 @@ export default function CommunityScreen({ navigation }) {
             <Pressable
               key={type.value}
               onPress={() => setSelectedType(type.value)}
-              style={[styles.typePill, isActive && styles.typePillActive]}
+              style={[
+                styles.typePill,
+                {
+                  backgroundColor: theme.pill || theme.background,
+                  borderColor: theme.border,
+                },
+                isActive && {
+                  backgroundColor: theme.card,
+                  borderColor: theme.accent,
+                },
+              ]}
             >
               <Text
                 style={[
                   styles.typePillText,
-                  isActive && styles.typePillTextActive,
+                  { color: theme.textMuted },
+                  isActive && {
+                    color: theme.textMain,
+                    fontWeight: "600",
+                  },
                 ]}
               >
                 {type.label}
@@ -273,7 +289,7 @@ export default function CommunityScreen({ navigation }) {
       </View>
 
       {/* Result summary */}
-      <Text style={styles.summaryText}>
+      <Text style={[styles.summaryText, { color: theme.textMuted }]}>
         {loading
           ? "Loading posts..."
           : filteredPosts.length === 0
@@ -283,25 +299,44 @@ export default function CommunityScreen({ navigation }) {
             } in this board.`}
       </Text>
 
-      {/*  Posts list for the selected board  */}
+      {/* Posts list */}
       <ScrollView
         contentContainerStyle={styles.sectionsContainer}
         showsVerticalScrollIndicator={false}
       >
         {loading && (
           <View style={styles.loadingRow}>
-            <ActivityIndicator size="small" color={colors.textLight} />
-            <Text style={styles.loadingText}>Loading posts...</Text>
+            <ActivityIndicator size="small" color={theme.accent} />
+            <Text style={[styles.loadingText, { color: theme.textMuted }]}>
+              Loading posts...
+            </Text>
           </View>
         )}
 
         {error && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>Error Loading Posts</Text>
-            <Text style={styles.emptyText}>{error}</Text>
+          <View
+            style={[
+              styles.emptyState,
+              { backgroundColor: theme.card, borderColor: theme.border },
+            ]}
+          >
+            <Text style={[styles.emptyTitle, { color: theme.textMain }]}>
+              Error Loading Posts
+            </Text>
+            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
+              {error}
+            </Text>
             <Pressable
               onPress={fetchPosts}
-              style={[styles.typePillActive, { padding: 10, marginTop: 10 }]}
+              style={[
+                styles.typePillActive,
+                {
+                  padding: 10,
+                  marginTop: 10,
+                  backgroundColor: theme.accent,
+                  borderColor: theme.accent,
+                },
+              ]}
             >
               <Text style={{ color: colors.textLight }}>Try Again</Text>
             </Pressable>
@@ -333,37 +368,68 @@ export default function CommunityScreen({ navigation }) {
             const isLikedByMe =
               !!userId &&
               likesArray.some((like) => {
-                // like might be plain ObjectId string or populated { _id: ... }
                 if (typeof like === "string") return like === userId;
                 if (like && typeof like === "object" && like._id) {
                   return like._id === userId;
                 }
                 return false;
               });
+
             const createdDate = new Date(post.createdAt);
             const postId = post._id ?? post.id;
             const isReplyOpen = replyForPostId === postId;
+
             return (
-              <View key={postId} style={styles.sectionCard}>
+              <View
+                key={postId}
+                style={[
+                  styles.sectionCard,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
                 {/* Identity row */}
-                <View style={styles.cardHeaderRow}>
-                  {/* Left: avatar + name + timestamps */}
+                <View className="card-header" style={styles.cardHeaderRow}>
                   <View style={styles.authorRow}>
-                    <View style={styles.avatarCircle}>
+                    <View
+                      style={[
+                        styles.avatarCircle,
+                        { backgroundColor: theme.cardDark || colors.cardDark },
+                      ]}
+                    >
                       {avatarUrl ? (
                         <Image
                           source={{ uri: avatarUrl }}
                           style={styles.avatarImage}
                         />
                       ) : (
-                        <Text style={styles.avatarInitial}>
+                        <Text
+                          style={[
+                            styles.avatarInitial,
+                            { color: theme.textMain },
+                          ]}
+                        >
                           {name.charAt(0).toUpperCase()}
                         </Text>
                       )}
                     </View>
                     <View style={styles.authorTextCol}>
-                      <Text style={styles.authorNameText}>{name}</Text>
-                      <Text style={styles.timestampText}>
+                      <Text
+                        style={[
+                          styles.authorNameText,
+                          { color: theme.textMain },
+                        ]}
+                      >
+                        {name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.timestampText,
+                          { color: theme.textMuted },
+                        ]}
+                      >
                         {createdDate.toLocaleDateString()} •{" "}
                         {createdDate.toLocaleTimeString([], {
                           hour: "numeric",
@@ -371,47 +437,82 @@ export default function CommunityScreen({ navigation }) {
                         })}
                       </Text>
                       {email ? (
-                        <Text style={styles.authorEmailText}>{email}</Text>
+                        <Text
+                          style={[
+                            styles.authorEmailText,
+                            { color: theme.textMuted },
+                          ]}
+                        >
+                          {email}
+                        </Text>
                       ) : null}
                     </View>
                   </View>
 
-                  {/* Right: town + role + date badge + owner badge */}
                   <View style={styles.badgeColumn}>
-                    <Text style={styles.townTag}>
+                    <Text style={[styles.townTag, { color: theme.textMuted }]}>
                       {town || "Rockies local"}
                     </Text>
 
-                    <Text style={styles.roleBadge}>
+                    <Text
+                      style={[
+                        styles.roleBadge,
+                        {
+                          backgroundColor: theme.cardDark || colors.cardDark,
+                          color: theme.textMain,
+                        },
+                      ]}
+                    >
                       {role === "business" ? "Business host" : "Local member"}
                     </Text>
 
-                    <Text style={styles.dateBadge}>
+                    <Text
+                      style={[styles.dateBadge, { color: theme.textMuted }]}
+                    >
                       For: {new Date(post.targetDate).toLocaleDateString()}
                     </Text>
 
-                    {isOwner && <Text style={styles.ownerBadge}>You</Text>}
+                    {isOwner && (
+                      <Text
+                        style={[styles.ownerBadge, { color: theme.accent }]}
+                      >
+                        You
+                      </Text>
+                    )}
                   </View>
                 </View>
 
                 {/* Title + body */}
-                <Text style={styles.sectionTitle}>{post.title}</Text>
-                <Text style={styles.sectionText}>{post.body}</Text>
+                <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
+                  {post.title}
+                </Text>
+                <Text style={[styles.sectionText, { color: theme.textMuted }]}>
+                  {post.body}
+                </Text>
 
+                {/* Likes */}
                 <View style={styles.likesRow}>
                   <Pressable
                     style={[
                       styles.likeButton,
-                      isLikedByMe && styles.likeButtonActive,
+                      { borderColor: theme.border },
+                      isLikedByMe && {
+                        borderColor: theme.accent,
+                        backgroundColor: theme.accentSoft || colors.tealTint,
+                      },
                     ]}
                     onPress={() => handleToggleLike(postId)}
                   >
-                    <Text style={styles.likeButtonText}>
+                    <Text
+                      style={[styles.likeButtonText, { color: theme.textMain }]}
+                    >
                       {isLikedByMe ? "♥ Liked" : "♡ Like"}
                     </Text>
                   </Pressable>
 
-                  <Text style={styles.likesCountText}>
+                  <Text
+                    style={[styles.likesCountText, { color: theme.textMuted }]}
+                  >
                     {likesCount === 0
                       ? "No likes yet"
                       : likesCount === 1
@@ -420,11 +521,14 @@ export default function CommunityScreen({ navigation }) {
                   </Text>
                 </View>
 
-                {/* Owner-only delete/edit buttons */}
+                {/* Owner-only buttons */}
                 {isOwner && (
                   <View style={styles.ownerActionsRow}>
                     <Pressable
-                      style={styles.editButton}
+                      style={[
+                        styles.editButton,
+                        { backgroundColor: theme.accent },
+                      ]}
                       onPress={() =>
                         navigation.navigate("EditCommunityPost", { post })
                       }
@@ -440,10 +544,13 @@ export default function CommunityScreen({ navigation }) {
                   </View>
                 )}
 
-                {/* View profile button */}
+                {/* View profile */}
                 <View style={styles.profileRow}>
                   <Pressable
-                    style={styles.profileButton}
+                    style={[
+                      styles.profileButton,
+                      { borderColor: theme.accent },
+                    ]}
                     onPress={() =>
                       setProfileUser({
                         name,
@@ -457,14 +564,26 @@ export default function CommunityScreen({ navigation }) {
                       })
                     }
                   >
-                    <Text style={styles.profileButtonText}>View profile</Text>
+                    <Text
+                      style={[
+                        styles.profileButtonText,
+                        { color: theme.accent },
+                      ]}
+                    >
+                      View profile
+                    </Text>
                   </Pressable>
                 </View>
 
                 {/* Divider before replies */}
-                <View style={styles.replyDivider} />
+                <View
+                  style={[
+                    styles.replyDivider,
+                    { backgroundColor: theme.border },
+                  ]}
+                />
 
-                {/* Replies list */}
+                {/* Replies */}
                 {Array.isArray(post.replies) && post.replies.length > 0 && (
                   <View style={styles.repliesContainer}>
                     {post.replies.map((reply) => {
@@ -474,7 +593,6 @@ export default function CommunityScreen({ navigation }) {
                       const replyKey =
                         reply._id ?? replyCreated.getTime().toString();
 
-                      // If backend populated reply.user, this will be an object
                       const replyUserObj =
                         typeof reply.user === "object" && reply.user !== null
                           ? reply.user
@@ -505,21 +623,44 @@ export default function CommunityScreen({ navigation }) {
                             }
                           }}
                         >
-                          <View style={styles.replyAvatar}>
+                          <View
+                            style={[
+                              styles.replyAvatar,
+                              {
+                                backgroundColor:
+                                  theme.cardDark || colors.cardDark,
+                              },
+                            ]}
+                          >
                             {replyAvatarUrl ? (
                               <Image
                                 source={{ uri: replyAvatarUrl }}
                                 style={styles.replyAvatarImage}
                               />
                             ) : (
-                              <Text style={styles.replyAvatarInitial}>
+                              <Text
+                                style={[
+                                  styles.replyAvatarInitial,
+                                  { color: theme.textMain },
+                                ]}
+                              >
                                 {replyName.charAt(0).toUpperCase()}
                               </Text>
                             )}
                           </View>
                           <View style={styles.replyContent}>
-                            <Text style={styles.replyMeta}>
-                              <Text style={styles.replyAuthor}>
+                            <Text
+                              style={[
+                                styles.replyMeta,
+                                { color: theme.textMuted },
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.replyAuthor,
+                                  { color: theme.textMain },
+                                ]}
+                              >
                                 {replyName}
                               </Text>{" "}
                               •{" "}
@@ -529,11 +670,21 @@ export default function CommunityScreen({ navigation }) {
                               })}
                             </Text>
                             {replyTown ? (
-                              <Text style={styles.replyTownMeta}>
+                              <Text
+                                style={[
+                                  styles.replyTownMeta,
+                                  { color: theme.textMuted },
+                                ]}
+                              >
                                 {replyTown}
                               </Text>
                             ) : null}
-                            <Text style={styles.replyBodyText}>
+                            <Text
+                              style={[
+                                styles.replyBodyText,
+                                { color: theme.textMuted },
+                              ]}
+                            >
                               {reply.body}
                             </Text>
                           </View>
@@ -557,25 +708,36 @@ export default function CommunityScreen({ navigation }) {
                       }
                     }}
                   >
-                    <Text style={styles.replyButtonText}>
+                    <Text
+                      style={[styles.replyButtonText, { color: theme.accent }]}
+                    >
                       {isReplyOpen ? "Cancel" : "Reply"}
                     </Text>
                   </Pressable>
                 </View>
 
                 {isReplyOpen && (
-                  <View style={styles.replyInputContainer}>
+                  <View
+                    style={[
+                      styles.replyInputContainer,
+                      {
+                        backgroundColor: theme.background,
+                        borderColor: theme.border,
+                      },
+                    ]}
+                  >
                     <TextInput
-                      style={styles.replyInput}
+                      style={[styles.replyInput, { color: theme.textMain }]}
                       value={replyText}
                       onChangeText={setReplyText}
                       placeholder="Write a reply..."
-                      placeholderTextColor={colors.textMuted}
+                      placeholderTextColor={theme.textMuted}
                       multiline
                     />
                     <Pressable
                       style={[
                         styles.sendReplyButton,
+                        { backgroundColor: theme.accent },
                         (!replyText.trim() || submittingReply) &&
                           styles.sendReplyButtonDisabled,
                       ]}
@@ -594,15 +756,23 @@ export default function CommunityScreen({ navigation }) {
 
         {/* EMPTY STATE */}
         {!loading && !error && filteredPosts.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>No posts yet</Text>
-            <Text style={styles.emptyText}>
+          <View
+            style={[
+              styles.emptyState,
+              { backgroundColor: theme.card, borderColor: theme.border },
+            ]}
+          >
+            <Text style={[styles.emptyTitle, { color: theme.textMain }]}>
+              No posts yet
+            </Text>
+            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
               Be the first to share something in this board.
             </Text>
           </View>
         )}
       </ScrollView>
 
+      {/* Profile modal */}
       {profileUser && (
         <Modal
           visible={true}
@@ -611,36 +781,68 @@ export default function CommunityScreen({ navigation }) {
           onRequestClose={() => setProfileUser(null)}
         >
           <View style={styles.profileModalOverlay}>
-            <View style={styles.profileModalCard}>
-              {/* Close button */}
+            <View
+              style={[
+                styles.profileModalCard,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
               <View style={styles.profileModalHeader}>
-                <Text style={styles.profileModalTitle}>Member Profile</Text>
+                <Text
+                  style={[styles.profileModalTitle, { color: theme.textMain }]}
+                >
+                  Member Profile
+                </Text>
                 <Pressable onPress={() => setProfileUser(null)}>
-                  <Text style={styles.profileModalClose}>Close</Text>
+                  <Text
+                    style={[styles.profileModalClose, { color: theme.accent }]}
+                  >
+                    Close
+                  </Text>
                 </Pressable>
               </View>
 
-              {/* Avatar + name + town */}
               <View style={styles.profileTopRow}>
-                <View style={styles.profileAvatar}>
+                <View
+                  style={[
+                    styles.profileAvatar,
+                    { backgroundColor: theme.cardDark || colors.cardDark },
+                  ]}
+                >
                   {profileUser.avatarUrl ? (
                     <Image
                       source={{ uri: profileUser.avatarUrl }}
                       style={styles.profileAvatarImage}
                     />
                   ) : (
-                    <Text style={styles.profileAvatarInitial}>
+                    <Text
+                      style={[
+                        styles.profileAvatarInitial,
+                        { color: theme.textMain },
+                      ]}
+                    >
                       {profileUser.name?.charAt(0).toUpperCase() || "M"}
                     </Text>
                   )}
                 </View>
 
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.profileName}>{profileUser.name}</Text>
+                  <Text style={[styles.profileName, { color: theme.textMain }]}>
+                    {profileUser.name}
+                  </Text>
                   {profileUser.town ? (
-                    <Text style={styles.profileTown}>{profileUser.town}</Text>
+                    <Text
+                      style={[styles.profileTown, { color: theme.textMuted }]}
+                    >
+                      {profileUser.town}
+                    </Text>
                   ) : null}
-                  <Text style={styles.profileRole}>
+                  <Text
+                    style={[styles.profileRole, { color: theme.textMuted }]}
+                  >
                     {profileUser.role === "business"
                       ? "Business host"
                       : "Local member"}
@@ -648,45 +850,81 @@ export default function CommunityScreen({ navigation }) {
                 </View>
               </View>
 
-              {/* Bio (locals only for now) */}
               {profileUser.bio ? (
                 <View style={styles.profileSection}>
-                  <Text style={styles.profileSectionLabel}>About</Text>
-                  <Text style={styles.profileSectionText}>
+                  <Text
+                    style={[
+                      styles.profileSectionLabel,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    About
+                  </Text>
+                  <Text
+                    style={[
+                      styles.profileSectionText,
+                      { color: theme.textMain },
+                    ]}
+                  >
                     {profileUser.bio}
                   </Text>
                 </View>
               ) : null}
 
-              {/* Looking for / Business type */}
               {profileUser.lookingFor ? (
                 <View style={styles.profileSection}>
-                  <Text style={styles.profileSectionLabel}>
+                  <Text
+                    style={[
+                      styles.profileSectionLabel,
+                      { color: theme.textMuted },
+                    ]}
+                  >
                     {profileUser.role === "business"
                       ? "Business type"
                       : "Looking for"}
                   </Text>
-                  <Text style={styles.profileSectionText}>
+                  <Text
+                    style={[
+                      styles.profileSectionText,
+                      { color: theme.textMain },
+                    ]}
+                  >
                     {profileUser.lookingFor}
                   </Text>
                 </View>
               ) : null}
 
-              {/* Instagram */}
               {profileUser.instagram ? (
                 <View style={styles.profileSection}>
-                  <Text style={styles.profileSectionLabel}>Instagram</Text>
-                  <Text style={styles.profileLinkText}>
+                  <Text
+                    style={[
+                      styles.profileSectionLabel,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Instagram
+                  </Text>
+                  <Text
+                    style={[styles.profileLinkText, { color: theme.accent }]}
+                  >
                     {profileUser.instagram}
                   </Text>
                 </View>
               ) : null}
 
-              {/* Website (business only) */}
               {profileUser.role === "business" && profileUser.website ? (
                 <View style={styles.profileSection}>
-                  <Text style={styles.profileSectionLabel}>Website</Text>
-                  <Text style={styles.profileLinkText}>
+                  <Text
+                    style={[
+                      styles.profileSectionLabel,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Website
+                  </Text>
+                  <Text
+                    style={[styles.profileLinkText, { color: theme.accent }]}
+                  >
                     {profileUser.website}
                   </Text>
                 </View>
@@ -699,6 +937,7 @@ export default function CommunityScreen({ navigation }) {
   );
 }
 
+// ---- Styles (base colors from theme/colors, overridden by theme where needed) ----
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -740,7 +979,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  /* ---- CATEGORY PILLS ---- */
   typeRow: {
     flexDirection: "row",
     gap: 8,
@@ -777,7 +1015,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  /* ---- SECTIONS / CARDS ---- */
   sectionsContainer: {
     paddingBottom: 32,
     gap: 16,
@@ -798,7 +1035,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  /* identity block */
   authorRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -815,6 +1051,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 8,
   },
+
   avatarImage: {
     width: 34,
     height: 34,
@@ -891,7 +1128,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  /* ---- EMPTY STATE ---- */
   emptyState: {
     marginTop: 24,
     padding: 16,
@@ -913,7 +1149,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  /* ---- OWNER BUTTONS ---- */
   ownerActionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -947,7 +1182,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  /* ---- PROFILE BUTTON ROW ---- */
   profileRow: {
     marginTop: 8,
     marginBottom: 4,
@@ -968,6 +1202,7 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontWeight: "600",
   },
+
   profileModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -1069,7 +1304,6 @@ const styles = StyleSheet.create({
     color: colors.accent,
   },
 
-  /* ---- LOADING ROW ---- */
   loadingRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1082,7 +1316,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  /* ---- REPLIES ---- */
   replyDivider: {
     height: 1,
     backgroundColor: colors.border,
@@ -1121,9 +1354,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.textLight,
   },
+
   replyContent: {
     flex: 1,
   },
+
   replyMeta: {
     fontSize: 11,
     color: colors.textMuted,
@@ -1205,6 +1440,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+
   likeButton: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -1213,15 +1449,18 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     marginRight: 8,
   },
+
   likeButtonActive: {
     borderColor: colors.accent,
     backgroundColor: colors.tealTint,
   },
+
   likeButtonText: {
     fontSize: 12,
     fontWeight: "600",
     color: colors.textLight,
   },
+
   likesCountText: {
     fontSize: 12,
     color: colors.textMuted,

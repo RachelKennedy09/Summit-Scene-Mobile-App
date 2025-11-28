@@ -15,7 +15,7 @@ export const lightTheme = {
 
   // accents
   accent: "#b0b9daff",
-  accentSoft: "#FCE7F3",
+  accentSoft: "#c4b3bdff",
 
   // borders / dividers
   border: "#E5E7EB",
@@ -23,7 +23,7 @@ export const lightTheme = {
 
   // tab bar / navigation
   tabBarBackground: "#FFFFFF",
-  tabBarActive: "#6B7280",
+  tabBarActive: "#c4b3bdff",
   tabBarInactive: "#9CA3AF",
 };
 

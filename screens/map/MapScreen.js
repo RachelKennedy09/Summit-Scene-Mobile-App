@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
 import { colors } from "../../theme/colors.js";
+import { useTheme } from "../../context/ThemeContext";
 
 // Simple list of towns for the selector modal
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
@@ -80,6 +81,7 @@ function toDateOnlyString(value) {
 export default function MapScreen() {
   const navigation = useNavigation();
   const mapRef = useRef(null); // reference to the MapView
+  const { theme } = useTheme();
 
   // Filter state
   const [selectedTown, setSelectedTown] = useState("All");
@@ -258,34 +260,56 @@ export default function MapScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>Explore by Map</Text>
-      <Text style={styles.subheading}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
+      <Text style={[styles.heading, { color: theme.textMain }]}>
+        Explore by Map
+      </Text>
+      <Text style={[styles.subheading, { color: theme.textMuted }]}>
         See events pinned across Banff, Canmore & Lake Louise.
       </Text>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+      ) : null}
 
       {/* Pills row – same layout as HubScreen */}
       <View style={styles.pillRow}>
         {/* Town Pill */}
         <Pressable
-          style={styles.pill}
+          style={[
+            styles.pill,
+            {
+              backgroundColor: theme.pill || theme.card,
+              borderColor: theme.border,
+            },
+          ]}
           onPress={() => setIsTownModalVisible(true)}
         >
-          <Text style={styles.pillLabel}>Town</Text>
-          <Text style={styles.pillValue}>
+          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
+            Town
+          </Text>
+          <Text style={[styles.pillValue, { color: theme.textMain }]}>
             {selectedTown === "All" ? "All towns ▾" : `${selectedTown} ▾`}
           </Text>
         </Pressable>
 
         {/* Category Pill */}
         <Pressable
-          style={styles.pill}
+          style={[
+            styles.pill,
+            {
+              backgroundColor: theme.pill || theme.card,
+              borderColor: theme.border,
+            },
+          ]}
           onPress={() => setIsCategoryModalVisible(true)}
         >
-          <Text style={styles.pillLabel}>Category</Text>
-          <Text style={styles.pillValue}>
+          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
+            Category
+          </Text>
+          <Text style={[styles.pillValue, { color: theme.textMain }]}>
             {selectedCategory === "All"
               ? "All categories ▾"
               : `${selectedCategory} ▾`}
@@ -294,24 +318,48 @@ export default function MapScreen() {
 
         {/* Date Pill */}
         <Pressable
-          style={styles.pill}
+          style={[
+            styles.pill,
+            {
+              backgroundColor: theme.pill || theme.card,
+              borderColor: theme.border,
+            },
+          ]}
           onPress={() => setIsDateModalVisible(true)}
         >
-          <Text style={styles.pillLabel}>Date</Text>
-          <Text style={styles.pillValue}>{selectedDateFilter} ▾</Text>
+          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
+            Date
+          </Text>
+          <Text style={[styles.pillValue, { color: theme.textMain }]}>
+            {selectedDateFilter} ▾
+          </Text>
         </Pressable>
       </View>
 
-      <View style={styles.sectionDivider} />
+      <View
+        style={[styles.sectionDivider, { backgroundColor: theme.border }]}
+      />
 
-      <Text style={styles.filterSummaryText}>{filterSummary}</Text>
+      <Text style={[styles.filterSummaryText, { color: theme.textMuted }]}>
+        {filterSummary}
+      </Text>
 
       {/* Map area */}
-      <View style={styles.mapContainer}>
+      <View
+        style={[
+          styles.mapContainer,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
+          },
+        ]}
+      >
         {loading ? (
           <View style={styles.mapLoading}>
-            <ActivityIndicator size="large" color="#ffffff" />
-            <Text style={styles.loadingText}>Loading map events...</Text>
+            <ActivityIndicator size="large" color={theme.accent} />
+            <Text style={[styles.loadingText, { color: theme.textMuted }]}>
+              Loading map events...
+            </Text>
           </View>
         ) : (
           <MapView
@@ -349,7 +397,7 @@ export default function MapScreen() {
       </View>
 
       {!loading && eventsForMap.length === 0 && !error && (
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, { color: theme.textMuted }]}>
           No events match this town + date range. Try another filter combo.
         </Text>
       )}
@@ -362,8 +410,18 @@ export default function MapScreen() {
         onRequestClose={() => setIsTownModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose a town</Text>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
+              Choose a town
+            </Text>
 
             {TOWNS.map((town) => {
               const isSelected = town === selectedTown;
@@ -372,19 +430,33 @@ export default function MapScreen() {
                   key={town}
                   style={[
                     styles.townOption,
-                    isSelected && styles.townOptionSelected,
+                    {
+                      backgroundColor: theme.pill || theme.card,
+                      borderColor: "transparent",
+                    },
+                    isSelected && {
+                      backgroundColor: theme.accentSoft || theme.accent,
+                      borderColor: theme.accent,
+                    },
                   ]}
                   onPress={() => handleSelectTown(town)}
                 >
                   <Text
                     style={[
                       styles.townOptionText,
+                      { color: theme.textMain },
                       isSelected && styles.townOptionTextSelected,
                     ]}
                   >
                     {town === "All" ? "All towns" : town}
                   </Text>
-                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                  {isSelected && (
+                    <Text
+                      style={[styles.townCheckMark, { color: theme.accent }]}
+                    >
+                      ✓
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}
@@ -393,7 +465,9 @@ export default function MapScreen() {
               style={styles.modalCloseButton}
               onPress={() => setIsTownModalVisible(false)}
             >
-              <Text style={styles.modalCloseText}>Cancel</Text>
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
+                Cancel
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -407,8 +481,18 @@ export default function MapScreen() {
         onRequestClose={() => setIsCategoryModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose a category</Text>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
+              Choose a category
+            </Text>
 
             {CATEGORIES.map((category) => {
               const isSelected = category === selectedCategory;
@@ -417,19 +501,33 @@ export default function MapScreen() {
                   key={category}
                   style={[
                     styles.townOption,
-                    isSelected && styles.townOptionSelected,
+                    {
+                      backgroundColor: theme.pill || theme.card,
+                      borderColor: "transparent",
+                    },
+                    isSelected && {
+                      backgroundColor: theme.accentSoft || theme.accent,
+                      borderColor: theme.accent,
+                    },
                   ]}
                   onPress={() => handleSelectCategory(category)}
                 >
                   <Text
                     style={[
                       styles.townOptionText,
+                      { color: theme.textMain },
                       isSelected && styles.townOptionTextSelected,
                     ]}
                   >
                     {category === "All" ? "All categories" : category}
                   </Text>
-                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                  {isSelected && (
+                    <Text
+                      style={[styles.townCheckMark, { color: theme.accent }]}
+                    >
+                      ✓
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}
@@ -438,7 +536,9 @@ export default function MapScreen() {
               style={styles.modalCloseButton}
               onPress={() => setIsCategoryModalVisible(false)}
             >
-              <Text style={styles.modalCloseText}>Cancel</Text>
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
+                Cancel
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -452,8 +552,18 @@ export default function MapScreen() {
         onRequestClose={() => setIsDateModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Choose a date range</Text>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
+              Choose a date range
+            </Text>
 
             {DATE_FILTERS.map((filter) => {
               const isSelected = filter === selectedDateFilter;
@@ -462,19 +572,33 @@ export default function MapScreen() {
                   key={filter}
                   style={[
                     styles.townOption,
-                    isSelected && styles.townOptionSelected,
+                    {
+                      backgroundColor: theme.pill || theme.card,
+                      borderColor: "transparent",
+                    },
+                    isSelected && {
+                      backgroundColor: theme.accentSoft || theme.accent,
+                      borderColor: theme.accent,
+                    },
                   ]}
                   onPress={() => handleSelectDateFilter(filter)}
                 >
                   <Text
                     style={[
                       styles.townOptionText,
+                      { color: theme.textMain },
                       isSelected && styles.townOptionTextSelected,
                     ]}
                   >
                     {filter}
                   </Text>
-                  {isSelected && <Text style={styles.townCheckMark}>✓</Text>}
+                  {isSelected && (
+                    <Text
+                      style={[styles.townCheckMark, { color: theme.accent }]}
+                    >
+                      ✓
+                    </Text>
+                  )}
                 </Pressable>
               );
             })}
@@ -483,7 +607,9 @@ export default function MapScreen() {
               style={styles.modalCloseButton}
               onPress={() => setIsDateModalVisible(false)}
             >
-              <Text style={styles.modalCloseText}>Cancel</Text>
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
+                Cancel
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -516,7 +642,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-  // ---- Pills (copied to match HubScreen style) ----
+  // ---- Pills ----
   pillRow: {
     gap: 12,
     marginBottom: 12,
