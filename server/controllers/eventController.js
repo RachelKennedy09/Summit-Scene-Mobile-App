@@ -5,8 +5,8 @@
 import Event from "../models/Event.js";
 
 // GET /api/events
-// Return all events
-// Return only upcoming events (today or later)
+// Return upcoming events (today or later)
+// Also populates createdBy (business host profile) for frontend
 export async function getAllEvents(req, res) {
   try {
     // Build today's date in YYYY-MM-DD format
@@ -17,9 +17,12 @@ export async function getAllEvents(req, res) {
     const todayStr = `${year}-${month}-${day}`;
 
     // Only events on or after today
-    const events = await Event.find({ date: { $gte: todayStr } }).sort({
-      date: 1,
-    });
+    const events = await Event.find({ date: { $gte: todayStr } })
+      .sort({ date: 1 })
+      .populate(
+        "createdBy",
+        "name email role avatarUrl town bio looking For instagram website"
+      );
 
     return res.json(events);
   } catch (error) {
@@ -30,6 +33,7 @@ export async function getAllEvents(req, res) {
     });
   }
 }
+
 // POST /api/events
 // Create a new event: reads data from req.body, validates required fields,
 // saves to MongoDB, and returns the saved event.
@@ -86,11 +90,15 @@ export async function createEvent(req, res) {
 
 // GET /api/events/:id
 // Get a single event by its MongoDB ID
+// Also populates createdBy with host profile info
 export async function getEventById(req, res) {
   try {
     const { id } = req.params;
 
-    const event = await Event.findById(id);
+    const event = await Event.findById(id).populate(
+      "createdBy",
+      "name email role avatarUrl town bio lookingFor instagram website"
+    );
 
     if (!event) {
       return res.status(404).json({ message: "Event not found." });
@@ -175,7 +183,7 @@ export async function deleteEvent(req, res) {
     }
 
     // Check ownership
-    if (event.createdBy.toString() !== userId) {
+    if (!event.createdBy || event.createdBy.toString() !== userId) {
       return res
         .status(403)
         .json({ message: "You are not allowed to delete this event." });
@@ -195,6 +203,7 @@ export async function deleteEvent(req, res) {
 
 // GET /api/events/mine
 // Return only events created by the currently logged-in user
+// Also populates createdBy, so the frontend still has host info
 export async function getMyEvents(req, res) {
   try {
     const userId = req.user?.userId;
@@ -204,7 +213,12 @@ export async function getMyEvents(req, res) {
     }
 
     // Find events where createdBy matches this user
-    const events = await Event.find({ createdBy: userId }).sort({ date: 1 });
+    const events = await Event.find({ createdBy: userId })
+      .sort({ date: 1 })
+      .populate(
+        "createdBy",
+        "name email role avatarUrl town bio lookingFor instagram website"
+      );
 
     return res.json(events);
   } catch (error) {
