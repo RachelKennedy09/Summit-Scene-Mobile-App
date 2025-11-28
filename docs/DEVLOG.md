@@ -839,17 +839,13 @@ Sprint 8 done Trello cards
 1. Add Town, Category, Date pills like HubScreen
 2. Zoom effect when choosing a town on map
 
-
 ### Community Polish
+
 1. Town filter pills with a modal
 2. Summary line after choosing town
 3. Show an identity to the posts (Who posted)
 4. Avatar?
 5. Reply options
-
-
-
-
 
 #### Photos of Progress - Sprint 9
 
@@ -869,3 +865,6 @@ App Screenshot for "Date Picker" user friendly
 
 App Screenshot for "time picker' user friendly
 ![alt text](devlogimages/APPTimePicker.png)
+
+MongoDB Reply array
+![alt text](devlogimages/MONGODBReply.png)

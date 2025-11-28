@@ -32,7 +32,7 @@ export async function getCommunityPosts(req, res) {
 // Create a new community post
 export async function createCommunityPost(req, res) {
   try {
-    // authMiddleware sets: req.user.userId
+    // authMiddleware sets: req.user.userId, req.user.name, req.user.email
     const userId = req.user?.userId;
     if (!userId) {
       return res
@@ -40,15 +40,19 @@ export async function createCommunityPost(req, res) {
         .json({ message: "Unauthorized: missing user ID." });
     }
 
-    const { type, town, title, body, targetDate, name } = req.body || {};
+    const { type, town, title, body, targetDate } = req.body || {};
 
-    // Basic validation
-    if (!name || !type || !town || !title || !body || !targetDate) {
+    // Basic validation (no "name" here anymore)
+    if (!type || !town || !title || !body || !targetDate) {
       return res.status(400).json({
         message:
-          "Name, type, town, title, body, and date are required for community posts.",
+          "Type, town, title, body, and date are required for community posts.",
       });
     }
+
+    // Snapshot the display name from the account
+    const displayName =
+      req.user?.name || req.user?.email || "SummitScene member";
 
     const newPost = await CommunityPost.create({
       user: userId,
@@ -56,7 +60,7 @@ export async function createCommunityPost(req, res) {
       town,
       title,
       body,
-      name,
+      name: displayName, 
       targetDate,
     });
 
@@ -176,8 +180,7 @@ export async function addCommunityReply(req, res) {
       return res.status(404).json({ message: "Post not found." });
     }
 
-    const replyName =
-      req.user?.name || req.user?.email || "SummitScene member";
+    const replyName = req.user?.name || req.user?.email || "SummitScene member";
 
     post.replies.push({
       user: userId,

@@ -9,6 +9,7 @@ import {
   Alert,
   Modal,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -191,271 +192,277 @@ export default function PostEventScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>Post a New Event</Text>
-
-        {/* Title */}
-        <Text style={styles.label}>Title *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Event title"
-          value={title}
-          onChangeText={setTitle}
-        />
-
-        {/* Town */}
-        <Text style={styles.label}>Town *</Text>
-        <Pressable
-          style={styles.selectButton}
-          onPress={() => setShowTownModal(true)}
-        >
-          <Text style={styles.selectButtonText}>{town}</Text>
-        </Pressable>
-
-        {/* Category */}
-        <Text style={styles.label}>Category *</Text>
-        <Pressable
-          style={styles.selectButton}
-          onPress={() => setShowCategoryModal(true)}
-        >
-          <Text style={styles.selectButtonText}>{category}</Text>
-        </Pressable>
-
-        {/* Date */}
-        <Text style={styles.label}>Date (YYYY-MM-DD) *</Text>
-        <Pressable onPress={() => setShowDatePicker(true)}>
-          <View pointerEvents="none">
-            <TextInput
-              style={styles.input}
-              placeholder="Select a date"
-              value={date}
-              editable={false}
-            />
-          </View>
-        </Pressable>
-
-        {/* Start Time */}
-        <Text style={styles.label}>Start time (optional)</Text>
-        <Pressable onPress={() => setShowTimePicker(true)}>
-          <View pointerEvents="none">
-            <TextInput
-              style={styles.input}
-              placeholder="Select start time"
-              value={time}
-              editable={false}
-            />
-          </View>
-        </Pressable>
-
-        {/* End Time */}
-        <Text style={styles.label}>End time (optional)</Text>
-        <Pressable onPress={() => setShowEndTimePicker(true)}>
-          <View pointerEvents="none">
-            <TextInput
-              style={styles.input}
-              placeholder="Select end time"
-              value={endTime}
-              editable={false}
-            />
-          </View>
-        </Pressable>
-
-        {/* Location */}
-        <Text style={styles.label}>Location</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Venue or address"
-          value={location}
-          onChangeText={setLocation}
-        />
-
-        {/* Description */}
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Tell people what to expect"
-          value={description}
-          onChangeText={setDescription}
-          multiline
-        />
-
-        {/* Submit button */}
-        <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Posting..." : "Post Event"}
-          </Text>
-        </Pressable>
-      </ScrollView>
-
-      {/* Town Modal */}
-      <Modal
-        visible={showTownModal}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowTownModal(false)}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Town</Text>
-            {TOWNS.map((t) => (
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.heading}>Post a New Event</Text>
+
+          {/* Title */}
+          <Text style={styles.label}>Title *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Event title"
+            value={title}
+            onChangeText={setTitle}
+          />
+
+          {/* Town */}
+          <Text style={styles.label}>Town *</Text>
+          <Pressable
+            style={styles.selectButton}
+            onPress={() => setShowTownModal(true)}
+          >
+            <Text style={styles.selectButtonText}>{town}</Text>
+          </Pressable>
+
+          {/* Category */}
+          <Text style={styles.label}>Category *</Text>
+          <Pressable
+            style={styles.selectButton}
+            onPress={() => setShowCategoryModal(true)}
+          >
+            <Text style={styles.selectButtonText}>{category}</Text>
+          </Pressable>
+
+          {/* Date */}
+          <Text style={styles.label}>Date (YYYY-MM-DD) *</Text>
+          <Pressable onPress={() => setShowDatePicker(true)}>
+            <View pointerEvents="none">
+              <TextInput
+                style={styles.input}
+                placeholder="Select a date"
+                value={date}
+                editable={false}
+              />
+            </View>
+          </Pressable>
+
+          {/* Start Time */}
+          <Text style={styles.label}>Start time (optional)</Text>
+          <Pressable onPress={() => setShowTimePicker(true)}>
+            <View pointerEvents="none">
+              <TextInput
+                style={styles.input}
+                placeholder="Select start time"
+                value={time}
+                editable={false}
+              />
+            </View>
+          </Pressable>
+
+          {/* End Time */}
+          <Text style={styles.label}>End time (optional)</Text>
+          <Pressable onPress={() => setShowEndTimePicker(true)}>
+            <View pointerEvents="none">
+              <TextInput
+                style={styles.input}
+                placeholder="Select end time"
+                value={endTime}
+                editable={false}
+              />
+            </View>
+          </Pressable>
+
+          {/* Location */}
+          <Text style={styles.label}>Location</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Venue or address"
+            value={location}
+            onChangeText={setLocation}
+          />
+
+          {/* Description */}
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Tell people what to expect"
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
+
+          {/* Submit button */}
+          <Pressable
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Posting..." : "Post Event"}
+            </Text>
+          </Pressable>
+        </ScrollView>
+
+        {/* Town Modal */}
+        <Modal
+          visible={showTownModal}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setShowTownModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Town</Text>
+              {TOWNS.map((t) => (
+                <Pressable
+                  key={t}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    setTown(t);
+                    setShowTownModal(false);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{t}</Text>
+                </Pressable>
+              ))}
               <Pressable
-                key={t}
-                style={styles.modalOption}
-                onPress={() => {
-                  setTown(t);
-                  setShowTownModal(false);
-                }}
+                style={styles.modalCancel}
+                onPress={() => setShowTownModal(false)}
               >
-                <Text style={styles.modalOptionText}>{t}</Text>
+                <Text style={styles.modalCancelText}>Cancel</Text>
               </Pressable>
-            ))}
-            <Pressable
-              style={styles.modalCancel}
-              onPress={() => setShowTownModal(false)}
-            >
-              <Text style={styles.modalCancelText}>Cancel</Text>
-            </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* Category Modal */}
-      <Modal
-        visible={showCategoryModal}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowCategoryModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Category</Text>
-            {FORM_CATEGORIES.map((cat) => (
+        {/* Category Modal */}
+        <Modal
+          visible={showCategoryModal}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setShowCategoryModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Category</Text>
+              {FORM_CATEGORIES.map((cat) => (
+                <Pressable
+                  key={cat}
+                  style={styles.modalOption}
+                  onPress={() => {
+                    setCategory(cat);
+                    setShowCategoryModal(false);
+                  }}
+                >
+                  <Text style={styles.modalOptionText}>{cat}</Text>
+                </Pressable>
+              ))}
               <Pressable
-                key={cat}
-                style={styles.modalOption}
-                onPress={() => {
-                  setCategory(cat);
-                  setShowCategoryModal(false);
-                }}
+                style={styles.modalCancel}
+                onPress={() => setShowCategoryModal(false)}
               >
-                <Text style={styles.modalOptionText}>{cat}</Text>
+                <Text style={styles.modalCancelText}>Cancel</Text>
               </Pressable>
-            ))}
-            <Pressable
-              style={styles.modalCancel}
-              onPress={() => setShowCategoryModal(false)}
-            >
-              <Text style={styles.modalCancelText}>Cancel</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Date Picker Modal */}
-      {showDatePicker && (
-        <Modal
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowDatePicker(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
-              <DateTimePicker
-                value={dateObj}
-                mode="date"
-                display={Platform.OS === "ios" ? "inline" : "calendar"}
-                onChange={handleDateChange}
-              />
-              <View style={styles.pickerButtonsRow}>
-                <Pressable
-                  style={styles.pickerSecondaryButton}
-                  onPress={() => setShowDatePicker(false)}
-                >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.pickerPrimaryButton}
-                  onPress={handleConfirmDate}
-                >
-                  <Text style={styles.pickerPrimaryText}>Use this date</Text>
-                </Pressable>
-              </View>
             </View>
           </View>
         </Modal>
-      )}
 
-      {/* Time Picker Modal */}
-      {showTimePicker && (
-        <Modal
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowTimePicker(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
-              <DateTimePicker
-                value={timeObj}
-                mode="time"
-                display={Platform.OS === "ios" ? "spinner" : "clock"}
-                onChange={handleTimeChange}
-              />
-              <View style={styles.pickerButtonsRow}>
-                <Pressable
-                  style={styles.pickerSecondaryButton}
-                  onPress={() => setShowTimePicker(false)}
-                >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.pickerPrimaryButton}
-                  onPress={handleConfirmTime}
-                >
-                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
-                </Pressable>
+        {/* Date Picker Modal */}
+        {showDatePicker && (
+          <Modal
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowDatePicker(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.pickerModalContent}>
+                <DateTimePicker
+                  value={dateObj}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "inline" : "calendar"}
+                  onChange={handleDateChange}
+                />
+                <View style={styles.pickerButtonsRow}>
+                  <Pressable
+                    style={styles.pickerSecondaryButton}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.pickerPrimaryButton}
+                    onPress={handleConfirmDate}
+                  >
+                    <Text style={styles.pickerPrimaryText}>Use this date</Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
-      )}
+          </Modal>
+        )}
 
-      {/* End Time Picker Modal */}
-      {showEndTimePicker && (
-        <Modal
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowEndTimePicker(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
-              <DateTimePicker
-                value={endTimeObj}
-                mode="time"
-                display={Platform.OS === "ios" ? "spinner" : "clock"}
-                onChange={handleEndTimeChange}
-              />
-              <View style={styles.pickerButtonsRow}>
-                <Pressable
-                  style={styles.pickerSecondaryButton}
-                  onPress={() => setShowEndTimePicker(false)}
-                >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
-                </Pressable>
-                <Pressable
-                  style={styles.pickerPrimaryButton}
-                  onPress={handleConfirmEndTime}
-                >
-                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
-                </Pressable>
+        {/* Time Picker Modal */}
+        {showTimePicker && (
+          <Modal
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowTimePicker(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.pickerModalContent}>
+                <DateTimePicker
+                  value={timeObj}
+                  mode="time"
+                  display={Platform.OS === "ios" ? "spinner" : "clock"}
+                  onChange={handleTimeChange}
+                />
+                <View style={styles.pickerButtonsRow}>
+                  <Pressable
+                    style={styles.pickerSecondaryButton}
+                    onPress={() => setShowTimePicker(false)}
+                  >
+                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.pickerPrimaryButton}
+                    onPress={handleConfirmTime}
+                  >
+                    <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
-      )}
+          </Modal>
+        )}
+
+        {/* End Time Picker Modal */}
+        {showEndTimePicker && (
+          <Modal
+            transparent
+            animationType="fade"
+            onRequestClose={() => setShowEndTimePicker(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.pickerModalContent}>
+                <DateTimePicker
+                  value={endTimeObj}
+                  mode="time"
+                  display={Platform.OS === "ios" ? "spinner" : "clock"}
+                  onChange={handleEndTimeChange}
+                />
+                <View style={styles.pickerButtonsRow}>
+                  <Pressable
+                    style={styles.pickerSecondaryButton}
+                    onPress={() => setShowEndTimePicker(false)}
+                  >
+                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.pickerPrimaryButton}
+                    onPress={handleConfirmEndTime}
+                  >
+                    <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        )}             
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
