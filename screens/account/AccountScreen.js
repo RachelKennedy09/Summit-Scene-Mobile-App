@@ -1,9 +1,17 @@
 // screens/AccountScreen.js
-// Shows logged-in user's account info + logout
-// Gives users a clear place to see who is logged in and to sign out
+// Shows logged-in user's account info + profile fields + logout
+// Now also ties into Community / Event posting profile + Edit Profile
 
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Pressable, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Alert,
+  Image,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
@@ -19,8 +27,7 @@ function AccountScreen() {
 
   const [isUpgrading, setIsUpgrading] = useState(false);
 
-  // Safeguard: in theory AccountScreen is only shown when user != null,
-  // but we handle the "just in case" situation gracefully.
+  // Safeguard: in theory AccountScreen is only shown when user != null
   if (!user) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -33,12 +40,12 @@ function AccountScreen() {
       </SafeAreaView>
     );
   }
+
   async function handleUpgradeToBusiness() {
     try {
       setIsUpgrading(true);
       await upgradeToBusiness();
 
-      // timeout before showing alert so UI doesnt unmount instantly
       setTimeout(() => {
         Alert.alert(
           "Account upgraded",
@@ -63,6 +70,18 @@ function AccountScreen() {
   }
 
   const displayName = user.name || user.email;
+  const avatarUrl = user.avatarUrl;
+  const town = user.town || "Rockies local";
+  const roleLabel = isBusiness ? "Business account" : "Local account";
+
+  // 🆕 Role-based copy for profile section
+  const profileSectionTitle = isBusiness
+    ? "Event posting profile"
+    : "Community profile";
+
+  const profileSectionSubtitle = isBusiness
+    ? "This is how your profile appears on Hub and Map when you post events."
+    : "This is how your profile appears on Community posts and replies.";
 
   async function handleLogout() {
     await logout();
@@ -70,27 +89,80 @@ function AccountScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
         <Text style={styles.title}>Account</Text>
 
+        {/* PROFILE HEADER CARD */}
         <View style={styles.card}>
-          <Text style={styles.greeting}>Hi, {displayName}</Text>
-          <Text style={styles.roleTag}>
-            You’re logged in as a{" "}
-            {user.role === "business" ? "Business" : "Local"} account
-          </Text>
+          <View style={styles.headerRow}>
+            <View style={styles.avatar}>
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarInitial}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{user.email}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Member since:</Text>
-            <Text style={styles.value}>{joinedText}</Text>
+            <View style={styles.headerTextCol}>
+              <Text style={styles.greeting}>Hi, {displayName}</Text>
+              <Text style={styles.roleTag}>{roleLabel}</Text>
+              <Text style={styles.metaText}>Email: {user.email}</Text>
+              <Text style={styles.metaText}>Town: {town}</Text>
+              <Text style={styles.metaText}>Member since: {joinedText}</Text>
+            </View>
           </View>
         </View>
 
+        {/* COMMUNITY / EVENT PROFILE INFO */}
+        <View className="profile-card" style={styles.profileCard}>
+          <Text style={styles.sectionTitle}>{profileSectionTitle}</Text>
+          <Text style={styles.sectionSubtitle}>{profileSectionSubtitle}</Text>
+
+          {user.bio ? (
+            <>
+              <Text style={styles.label}>About</Text>
+              <Text style={styles.value}>{user.bio}</Text>
+            </>
+          ) : null}
+
+          {user.lookingFor ? (
+            <>
+              <Text style={styles.label}>
+                {isBusiness ? "Business type" : "What you're looking for"}
+              </Text>
+              <Text style={styles.value}>{user.lookingFor}</Text>
+            </>
+          ) : null}
+
+          {user.instagram ? (
+            <>
+              <Text style={styles.label}>Instagram</Text>
+              <Text style={styles.linkValue}>{user.instagram}</Text>
+            </>
+          ) : null}
+
+          {isBusiness && user.website ? (
+            <>
+              <Text style={styles.label}>Website</Text>
+              <Text style={styles.linkValue}>{user.website}</Text>
+            </>
+          ) : null}
+
+          {/* EDIT PROFILE BUTTON */}
+          <Pressable
+            style={styles.editButton}
+            onPress={() => navigation.navigate("EditProfile")}
+          >
+            <Text style={styles.editButtonText}>Edit profile</Text>
+          </Pressable>
+        </View>
+
+        {/* BUSINESS ONLY: VIEW MY EVENTS */}
         {isBusiness && (
           <Pressable
             style={styles.accountButton}
@@ -100,6 +172,7 @@ function AccountScreen() {
           </Pressable>
         )}
 
+        {/* LOCAL ONLY: UPGRADE TO BUSINESS */}
         {isLocal && (
           <Pressable
             style={[
@@ -119,12 +192,13 @@ function AccountScreen() {
           </Pressable>
         )}
 
+        {/* LOG OUT */}
         <Pressable
-          style={[styles.button, isAuthLoading && styles.buttonDisabled]}
+          style={[styles.logoutButton, isAuthLoading && styles.buttonDisabled]}
           onPress={handleLogout}
           disabled={isAuthLoading}
         >
-          <Text style={styles.buttonText}>
+          <Text style={styles.logoutButtonText}>
             {isAuthLoading ? "Logging out..." : "Log Out"}
           </Text>
         </Pressable>
@@ -133,7 +207,7 @@ function AccountScreen() {
           Logging out will clear your session on this device.{"\n"}
           You can log back in anytime to post and manage events.
         </Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -160,40 +234,102 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
   },
+
   card: {
     backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.cardDark,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  avatarImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  },
+  avatarInitial: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+  headerTextCol: {
+    flex: 1,
   },
   greeting: {
     fontSize: 18,
     fontWeight: "600",
     color: colors.textLight,
-    marginBottom: 12,
+    marginBottom: 2,
   },
   roleTag: {
     fontSize: 13,
     fontWeight: "500",
     color: colors.textMuted,
-    marginBottom: 14,
-    marginTop: -6,
+    marginBottom: 6,
+  },
+  metaText: {
+    fontSize: 12,
+    color: colors.textMuted,
   },
 
-  row: {
-    flexDirection: "row",
-    marginBottom: 8,
+  profileCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.textLight,
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginBottom: 10,
   },
   label: {
-    width: 110,
+    fontSize: 12,
     color: colors.textMuted,
-    fontSize: 14,
+    marginTop: 8,
+    marginBottom: 2,
   },
   value: {
-    flex: 1,
+    fontSize: 13,
     color: colors.textLight,
+  },
+  linkValue: {
+    fontSize: 13,
+    color: colors.accent,
+  },
+
+  editButton: {
+    marginTop: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: colors.accent,
+    alignItems: "center",
+  },
+  editButtonText: {
+    color: colors.textLight,
+    fontWeight: "600",
     fontSize: 14,
   },
 
@@ -206,7 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   accountButtonText: {
-    color: colors.primary, // matches how you use cta on other screens
+    color: colors.primary,
     fontWeight: "700",
     fontSize: 15,
   },
@@ -233,7 +369,7 @@ const styles = StyleSheet.create({
   },
 
   // Log out button
-  button: {
+  logoutButton: {
     backgroundColor: colors.danger,
     paddingVertical: 14,
     borderRadius: 10,
@@ -242,7 +378,7 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     opacity: 0.7,
   },
-  buttonText: {
+  logoutButtonText: {
     color: colors.textLight,
     fontWeight: "700",
     fontSize: 16,

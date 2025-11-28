@@ -56,4 +56,71 @@ router.patch("/upgrade-to-business", authMiddleware, async (req, res) => {
   }
 });
 
+// PATCH /api/users/me
+// Update logged-in user's profile fields (name, avatar, town, bio, etc.)
+router.patch("/me", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const {
+      name,
+      avatarUrl,
+      town,
+      bio,
+      lookingFor,
+      instagram,
+      website,
+    } = req.body || {};
+
+    const updates = {};
+
+    if (typeof name === "string") updates.name = name.trim();
+    if (typeof avatarUrl === "string") updates.avatarUrl = avatarUrl.trim();
+    if (typeof town === "string") updates.town = town.trim();
+    if (typeof bio === "string") updates.bio = bio.trim();
+    if (typeof lookingFor === "string")
+      updates.lookingFor = lookingFor.trim();
+    if (typeof instagram === "string") updates.instagram = instagram.trim();
+    if (typeof website === "string") updates.website = website.trim();
+
+    if (Object.keys(updates).length === 0) {
+      return res
+        .status(400)
+        .json({ message: "No valid fields provided to update." });
+    }
+
+    const user = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.json({
+      message: "Profile updated.",
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+        town: user.town,
+        bio: user.bio,
+        lookingFor: user.lookingFor,
+        instagram: user.instagram,
+        website: user.website,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error.message);
+    res.status(500).json({ message: "Failed to update profile." });
+  }
+});
+
+
+
+
 export default router;

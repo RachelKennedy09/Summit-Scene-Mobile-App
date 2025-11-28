@@ -218,6 +218,44 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // UPDATE PROFILE: edit name/avatar/town/bio/etc. (not email/password yet)
+  async function updateProfile(updates) {
+    if (!token) {
+      throw new Error("You must be logged in to update your profile.");
+    }
+
+    try {
+      setIsAuthLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updates),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = data?.message || "Failed to update profile.";
+        throw new Error(message);
+      }
+
+      if (data.user) {
+        setUser(data.user);
+      }
+
+      return data.user;
+    } catch (error) {
+      console.error("Error in updateProfile:", error);
+      throw error;
+    } finally {
+      setIsAuthLoading(false);
+    }
+  }
+
   // LOGOUT
   async function logout() {
     try {
@@ -240,6 +278,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     upgradeToBusiness,
+    updateProfile, // 🆕 expose this to screens
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

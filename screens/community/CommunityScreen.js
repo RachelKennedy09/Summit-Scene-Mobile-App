@@ -7,7 +7,9 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  TextInput, // ⬅️ NEW
+  TextInput,
+  Image,
+  Modal,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -35,6 +37,8 @@ export default function CommunityScreen({ navigation }) {
   const [replyForPostId, setReplyForPostId] = useState(null); // which post is being replied to
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
+
+  const [profileUser, setProfileUser] = useState(null);
 
   const { user, token } = useAuth(); //get JWT token
 
@@ -177,8 +181,24 @@ export default function CommunityScreen({ navigation }) {
     const name = userObj?.name || post.name || "SummitScene member";
     const email = userObj?.email || "";
     const role = userObj?.role || "local"; // e.g. "local" or "business"
+    const avatarUrl = userObj?.avatarUrl || null;
+    const town = userObj?.town || post.town || "";
+    const lookingFor = userObj?.lookingFor || "";
+    const instagram = userObj?.instagram || "";
+    const bio = userObj?.bio || "";
+    const website = userObj?.website || "";
 
-    return { name, email, role };
+    return {
+      name,
+      email,
+      role,
+      avatarUrl,
+      town,
+      lookingFor,
+      instagram,
+      bio,
+      website,
+    };
   }
 
   return (
@@ -264,12 +284,21 @@ export default function CommunityScreen({ navigation }) {
           !error &&
           filteredPosts.map((post) => {
             const isOwner = isPostOwner(post);
-            const { name, email, role } = getPostAuthor(post);
+            const {
+              name,
+              email,
+              role,
+              avatarUrl,
+              town,
+              lookingFor,
+              instagram,
+              bio,
+              website,
+            } = getPostAuthor(post);
 
             const createdDate = new Date(post.createdAt);
             const postId = post._id ?? post.id;
             const isReplyOpen = replyForPostId === postId;
-
             return (
               <View key={postId} style={styles.sectionCard}>
                 {/* Identity row */}
@@ -277,9 +306,16 @@ export default function CommunityScreen({ navigation }) {
                   {/* Left: avatar + name + timestamps */}
                   <View style={styles.authorRow}>
                     <View style={styles.avatarCircle}>
-                      <Text style={styles.avatarInitial}>
-                        {name.charAt(0).toUpperCase()}
-                      </Text>
+                      {avatarUrl ? (
+                        <Image
+                          source={{ uri: avatarUrl }}
+                          style={styles.avatarImage}
+                        />
+                      ) : (
+                        <Text style={styles.avatarInitial}>
+                          {name.charAt(0).toUpperCase()}
+                        </Text>
+                      )}
                     </View>
                     <View style={styles.authorTextCol}>
                       <Text style={styles.authorNameText}>{name}</Text>
@@ -298,7 +334,9 @@ export default function CommunityScreen({ navigation }) {
 
                   {/* Right: town + role + date badge + owner badge */}
                   <View style={styles.badgeColumn}>
-                    <Text style={styles.townTag}>{post.town}</Text>
+                    <Text style={styles.townTag}>
+                      {town || "Rockies local"}
+                    </Text>
 
                     <Text style={styles.roleBadge}>
                       {role === "business" ? "Business host" : "Local member"}
@@ -335,6 +373,27 @@ export default function CommunityScreen({ navigation }) {
                     </Pressable>
                   </View>
                 )}
+
+                {/* View profile button */}
+                <View style={styles.profileRow}>
+                  <Pressable
+                    style={styles.profileButton}
+                    onPress={() =>
+                      setProfileUser({
+                        name,
+                        role,
+                        town,
+                        avatarUrl,
+                        lookingFor,
+                        instagram,
+                        bio,
+                        website,
+                      })
+                    }
+                  >
+                    <Text style={styles.profileButtonText}>View profile</Text>
+                  </Pressable>
+                </View>
 
                 {/* Divider before replies */}
                 <View style={styles.replyDivider} />
@@ -434,6 +493,99 @@ export default function CommunityScreen({ navigation }) {
           </View>
         )}
       </ScrollView>
+
+      {profileUser && (
+        <Modal
+          visible={true}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setProfileUser(null)}
+        >
+          <View style={styles.profileModalOverlay}>
+            <View style={styles.profileModalCard}>
+              {/* Close button */}
+              <View style={styles.profileModalHeader}>
+                <Text style={styles.profileModalTitle}>Member Profile</Text>
+                <Pressable onPress={() => setProfileUser(null)}>
+                  <Text style={styles.profileModalClose}>Close</Text>
+                </Pressable>
+              </View>
+
+              {/* Avatar + name + town */}
+              <View style={styles.profileTopRow}>
+                <View style={styles.profileAvatar}>
+                  {profileUser.avatarUrl ? (
+                    <Image
+                      source={{ uri: profileUser.avatarUrl }}
+                      style={styles.profileAvatarImage}
+                    />
+                  ) : (
+                    <Text style={styles.profileAvatarInitial}>
+                      {profileUser.name?.charAt(0).toUpperCase() || "M"}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profileName}>{profileUser.name}</Text>
+                  {profileUser.town ? (
+                    <Text style={styles.profileTown}>{profileUser.town}</Text>
+                  ) : null}
+                  <Text style={styles.profileRole}>
+                    {profileUser.role === "business"
+                      ? "Business host"
+                      : "Local member"}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Bio (locals only for now) */}
+              {profileUser.bio ? (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionLabel}>About</Text>
+                  <Text style={styles.profileSectionText}>
+                    {profileUser.bio}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* Looking for / Business type */}
+              {profileUser.lookingFor ? (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionLabel}>
+                    {profileUser.role === "business"
+                      ? "Business type"
+                      : "Looking for"}
+                  </Text>
+                  <Text style={styles.profileSectionText}>
+                    {profileUser.lookingFor}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* Instagram */}
+              {profileUser.instagram ? (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionLabel}>Instagram</Text>
+                  <Text style={styles.profileLinkText}>
+                    {profileUser.instagram}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* Website (business only) */}
+              {profileUser.role === "business" && profileUser.website ? (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionLabel}>Website</Text>
+                  <Text style={styles.profileLinkText}>
+                    {profileUser.website}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -553,6 +705,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 8,
+  },
+  avatarImage: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
   },
 
   avatarInitial: {
@@ -679,6 +836,128 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     fontWeight: "600",
     fontSize: 13,
+  },
+
+  /* ---- PROFILE BUTTON ROW ---- */
+  profileRow: {
+    marginTop: 8,
+    marginBottom: 4,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+  },
+
+  profileButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
+
+  profileButtonText: {
+    fontSize: 12,
+    color: colors.accent,
+    fontWeight: "600",
+  },
+  profileModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+
+  profileModalCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  profileModalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  profileModalTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+
+  profileModalClose: {
+    fontSize: 14,
+    color: colors.accent,
+    fontWeight: "600",
+  },
+
+  profileTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+
+  profileAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.cardDark,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+
+  profileAvatarImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+
+  profileAvatarInitial: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+
+  profileName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+
+  profileTown: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  profileRole: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  profileSection: {
+    marginTop: 10,
+  },
+
+  profileSectionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.textMuted,
+    marginBottom: 2,
+  },
+
+  profileSectionText: {
+    fontSize: 13,
+    color: colors.textLight,
+  },
+
+  profileLinkText: {
+    fontSize: 13,
+    color: colors.accent,
   },
 
   /* ---- LOADING ROW ---- */

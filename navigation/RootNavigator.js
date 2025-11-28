@@ -18,6 +18,9 @@ import EditEventScreen from "../screens/events/EditEventScreen";
 import CommunityPostScreen from "../screens/community/CommunityPostScreen";
 import EditCommunityPostScreen from "../screens/community/EditCommunityPostScreen";
 
+// Account / profile
+import EditProfileScreen from "../screens/account/EditProfileScreen";
+
 // Auth screens
 import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
@@ -79,6 +82,11 @@ export default function RootNavigator() {
             name="EditCommunityPost"
             component={EditCommunityPostScreen}
             options={{ title: "Edit Post" }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfileScreen}
+            options={{ title: "Edit Profile" }}
           />
         </>
       ) : (

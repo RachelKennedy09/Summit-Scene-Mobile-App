@@ -14,9 +14,12 @@ export async function getCommunityPosts(req, res) {
     if (type) filter.type = type;
     if (town) filter.town = town;
 
-    const posts = await CommunityPost.find(filter)
-      .populate("user", "name email role")
-      .sort({ createdAt: -1 });
+const posts = await CommunityPost.find(filter)
+  .populate(
+    "user",
+    "name email role avatarUrl town bio lookingFor instagram website"
+  )
+  .sort({ createdAt: -1 });
 
     return res.json(posts);
   } catch (error) {
