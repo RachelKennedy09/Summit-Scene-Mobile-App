@@ -38,7 +38,7 @@ const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
 
 export default function PostEventScreen() {
   const navigation = useNavigation();
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -134,38 +134,65 @@ export default function PostEventScreen() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://172.28.248.13:4000/api/events", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // send JWT
-        },
-        body: JSON.stringify({
+      // Use your improved eventsApi.js function instead of raw fetch
+      const { ok, status, data } = await createEvent(
+        {
           title,
           description,
           town,
           category,
-          date, // "YYYY-MM-DD"
-          time, // start time (optional)
-          endTime, // end time (optional)
+          date,
+          time,
+          endTime,
           location,
-        }),
-      });
+        },
+        token
+      );
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        console.error("Create event error response:", data);
-        throw new Error(data.message || "Failed to create event");
+      /* -----------------------------
+       🔴 401 — invalid or deleted token
+    ------------------------------*/
+      if (status === 401) {
+        Alert.alert(
+          "Session expired",
+          "Your account no longer exists or your login expired. Please log in again.",
+          [
+            {
+              text: "OK",
+              onPress: () => logout(),
+            },
+          ]
+        );
+        return;
       }
 
-      const createdEvent = await response.json();
-      console.info("Event created:", createdEvent);
+      /* -----------------------------
+       🔴 403 — not a business
+    ------------------------------*/
+      if (status === 403) {
+        Alert.alert(
+          "Not allowed",
+          data?.message || "You must be a business account to post events."
+        );
+        return;
+      }
 
+      /* -----------------------------
+       🔴 Other errors
+    ------------------------------*/
+      if (!ok) {
+        Alert.alert("Error", data?.message || "Failed to create event.");
+        return;
+      }
+
+      /* -----------------------------
+       🟢 Success!
+    ------------------------------*/
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
           onPress: () => {
-            // clear the form BEFORE navigating
+            // clear form fields
             setTitle("");
             setDescription("");
             setLocation("");
@@ -184,7 +211,7 @@ export default function PostEventScreen() {
       ]);
     } catch (error) {
       console.error("Error posting event:", error);
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error.message || "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -461,7 +488,7 @@ export default function PostEventScreen() {
               </View>
             </View>
           </Modal>
-        )}             
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

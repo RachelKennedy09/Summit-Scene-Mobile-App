@@ -2,6 +2,7 @@
 // Logic for handling community-related API requests
 
 import CommunityPost from "../models/CommunityPost.js";
+import User from "../models/User.js";
 
 // GET /api/community?type=highwayconditions&town=Banff
 export async function getCommunityPosts(req, res) {
@@ -14,12 +15,16 @@ export async function getCommunityPosts(req, res) {
     if (type) filter.type = type;
     if (town) filter.town = town;
 
-const posts = await CommunityPost.find(filter)
-  .populate(
-    "user",
-    "name email role avatarUrl town bio lookingFor instagram website"
-  )
-  .sort({ createdAt: -1 });
+    const posts = await CommunityPost.find(filter)
+      .populate(
+        "user",
+        "name email role avatarUrl town bio lookingFor instagram website"
+      )
+      .populate(
+        "replies.user",
+        "name role avatarUrl town lookingFor instagram bio website"
+      )
+      .sort({ createdAt: -1 });
 
     return res.json(posts);
   } catch (error) {
@@ -63,7 +68,7 @@ export async function createCommunityPost(req, res) {
       town,
       title,
       body,
-      name: displayName, 
+      name: displayName,
       targetDate,
     });
 
@@ -193,6 +198,11 @@ export async function addCommunityReply(req, res) {
 
     await post.save();
 
+    await post.populate(
+      "replies.user",
+      "name role avatarUrl town lookingFor instagram bio website"
+    );
+
     // Optionally populate user again for returning
     const populated = await post.populate("user", "name email role");
 
@@ -206,5 +216,43 @@ export async function addCommunityReply(req, res) {
       message: "Failed to add reply.",
       error: error.message,
     });
+  }
+}
+
+// POST /api/community/:id/likes
+export async function toggleLike(req, res) {
+  try {
+    const userId = req.user?.userId;
+    const { id } = req.params; // postId
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const post = await CommunityPost.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    const hasLiked = post.likes.some((u) => u.toString() === userId.toString());
+
+    if (hasLiked) {
+      // remove like
+      post.likes = post.likes.filter((u) => u.toString() !== userId.toString());
+    } else {
+      // add like
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.json({
+      message: hasLiked ? "Like removed" : "Post liked",
+      liked: !hasLiked,
+      likesCount: post.likes.length,
+    });
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    res.status(500).json({ message: "Failed to update like." });
   }
 }

@@ -201,6 +201,35 @@ export default function CommunityScreen({ navigation }) {
     };
   }
 
+  async function handleToggleLike(postId) {
+    if (!token) {
+      Alert.alert("Login required", "Please log in to like posts.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/${postId}/likes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update like.");
+      }
+
+      // simplest: reload posts from server
+      fetchPosts();
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      Alert.alert("Error", error.message || "Failed to update like.");
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -296,6 +325,21 @@ export default function CommunityScreen({ navigation }) {
               website,
             } = getPostAuthor(post);
 
+            const likesArray = Array.isArray(post.likes) ? post.likes : [];
+            const likesCount = likesArray.length;
+
+            const userId = user?._id || user?.id;
+
+            const isLikedByMe =
+              !!userId &&
+              likesArray.some((like) => {
+                // like might be plain ObjectId string or populated { _id: ... }
+                if (typeof like === "string") return like === userId;
+                if (like && typeof like === "object" && like._id) {
+                  return like._id === userId;
+                }
+                return false;
+              });
             const createdDate = new Date(post.createdAt);
             const postId = post._id ?? post.id;
             const isReplyOpen = replyForPostId === postId;
@@ -354,6 +398,28 @@ export default function CommunityScreen({ navigation }) {
                 <Text style={styles.sectionTitle}>{post.title}</Text>
                 <Text style={styles.sectionText}>{post.body}</Text>
 
+                <View style={styles.likesRow}>
+                  <Pressable
+                    style={[
+                      styles.likeButton,
+                      isLikedByMe && styles.likeButtonActive,
+                    ]}
+                    onPress={() => handleToggleLike(postId)}
+                  >
+                    <Text style={styles.likeButtonText}>
+                      {isLikedByMe ? "♥ Liked" : "♡ Like"}
+                    </Text>
+                  </Pressable>
+
+                  <Text style={styles.likesCountText}>
+                    {likesCount === 0
+                      ? "No likes yet"
+                      : likesCount === 1
+                      ? "1 like"
+                      : `${likesCount} likes`}
+                  </Text>
+                </View>
+
                 {/* Owner-only delete/edit buttons */}
                 {isOwner && (
                   <View style={styles.ownerActionsRow}>
@@ -402,21 +468,59 @@ export default function CommunityScreen({ navigation }) {
                 {Array.isArray(post.replies) && post.replies.length > 0 && (
                   <View style={styles.repliesContainer}>
                     {post.replies.map((reply) => {
-                      const replyCreated = new Date(reply.createdAt);
+                      const replyCreated = reply.createdAt
+                        ? new Date(reply.createdAt)
+                        : new Date();
                       const replyKey =
                         reply._id ?? replyCreated.getTime().toString();
 
+                      // If backend populated reply.user, this will be an object
+                      const replyUserObj =
+                        typeof reply.user === "object" && reply.user !== null
+                          ? reply.user
+                          : null;
+
+                      const replyName =
+                        replyUserObj?.name || reply.name || "Member";
+                      const replyAvatarUrl = replyUserObj?.avatarUrl || null;
+                      const replyTown = replyUserObj?.town || "";
+                      const replyRole = replyUserObj?.role || "local";
+
                       return (
-                        <View key={replyKey} style={styles.replyRow}>
+                        <Pressable
+                          key={replyKey}
+                          style={styles.replyRow}
+                          onPress={() => {
+                            if (replyUserObj) {
+                              setProfileUser({
+                                name: replyName,
+                                role: replyRole,
+                                town: replyTown,
+                                avatarUrl: replyAvatarUrl,
+                                lookingFor: replyUserObj.lookingFor || "",
+                                instagram: replyUserObj.instagram || "",
+                                bio: replyUserObj.bio || "",
+                                website: replyUserObj.website || "",
+                              });
+                            }
+                          }}
+                        >
                           <View style={styles.replyAvatar}>
-                            <Text style={styles.replyAvatarInitial}>
-                              {(reply.name || "M").charAt(0).toUpperCase()}
-                            </Text>
+                            {replyAvatarUrl ? (
+                              <Image
+                                source={{ uri: replyAvatarUrl }}
+                                style={styles.replyAvatarImage}
+                              />
+                            ) : (
+                              <Text style={styles.replyAvatarInitial}>
+                                {replyName.charAt(0).toUpperCase()}
+                              </Text>
+                            )}
                           </View>
                           <View style={styles.replyContent}>
                             <Text style={styles.replyMeta}>
                               <Text style={styles.replyAuthor}>
-                                {reply.name || "Member"}
+                                {replyName}
                               </Text>{" "}
                               •{" "}
                               {replyCreated.toLocaleTimeString([], {
@@ -424,11 +528,16 @@ export default function CommunityScreen({ navigation }) {
                                 minute: "2-digit",
                               })}
                             </Text>
+                            {replyTown ? (
+                              <Text style={styles.replyTownMeta}>
+                                {replyTown}
+                              </Text>
+                            ) : null}
                             <Text style={styles.replyBodyText}>
                               {reply.body}
                             </Text>
                           </View>
-                        </View>
+                        </Pressable>
                       );
                     })}
                   </View>
@@ -1001,17 +1110,22 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 
+  replyAvatarImage: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+  },
+
   replyAvatarInitial: {
     fontSize: 13,
     fontWeight: "600",
     color: colors.textLight,
   },
-
   replyContent: {
     flex: 1,
   },
 
-  replyMeta: {
+  replyTownMeta: {
     fontSize: 11,
     color: colors.textMuted,
     marginBottom: 2,
@@ -1078,5 +1192,33 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     fontSize: 12,
     fontWeight: "600",
+  },
+
+  likesRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  likeButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginRight: 8,
+  },
+  likeButtonActive: {
+    borderColor: colors.accent,
+    backgroundColor: colors.tealTint,
+  },
+  likeButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.textLight,
+  },
+  likesCountText: {
+    fontSize: 12,
+    color: colors.textMuted,
   },
 });

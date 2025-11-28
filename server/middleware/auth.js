@@ -37,7 +37,7 @@ export default function authMiddleware(req, res, next) {
   } catch (error) {
     console.error("authMiddleware error:", error.message);
 
-    // ⬇️ Special handling for expired tokens
+    // Special handling for expired tokens
     if (error.name === "TokenExpiredError") {
       return res
         .status(401)

@@ -24,9 +24,16 @@ function createToken(user) {
   // Handle older users that might not have a role yet
   const role = user.role || "local";
 
-  return jwt.sign({ userId: user._id.toString(), role }, secret, {
-    expiresIn: "1h",
-  });
+  return jwt.sign(
+    {
+      userId: user._id.toString(),
+      role,
+      name: user.name,
+      email: user.email,
+    },
+    secret,
+    { expiresIn: "1h" }
+  );
 }
 
 /*

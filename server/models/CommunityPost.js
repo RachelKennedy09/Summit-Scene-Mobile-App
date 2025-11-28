@@ -9,8 +9,8 @@ const { Schema } = mongoose;
 const communityReplySchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User" }, // who replied
-    name: { type: String }, // snapshot of name when they replied
-    body: { type: String, required: true },
+    name: { type: String, trim: true }, // snapshot of name when they replied
+    body: { type: String, required: true, trim: true },
   },
   { timestamps: true }
 );
@@ -69,6 +69,14 @@ const communityPostSchema = new mongoose.Schema(
 
     // replies array
     replies: [communityReplySchema],
+
+    // likes on the post
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     // Automatically adds createdAt / updatedAt

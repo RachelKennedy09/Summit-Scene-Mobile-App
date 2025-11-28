@@ -7,7 +7,8 @@ import {
   createCommunityPost,
   deleteCommunityPost,
   updateCommunityPost,
-  addCommunityReply, // ⬅️ NEW
+  addCommunityReply, 
+  toggleLike,
 } from "../controllers/communityController.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -35,5 +36,9 @@ router.put("/:id", authMiddleware, updateCommunityPost);
 // POST /api/community/:postId/replies
 // Add a reply under a community post
 router.post("/:postId/replies", authMiddleware, addCommunityReply);
+
+
+// toggle like on a post
+router.post("/:id/likes", authMiddleware, toggleLike);
 
 export default router;

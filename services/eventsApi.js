@@ -38,14 +38,19 @@ export async function createEvent(eventData, token) {
 
     const data = await response.json().catch(() => ({}));
 
-    if (!response.ok) {
-      throw new Error(data.message || "Error creating event");
-    }
-
-    return data;
+    // Instead of throwing immediately, return structured info
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
   } catch (error) {
     console.error("createEvent error:", error.message);
-    throw error;
+    return {
+      ok: false,
+      status: 0,
+      data: { message: error.message || "Network error" },
+    };
   }
 }
 

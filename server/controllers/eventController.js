@@ -3,6 +3,7 @@
 // Handles CRUD operations for Event model
 
 import Event from "../models/Event.js";
+import User from "../models/User.js";
 
 // GET /api/events
 // Return upcoming events (today or later)
@@ -42,6 +43,22 @@ export async function createEvent(req, res) {
     const userId = req.user?.userId; // from auth middleware
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: no user ID." });
+    }
+
+    // make sure this user still exists and is allowed to host events
+    const hostUser = await User.findById(userId);
+    if (!hostUser) {
+      return res
+        .status(401)
+        .json({
+          message: "Your account no longer exists. Please log in again.",
+        });
+    }
+
+    if (hostUser.role !== "business") {
+      return res
+        .status(403)
+        .json({ message: "Only business accounts can post events." });
     }
 
     const {

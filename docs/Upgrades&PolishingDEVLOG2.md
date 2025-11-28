@@ -135,7 +135,7 @@ This makes the experience personalized and professional.
 
 ### photos of progress Sprint 10
 
-Issue Photo With lake lousie enum: too strict when registering
+Issue Photo With lake louise enum: too strict when registering
 
 ![alt text](devlogimages/TERMINALerrorenum.png)
 
@@ -151,6 +151,6 @@ Trello Card done for Sprint 11
 Git commit
 ![alt text](devlogimages/GitCommitSprint11.png)
 
-## Sprint 11:
+## Sprint 11: Community Reply Upgrade, Show profile info on replies/ be able to click the reply and see more info
 
 ### Sprint Goals
