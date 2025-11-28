@@ -40,11 +40,14 @@ export default function TabNavigator() {
         />
       )}
 
-      <Tab.Screen
-        name="Community"
-        component={CommunityScreen}
-        options={{ title: "Community" }}
-      />
+      {/*  Only Locals/Visitors see Community Tab */}
+      {user?.role === "local" && (
+        <Tab.Screen
+          name="Community"
+          component={CommunityScreen}
+          options={{ title: "Community" }}
+        />
+      )}
 
       <Tab.Screen
         name="Account"

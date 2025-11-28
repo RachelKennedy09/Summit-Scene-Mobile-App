@@ -119,8 +119,20 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // REGISTER: call backend /api/auth/register, save token and user
-  async function register({ name, email, password, role }) {
+  // REGISTER: create a new account
+  async function register({
+    name,
+    email,
+    password,
+    role,
+    // optional profile fields from RegisterScreen
+    avatarUrl,
+    town,
+    bio,
+    lookingFor,
+    instagram,
+    website,
+  }) {
     try {
       setIsAuthLoading(true);
 
@@ -129,8 +141,21 @@ export function AuthProvider({ children }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role,
+          // only send these if they exist
+          avatarUrl: avatarUrl || undefined,
+          town: town || undefined,
+          bio: bio || undefined,
+          lookingFor: lookingFor || undefined,
+          instagram: instagram || undefined,
+          website: website || undefined,
+        }),
       });
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -138,8 +163,10 @@ export function AuthProvider({ children }) {
         throw new Error(message);
       }
 
+      // store auth in context
       setToken(data.token);
       setUser(data.user);
+
       await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
       return data;
@@ -179,7 +206,6 @@ export function AuthProvider({ children }) {
       }
 
       if (data.user) {
-        // Update user in context so role changes immediately in UI
         setUser(data.user);
       }
 
@@ -192,7 +218,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // LOGOUT: clear everything and remove token from storage
+  // LOGOUT
   async function logout() {
     try {
       setIsAuthLoading(true);

@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
     // Display name shown in the Account screen
     name: {
       type: String,
+      required: true,
       trim: true,
     },
 
@@ -34,6 +35,31 @@ const userSchema = new mongoose.Schema(
       default: "local",
       required: true,
     },
+
+    //  Profile Fields
+    avatarUrl: {
+      type: String, // URL-based avatars
+    },
+    town: {
+      type: String,
+      enum: ["Banff", "Canmore", "Lake Louise", "Other"],
+      default: "Banff", 
+    },
+     bio: {
+      type: String,
+      maxlength: 300, // keep it short + friendly
+    },
+    lookingFor: {
+      type: String,
+      maxlength: 200, // “looking for hiking buddies, markets, open mics…”
+    },
+    instagram: {
+      type: String, // e.g. "@rachel_in_the_rockies"
+    },
+    website: {
+      type: String, // Business only for their business website
+    },
+
   },
   {
     // Automatically creates createdAt / updatedAt

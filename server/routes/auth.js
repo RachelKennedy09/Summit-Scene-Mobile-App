@@ -42,13 +42,24 @@ function createToken(user) {
 */
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, name, role } = req.body || {};
+    const {
+      email,
+      password,
+      name,
+      role,
+      avatarUrl,
+      town,
+      bio,
+      lookingFor,
+      instagram,
+      website,
+    } = req.body || {};
 
     // Basic validation
-    if (!email || !password) {
+    if (!email || !password || !nmame) {
       return res
         .status(400)
-        .json({ message: "Email and password are required." });
+        .json({ message: "Name, Email, and password are required." });
     }
 
     // Normalize email to avoid case sensitivity issues
@@ -79,6 +90,12 @@ router.post("/register", async (req, res) => {
       passwordHash,
       name,
       role: finalRole,
+      avatarUrl,
+      town,
+      bio,
+      lookingFor,
+      instagram,
+      website,
     });
 
     // Create token
@@ -93,6 +110,13 @@ router.post("/register", async (req, res) => {
         name: user.name,
         role: user.role,
         createdAt: user.createdAt,
+        avatarUrl: user.avatarUrl,
+        town: user.town,
+        bio: user.bio,
+        lookingFor: user.lookingFor,
+        instagram: user.instagram,
+        // website is mostly meaningful for business users, but harmless to include
+        website: user.website,
       },
     });
   } catch (error) {
