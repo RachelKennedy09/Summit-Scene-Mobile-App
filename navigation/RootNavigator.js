@@ -1,123 +1,72 @@
-// navigation/RootNavigator.js
-// Decides which stack to show based on auth state (logged in vs logged out)
+// navigation/TabNavigator.js
+// Bottom tab navigation for the app — Hub, Map, Community, Account
+// Businesses also get a "Post Event" tab
 
 import React from "react";
-import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+import HubScreen from "../screens/hub/HubScreen";
+import MapScreen from "../screens/map/MapScreen";
+import PostEventScreen from "../screens/events/PostEventScreen";
+import CommunityScreen from "../screens/community/CommunityScreen";
+import AccountScreen from "../screens/account/AccountScreen";
 
 import { useAuth } from "../context/AuthContext";
-import TabNavigator from "./TabNavigator";
+import { useTheme } from "../context/ThemeContext";
 
-// Events screens
+const Tab = createBottomTabNavigator();
 
-import EventDetailScreen from "../screens/events/EventDetailScreen";
-import MyEventsScreen from "../screens/events/MyEventsScreen";
-import EditEventScreen from "../screens/events/EditEventScreen";
+export default function TabNavigator() {
+  const { user } = useAuth();
+  const { theme } = useTheme();
 
-// Community Screens
-import CommunityPostScreen from "../screens/community/CommunityPostScreen";
-import EditCommunityPostScreen from "../screens/community/EditCommunityPostScreen";
-
-// Account / profile
-import EditProfileScreen from "../screens/account/EditProfileScreen";
-
-// Auth screens
-import LoginScreen from "../screens/auth/LoginScreen";
-import RegisterScreen from "../screens/auth/RegisterScreen";
-
-import { colors } from "../theme/colors";
-
-const Stack = createNativeStackNavigator();
-
-// Simple loading screen while restoring auth session
-function AuthLoadingScreen() {
-  return (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.textLight} />
-      <Text style={styles.loadingText}>Loading Summit Scene...</Text>
-    </View>
-  );
-}
-
-export default function RootNavigator() {
-  // Read auth state from context
-  const { user, isAuthLoading } = useAuth();
-
-  // Show loading screen while checking AsyncStorage / restoring session
-  if (isAuthLoading) {
-    return <AuthLoadingScreen />;
-  }
+  // If no user or missing role -> treat as non-business
+  const isBusiness = user?.role === "business";
 
   return (
-    <Stack.Navigator>
-      {user ? (
-        // APP STACK: user is logged in -> show tabs and app screens
-        <>
-          <Stack.Screen
-            name="tabs"
-            component={TabNavigator}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="MyEvents"
-            component={MyEventsScreen}
-            options={{ title: "My Events" }}
-          />
-          <Stack.Screen
-            name="EditEvent"
-            component={EditEventScreen}
-            options={{ title: "Edit Event" }}
-          />
-          <Stack.Screen
-            name="EventDetail"
-            component={EventDetailScreen}
-            options={{ title: "Event details" }}
-          />
-          <Stack.Screen
-            name="CommunityPost"
-            component={CommunityPostScreen}
-            options={{ title: "New Community Post" }}
-          />
-          <Stack.Screen
-            name="EditCommunityPost"
-            component={EditCommunityPostScreen}
-            options={{ title: "Edit Post" }}
-          />
-          <Stack.Screen
-            name="EditProfile"
-            component={EditProfileScreen}
-            options={{ title: "Edit Profile" }}
-          />
-        </>
-      ) : (
-        // AUTH STACK: no user -> show login and register screens
-        <>
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={{ headerShown: false }}
-          />
-        </>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: theme.card,
+          borderTopColor: theme.border,
+        },
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 11,
+        },
+      }}
+    >
+      {/* Everyone gets Hub and Map */}
+      <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
+
+      <Tab.Screen name="Map" component={MapScreen} options={{ title: "Map" }} />
+
+      {/* Only business users see Post Event */}
+      {isBusiness && (
+        <Tab.Screen
+          name="Post"
+          component={PostEventScreen}
+          options={{ title: "Post Event" }}
+        />
       )}
-    </Stack.Navigator>
+
+      {/*  Only Locals/Visitors see Community Tab */}
+      {user?.role === "local" && (
+        <Tab.Screen
+          name="Community"
+          component={CommunityScreen}
+          options={{ title: "Community" }}
+        />
+      )}
+
+      {/* Everyone gets account */}
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{ title: "Account" }}
+      />
+    </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    color: colors.textMuted,
-    fontSize: 14,
-  },
-});

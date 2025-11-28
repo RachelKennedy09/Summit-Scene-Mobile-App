@@ -8,15 +8,27 @@ import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import RootNavigator from "./navigation/RootNavigator";
+
+//  use the theme hook
+function AppNavigation() {
+  const { navTheme } = useTheme();
+
+  return (
+    <NavigationContainer theme={navTheme}>
+      <RootNavigator />
+    </NavigationContainer>
+  );
+}
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
+        <ThemeProvider>
+          <AppNavigation />
+        </ThemeProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

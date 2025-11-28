@@ -1,6 +1,7 @@
 // screens/AccountScreen.js
 // Shows logged-in user's account info + profile fields + logout
 // Now also ties into Community / Event posting profile + Edit Profile
+// + Light / Dark theme toggle
 
 import React, { useState } from "react";
 import {
@@ -11,16 +12,19 @@ import {
   Alert,
   Image,
   ScrollView,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
 import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 function AccountScreen() {
   const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
   const navigation = useNavigation();
+  const { theme, isDark, toggleTheme } = useTheme();
 
   const isBusiness = user?.role === "business";
   const isLocal = user?.role === "local";
@@ -30,10 +34,14 @@ function AccountScreen() {
   // Safeguard: in theory AccountScreen is only shown when user != null
   if (!user) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: theme.background }]}
+      >
         <View style={styles.container}>
-          <Text style={styles.title}>Account</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: theme.textMain }]}>
+            Account
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.textMuted }]}>
             You are not logged in. Please log in to view your account.
           </Text>
         </View>
@@ -88,84 +96,186 @@ function AccountScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
-        <Text style={styles.title}>Account</Text>
+        <Text style={[styles.title, { color: theme.textMain }]}>Account</Text>
 
         {/* PROFILE HEADER CARD */}
-        <View style={styles.card}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+          ]}
+        >
           <View style={styles.headerRow}>
-            <View style={styles.avatar}>
+            <View
+              style={[
+                styles.avatar,
+                { backgroundColor: theme.pill || colors.cardDark },
+              ]}
+            >
               {avatarUrl ? (
                 <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
               ) : (
-                <Text style={styles.avatarInitial}>
+                <Text
+                  style={[styles.avatarInitial, { color: theme.textOnAccent }]}
+                >
                   {displayName.charAt(0).toUpperCase()}
                 </Text>
               )}
             </View>
 
             <View style={styles.headerTextCol}>
-              <Text style={styles.greeting}>Hi, {displayName}</Text>
-              <Text style={styles.roleTag}>{roleLabel}</Text>
-              <Text style={styles.metaText}>Email: {user.email}</Text>
-              <Text style={styles.metaText}>Town: {town}</Text>
-              <Text style={styles.metaText}>Member since: {joinedText}</Text>
+              <Text style={[styles.greeting, { color: theme.textMain }]}>
+                Hi, {displayName}
+              </Text>
+              <Text style={[styles.roleTag, { color: theme.textMuted }]}>
+                {roleLabel}
+              </Text>
+              <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                Email: {user.email}
+              </Text>
+              <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                Town: {town}
+              </Text>
+              <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                Member since: {joinedText}
+              </Text>
             </View>
           </View>
         </View>
 
         {/* COMMUNITY / EVENT PROFILE INFO */}
-        <View className="profile-card" style={styles.profileCard}>
-          <Text style={styles.sectionTitle}>{profileSectionTitle}</Text>
-          <Text style={styles.sectionSubtitle}>{profileSectionSubtitle}</Text>
+        <View
+          className="profile-card"
+          style={[
+            styles.profileCard,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
+            {profileSectionTitle}
+          </Text>
+          <Text
+            style={[styles.sectionSubtitle, { color: theme.textMuted }]}
+          >
+            {profileSectionSubtitle}
+          </Text>
 
           {user.bio ? (
             <>
-              <Text style={styles.label}>About</Text>
-              <Text style={styles.value}>{user.bio}</Text>
+              <Text style={[styles.label, { color: theme.textMuted }]}>
+                About
+              </Text>
+              <Text style={[styles.value, { color: theme.textMain }]}>
+                {user.bio}
+              </Text>
             </>
           ) : null}
 
           {user.lookingFor ? (
             <>
-              <Text style={styles.label}>
+              <Text style={[styles.label, { color: theme.textMuted }]}>
                 {isBusiness ? "Business type" : "What you're looking for"}
               </Text>
-              <Text style={styles.value}>{user.lookingFor}</Text>
+              <Text style={[styles.value, { color: theme.textMain }]}>
+                {user.lookingFor}
+              </Text>
             </>
           ) : null}
 
           {user.instagram ? (
             <>
-              <Text style={styles.label}>Instagram</Text>
-              <Text style={styles.linkValue}>{user.instagram}</Text>
+              <Text style={[styles.label, { color: theme.textMuted }]}>
+                Instagram
+              </Text>
+              <Text style={[styles.linkValue, { color: theme.accent }]}>
+                {user.instagram}
+              </Text>
             </>
           ) : null}
 
           {isBusiness && user.website ? (
             <>
-              <Text style={styles.label}>Website</Text>
-              <Text style={styles.linkValue}>{user.website}</Text>
+              <Text style={[styles.label, { color: theme.textMuted }]}>
+                Website
+              </Text>
+              <Text style={[styles.linkValue, { color: theme.accent }]}>
+                {user.website}
+              </Text>
             </>
           ) : null}
 
           {/* EDIT PROFILE BUTTON */}
           <Pressable
-            style={styles.editButton}
+            style={[
+              styles.editButton,
+              { backgroundColor: theme.accent },
+            ]}
             onPress={() => navigation.navigate("EditProfile")}
           >
-            <Text style={styles.editButtonText}>Edit profile</Text>
+            <Text
+              style={[
+                styles.editButtonText,
+                { color: theme.textOnAccent },
+              ]}
+            >
+              Edit profile
+            </Text>
           </Pressable>
+        </View>
+
+        {/* 🆕 THEME TOGGLE */}
+        <View
+          style={[
+            styles.themeCard,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+          ]}
+        >
+          <View style={styles.themeRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
+                Appearance
+              </Text>
+              <Text
+                style={[styles.sectionSubtitle, { color: theme.textMuted }]}
+              >
+                Switch between light and dark mode.
+              </Text>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{
+                false: theme.border,
+                true: theme.accentSoft || theme.accent,
+              }}
+              thumbColor={isDark ? theme.accent : "#f4f3f4"}
+            />
+          </View>
         </View>
 
         {/* BUSINESS ONLY: VIEW MY EVENTS */}
         {isBusiness && (
           <Pressable
-            style={styles.accountButton}
+            style={[
+              styles.accountButton,
+              { backgroundColor: colors.cta }, // still using your existing CTA color
+            ]}
             onPress={() => navigation.navigate("MyEvents")}
           >
             <Text style={styles.accountButtonText}>View My Events</Text>
@@ -177,15 +287,29 @@ function AccountScreen() {
           <Pressable
             style={[
               styles.accountButtonSecondary,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.accent,
+              },
               (isAuthLoading || isUpgrading) && styles.buttonDisabled,
             ]}
             onPress={handleUpgradeToBusiness}
             disabled={isAuthLoading || isUpgrading}
           >
-            <Text style={styles.accountButtonSecondaryText}>
+            <Text
+              style={[
+                styles.accountButtonSecondaryText,
+                { color: theme.textMain },
+              ]}
+            >
               Upgrade to business account
             </Text>
-            <Text style={styles.accountButtonSecondarySubtext}>
+            <Text
+              style={[
+                styles.accountButtonSecondarySubtext,
+                { color: theme.textMuted },
+              ]}
+            >
               Become a verified local business or event organizer and start
               posting your own events.
             </Text>
@@ -194,7 +318,10 @@ function AccountScreen() {
 
         {/* LOG OUT */}
         <Pressable
-          style={[styles.logoutButton, isAuthLoading && styles.buttonDisabled]}
+          style={[
+            styles.logoutButton,
+            isAuthLoading && styles.buttonDisabled,
+          ]}
           onPress={handleLogout}
           disabled={isAuthLoading}
         >
@@ -203,7 +330,12 @@ function AccountScreen() {
           </Text>
         </Pressable>
 
-        <Text style={styles.helperText}>
+        <Text
+          style={[
+            styles.helperText,
+            { color: theme.textMuted },
+          ]}
+        >
           Logging out will clear your session on this device.{"\n"}
           You can log back in anytime to post and manage events.
         </Text>
@@ -217,7 +349,7 @@ export default AccountScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary, // overridden by theme
   },
   container: {
     flex: 1,
@@ -227,7 +359,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: colors.textLight,
+    color: colors.textLight, // overridden by theme
     marginBottom: 16,
   },
   subtitle: {
@@ -374,6 +506,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
+    marginTop: 4,
   },
   buttonDisabled: {
     opacity: 0.7,
@@ -387,5 +520,20 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: colors.textMuted,
     fontSize: 12,
+  },
+
+  // Theme card + row
+  themeCard: {
+    backgroundColor: colors.secondary,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  themeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
 });
