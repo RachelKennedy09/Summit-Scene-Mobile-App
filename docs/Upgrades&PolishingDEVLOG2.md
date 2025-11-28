@@ -50,18 +50,23 @@ Git commit for HubScreen and Event Polish
 ![alt text](devlogimages/GitCommitNov27PolishHubEvent.png)
 
 App ScreenShot For Town Category Date pills
+
 ![alt text](devlogimages/APPTown,Cat,DatePicker.png)
 
 App Screenshot for "Date Picker" user friendly
+
 ![alt text](devlogimages/APPDatePicker.png)
 
 App Screenshot for "time picker' user friendly
+
 ![alt text](devlogimages/APPTimePicker.png)
 
 MongoDB Reply array
+
 ![alt text](devlogimages/MONGODBReply.png)
 
 GitCommit Nov 27th
+
 ![alt text](devlogimages/GitcommitNov27.png)
 
 ## Sprint 10: Local Profiles + Community Access
@@ -140,17 +145,94 @@ Issue Photo With lake louise enum: too strict when registering
 ![alt text](devlogimages/TERMINALerrorenum.png)
 
 Profile building for Locals
+
 ![alt text](devlogimages/APPprofilelocal.png)
 
 Profile buildling for Business
+
 ![alt text](devlogimages/APPProfilebusiness.png)Tre
 
-Trello Card done for Sprint 11
-![alt text](devlogimages/TRELLOsprint11done.png)
+Trello Card done for Sprint 10
+
+![alt text](devlogimages/TRELLOsprint10done.png)
 
 Git commit
+
 ![alt text](devlogimages/GitCommitSprint11.png)
 
-## Sprint 11: Community Reply Upgrade, Show profile info on replies/ be able to click the reply and see more info
+## Sprint 11: Community Reply Upgrade, Show profile info on replies. Add Likes.
 
 ### Sprint Goals
+
+1. Add the ability for users to like community posts
+
+2. Improve identity on replies by showing each replier’s full profile info
+
+3. Populate author details correctly for all replies (name, avatar, role, town, etc.)
+
+4. Improve UI for replies (timestamp styling, avatars, and profile modal integration)
+
+5. Add frontend logic to detect if the logged-in user already liked a post
+
+### Challenges + How I Solved Them
+
+<b>Issue: Replies were showing “SummitScene member” instead of the user’s real profile</b>
+Backend reply schema wasn’t fully populated, and the frontend wasn’t pulling full user details.
+
+<b>Fix:</b> - Added backend .populate("replies.user", "name role avatarUrl town lookingFor instagram bio website")
+
+    - Updated frontend reply rendering to read from reply.user when populated
+
+    - Replies can now show proper avatars, names, towns, roles, bios, and social links
+
+<b>Issue: Likes were not implemented for Community posts </b> The model had no like logic, and no controller existed to toggle likes.
+
+<b>Fix:
+</b> - Added a dedicated like array in the CommunityPost model
+
+    - Added backend /api/community/:id/likes route + controller
+
+    - Implemented toggle logic (add/remove)
+
+    - Added frontend UI with active highlight, like count, and heart toggle
+
+    - Reloads posts after liking to keep state in sync
+
+<b>Issue: Reply timestamps were hard to read (text showing in black) </b> No color styling existed for the reply meta text.
+
+<b>Fix:</b> Added a new replyMeta style with color: colors.textMuted
+Ensures timestamps are readable and consistent with UI palette
+
+### Wins + Breakthroughs
+
+- Replies now fully show the correct user profile data (avatar, name, town, role)
+
+- Added View Profile modal support for replied users
+
+- Community posts now support likes, with accurate highlight state
+
+- Reply UI feels polished — timestamps styled, avatars aligned, and better readability
+
+- Backend + frontend now fully in sync for community interactions
+
+- Community board feels far more social and interactive — massive UX upgrade
+
+### What I Learned
+
+- How to populate nested fields inside array subdocuments
+
+- How to structure a “toggle” route (idempotent like/unlike flow)
+
+- How to sync UI state with the backend using fetchPosts() after update
+
+- Importance of designing models to support future features (likes, replies, etc.)
+
+### photos of progress Sprint 11
+
+APP photo showing replies with name, and likes
+
+![alt text](devlogimages/APPreplyandlikeupgrade.png)
+
+Trello Sprint done
+
+![alt text](devlogimages/TRELLOsprint11done.png)

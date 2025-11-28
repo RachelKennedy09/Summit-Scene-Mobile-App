@@ -1124,6 +1124,11 @@ const styles = StyleSheet.create({
   replyContent: {
     flex: 1,
   },
+  replyMeta: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginBottom: 2,
+  },
 
   replyTownMeta: {
     fontSize: 11,
