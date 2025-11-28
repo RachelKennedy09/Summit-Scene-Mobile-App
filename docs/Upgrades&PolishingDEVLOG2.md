@@ -105,6 +105,10 @@ This makes the experience personalized and professional.
 
 ---
 
+<b>SIDE Issue: Deleted user on MongoDB and user was still able to make an event post(business)</b>
+
+<b>Fix:</b> Added user auth and made sure the db ran before the vent posting to make sure user still exists.
+
 ### 🌟 Wins + Breakthroughs
 
 - Added full role-based profiles with clean editing UX.
