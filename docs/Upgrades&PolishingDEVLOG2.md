@@ -236,3 +236,64 @@ APP photo showing replies with name, and likes
 Trello Sprint done
 
 ![alt text](devlogimages/TRELLOsprint11done.png)
+
+---
+
+## Sprint 12: Light and Dark Theme
+
+### Sprint Goals
+
+1.
+
+1.
+
+1. 
+
+2.
+
+3.
+
+### Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+
+<b>Fix:</b> 
+
+   
+
+ 
+
+<b>Issue:  </b> 
+
+<b>Fix:
+</b>
+<b>Issue:  </b> 
+
+<b>Fix:</b> 
+
+### Wins + Breakthroughs
+
+- 
+
+- 
+
+- 
+
+- 
+
+- 
+
+- 
+
+### What I Learned
+
+-
+
+- 
+
+- 
+
+- 
+
+### photos of progress Sprint 12 

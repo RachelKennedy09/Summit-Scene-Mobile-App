@@ -1,7 +1,6 @@
 // screens/AccountScreen.js
 // Shows logged-in user's account info + profile fields + logout
-// Now also ties into Community / Event posting profile + Edit Profile
-// + Light / Dark theme toggle
+// Ties into Community / Event posting profile + Edit Profile + full theme picker
 
 import React, { useState } from "react";
 import {
@@ -24,23 +23,24 @@ import { useTheme } from "../../context/ThemeContext";
 function AccountScreen() {
   const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
   const navigation = useNavigation();
-  const { theme, isDark, toggleTheme } = useTheme();
+
+  // get theme + themeName + changer + light/dark toggle
+  const { theme, themeName, setThemeName, toggleLightDark } = useTheme();
+  const isDark = theme.isDark;
 
   const isBusiness = user?.role === "business";
   const isLocal = user?.role === "local";
 
   const [isUpgrading, setIsUpgrading] = useState(false);
 
-  // Safeguard: in theory AccountScreen is only shown when user != null
+  // Safeguard: AccountScreen should only show when user != null
   if (!user) {
     return (
       <SafeAreaView
         style={[styles.safeArea, { backgroundColor: theme.background }]}
       >
         <View style={styles.container}>
-          <Text style={[styles.title, { color: theme.textMain }]}>
-            Account
-          </Text>
+          <Text style={[styles.title, { color: theme.text }]}>Account</Text>
           <Text style={[styles.subtitle, { color: theme.textMuted }]}>
             You are not logged in. Please log in to view your account.
           </Text>
@@ -82,7 +82,7 @@ function AccountScreen() {
   const town = user.town || "Rockies local";
   const roleLabel = isBusiness ? "Business account" : "Local account";
 
-  // 🆕 Role-based copy for profile section
+  // Role-based copy for profile section
   const profileSectionTitle = isBusiness
     ? "Event posting profile"
     : "Community profile";
@@ -90,6 +90,14 @@ function AccountScreen() {
   const profileSectionSubtitle = isBusiness
     ? "This is how your profile appears on Hub and Map when you post events."
     : "This is how your profile appears on Community posts and replies.";
+
+  // Do we have *any* extra profile info to show?
+  const hasProfileDetails = Boolean(
+    user.bio ||
+      user.lookingFor ||
+      user.instagram ||
+      (isBusiness && user.website)
+  );
 
   async function handleLogout() {
     await logout();
@@ -103,7 +111,7 @@ function AccountScreen() {
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
-        <Text style={[styles.title, { color: theme.textMain }]}>Account</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Account</Text>
 
         {/* PROFILE HEADER CARD */}
         <View
@@ -126,7 +134,10 @@ function AccountScreen() {
                 <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
               ) : (
                 <Text
-                  style={[styles.avatarInitial, { color: theme.textOnAccent }]}
+                  style={[
+                    styles.avatarInitial,
+                    { color: theme.onAccent || theme.text },
+                  ]}
                 >
                   {displayName.charAt(0).toUpperCase()}
                 </Text>
@@ -134,7 +145,7 @@ function AccountScreen() {
             </View>
 
             <View style={styles.headerTextCol}>
-              <Text style={[styles.greeting, { color: theme.textMain }]}>
+              <Text style={[styles.greeting, { color: theme.text }]}>
                 Hi, {displayName}
               </Text>
               <Text style={[styles.roleTag, { color: theme.textMuted }]}>
@@ -155,7 +166,6 @@ function AccountScreen() {
 
         {/* COMMUNITY / EVENT PROFILE INFO */}
         <View
-          className="profile-card"
           style={[
             styles.profileCard,
             {
@@ -164,71 +174,77 @@ function AccountScreen() {
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
             {profileSectionTitle}
           </Text>
-          <Text
-            style={[styles.sectionSubtitle, { color: theme.textMuted }]}
-          >
+          <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>
             {profileSectionSubtitle}
           </Text>
 
-          {user.bio ? (
+          {hasProfileDetails ? (
             <>
-              <Text style={[styles.label, { color: theme.textMuted }]}>
-                About
-              </Text>
-              <Text style={[styles.value, { color: theme.textMain }]}>
-                {user.bio}
-              </Text>
-            </>
-          ) : null}
+              {user.bio ? (
+                <>
+                  <Text style={[styles.label, { color: theme.textMuted }]}>
+                    About
+                  </Text>
+                  <Text style={[styles.value, { color: theme.text }]}>
+                    {user.bio}
+                  </Text>
+                </>
+              ) : null}
 
-          {user.lookingFor ? (
-            <>
-              <Text style={[styles.label, { color: theme.textMuted }]}>
-                {isBusiness ? "Business type" : "What you're looking for"}
-              </Text>
-              <Text style={[styles.value, { color: theme.textMain }]}>
-                {user.lookingFor}
-              </Text>
-            </>
-          ) : null}
+              {user.lookingFor ? (
+                <>
+                  <Text style={[styles.label, { color: theme.textMuted }]}>
+                    {isBusiness ? "Business type" : "What you're looking for"}
+                  </Text>
+                  <Text style={[styles.value, { color: theme.text }]}>
+                    {user.lookingFor}
+                  </Text>
+                </>
+              ) : null}
 
-          {user.instagram ? (
-            <>
-              <Text style={[styles.label, { color: theme.textMuted }]}>
-                Instagram
-              </Text>
-              <Text style={[styles.linkValue, { color: theme.accent }]}>
-                {user.instagram}
-              </Text>
-            </>
-          ) : null}
+              {user.instagram ? (
+                <>
+                  <Text style={[styles.label, { color: theme.textMuted }]}>
+                    Instagram
+                  </Text>
+                  <Text style={[styles.linkValue, { color: theme.accent }]}>
+                    {user.instagram}
+                  </Text>
+                </>
+              ) : null}
 
-          {isBusiness && user.website ? (
-            <>
-              <Text style={[styles.label, { color: theme.textMuted }]}>
-                Website
-              </Text>
-              <Text style={[styles.linkValue, { color: theme.accent }]}>
-                {user.website}
-              </Text>
+              {isBusiness && user.website ? (
+                <>
+                  <Text style={[styles.label, { color: theme.textMuted }]}>
+                    Website
+                  </Text>
+                  <Text style={[styles.linkValue, { color: theme.accent }]}>
+                    {user.website}
+                  </Text>
+                </>
+              ) : null}
             </>
-          ) : null}
+          ) : (
+            // 🔹 When there are no details yet, still show a friendly "shell"
+            <Text style={[styles.value, { color: theme.textMuted }]}>
+              This is where your {isBusiness ? "event posting" : "community"}{" "}
+              profile details will show. Tap “Edit profile” to add more
+              information.
+            </Text>
+          )}
 
           {/* EDIT PROFILE BUTTON */}
           <Pressable
-            style={[
-              styles.editButton,
-              { backgroundColor: theme.accent },
-            ]}
+            style={[styles.editButton, { backgroundColor: theme.accent }]}
             onPress={() => navigation.navigate("EditProfile")}
           >
             <Text
               style={[
                 styles.editButtonText,
-                { color: theme.textOnAccent },
+                { color: theme.onAccent || theme.background },
               ]}
             >
               Edit profile
@@ -236,7 +252,149 @@ function AccountScreen() {
           </Pressable>
         </View>
 
-        {/* 🆕 THEME TOGGLE */}
+        {/* MULTI THEME BUTTONS */}
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: "600",
+            marginTop: 24,
+            marginBottom: 8,
+            color: theme.text,
+          }}
+        >
+          App Theme
+        </Text>
+
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {/* Light */}
+          <Pressable
+            onPress={() => setThemeName("light")}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: themeName === "light" ? theme.accent : theme.border,
+              backgroundColor:
+                themeName === "light" ? theme.accent : theme.card,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color:
+                  themeName === "light" ? theme.onAccent || "#000" : theme.text,
+              }}
+            >
+              Light
+            </Text>
+          </Pressable>
+
+          {/* Dark */}
+          <Pressable
+            onPress={() => setThemeName("dark")}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: themeName === "dark" ? theme.accent : theme.border,
+              backgroundColor: themeName === "dark" ? theme.accent : theme.card,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color:
+                  themeName === "dark" ? theme.onAccent || "#000" : theme.text,
+              }}
+            >
+              Dark
+            </Text>
+          </Pressable>
+
+          {/* Feminine */}
+          <Pressable
+            onPress={() => setThemeName("feminine")}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor:
+                themeName === "feminine" ? theme.accent : theme.border,
+              backgroundColor:
+                themeName === "feminine" ? theme.accent : theme.card,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color:
+                  themeName === "feminine"
+                    ? theme.onAccent || "#000"
+                    : theme.text,
+              }}
+            >
+              Feminine
+            </Text>
+          </Pressable>
+
+          {/* Masculine */}
+          <Pressable
+            onPress={() => setThemeName("masculine")}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor:
+                themeName === "masculine" ? theme.accent : theme.border,
+              backgroundColor:
+                themeName === "masculine" ? theme.accent : theme.card,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color:
+                  themeName === "masculine"
+                    ? theme.onAccent || "#000"
+                    : theme.text,
+              }}
+            >
+              Masculine
+            </Text>
+          </Pressable>
+          {/* Rainbow */}
+          <Pressable
+            onPress={() => setThemeName("rainbow")}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor:
+                themeName === "rainbow" ? theme.accent : theme.border,
+              backgroundColor:
+                themeName === "rainbow" ? theme.accent : theme.card,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              style={{
+                color:
+                  themeName === "rainbow"
+                    ? theme.onAccent || "#000"
+                    : theme.text,
+              }}
+            >
+              Rainbow
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* APPEARANCE TOGGLE (QUICK LIGHT/DARK) */}
         <View
           style={[
             styles.themeCard,
@@ -248,21 +406,21 @@ function AccountScreen() {
         >
           <View style={styles.themeRow}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
                 Appearance
               </Text>
               <Text
                 style={[styles.sectionSubtitle, { color: theme.textMuted }]}
               >
-                Switch between light and dark mode.
+                Switch quickly between light and dark mode.
               </Text>
             </View>
             <Switch
               value={isDark}
-              onValueChange={toggleTheme}
+              onValueChange={toggleLightDark}
               trackColor={{
                 false: theme.border,
-                true: theme.accentSoft || theme.accent,
+                true: theme.accent,
               }}
               thumbColor={isDark ? theme.accent : "#f4f3f4"}
             />
@@ -272,10 +430,7 @@ function AccountScreen() {
         {/* BUSINESS ONLY: VIEW MY EVENTS */}
         {isBusiness && (
           <Pressable
-            style={[
-              styles.accountButton,
-              { backgroundColor: colors.cta }, // still using your existing CTA color
-            ]}
+            style={[styles.accountButton, { backgroundColor: colors.cta }]}
             onPress={() => navigation.navigate("MyEvents")}
           >
             <Text style={styles.accountButtonText}>View My Events</Text>
@@ -297,10 +452,7 @@ function AccountScreen() {
             disabled={isAuthLoading || isUpgrading}
           >
             <Text
-              style={[
-                styles.accountButtonSecondaryText,
-                { color: theme.textMain },
-              ]}
+              style={[styles.accountButtonSecondaryText, { color: theme.text }]}
             >
               Upgrade to business account
             </Text>
@@ -318,10 +470,7 @@ function AccountScreen() {
 
         {/* LOG OUT */}
         <Pressable
-          style={[
-            styles.logoutButton,
-            isAuthLoading && styles.buttonDisabled,
-          ]}
+          style={[styles.logoutButton, isAuthLoading && styles.buttonDisabled]}
           onPress={handleLogout}
           disabled={isAuthLoading}
         >
@@ -330,12 +479,7 @@ function AccountScreen() {
           </Text>
         </Pressable>
 
-        <Text
-          style={[
-            styles.helperText,
-            { color: theme.textMuted },
-          ]}
-        >
+        <Text style={[styles.helperText, { color: theme.textMuted }]}>
           Logging out will clear your session on this device.{"\n"}
           You can log back in anytime to post and manage events.
         </Text>

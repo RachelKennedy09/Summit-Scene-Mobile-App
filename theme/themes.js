@@ -4,18 +4,18 @@
 export const lightTheme = {
   name: "light",
   // backgrounds
-  background: "#F5F5F5",
+  background: "#F6F5F8",
   card: "#FFFFFF",
-  pill: "#FFFFFF",
+  pill: "#d6dbe2ff",
 
   // text
   textMain: "#111827",
-  textMuted: "#6B7280",
+  textMuted: "#040b18ff",
   textOnAccent: "#FFFFFF",
 
   // accents
-  accent: "#b0b9daff",
-  accentSoft: "#c4b3bdff",
+  accent: "#031142ff",
+  accentSoft: "#a4a3a8ff",
 
   // borders / dividers
   border: "#E5E7EB",
@@ -23,8 +23,10 @@ export const lightTheme = {
 
   // tab bar / navigation
   tabBarBackground: "#FFFFFF",
-  tabBarActive: "#c4b3bdff",
-  tabBarInactive: "#9CA3AF",
+  tabBarActive: "#26177aff",
+  tabBarInactive: "#0a172eff",
+
+  isDark: false,
 };
 
 export const darkTheme = {
@@ -52,4 +54,6 @@ export const darkTheme = {
   tabBarBackground: "#020617",
   tabBarActive: "#6B7280",
   tabBarInactive: "#6B7280",
+
+  isDark: true,
 };

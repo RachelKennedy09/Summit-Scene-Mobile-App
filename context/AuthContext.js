@@ -125,7 +125,6 @@ export function AuthProvider({ children }) {
     email,
     password,
     role,
-    // optional profile fields from RegisterScreen
     avatarUrl,
     town,
     bio,

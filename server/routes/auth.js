@@ -166,15 +166,24 @@ router.post("/login", async (req, res) => {
 
     const token = createToken(user);
 
+    const safeUser = {
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role || "local",
+      createdAt: user.createdAt,
+
+      avatarUrl: user.avatarUrl,
+      town: user.town,
+      bio: user.bio,
+      lookingFor: user.lookingFor,
+      instagram: user.instagram,
+      website: user.website,
+    };
+
     res.json({
       token,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role || "local",
-        createdAt: user.createdAt,
-      },
+      user: safeUser,
     });
   } catch (error) {
     console.error("Error in /login:", error.message);
@@ -198,13 +207,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 
     // Send user in the same shape as register/login (without a new token)
     res.json({
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: user.role || "local",
-        createdAt: user.createdAt,
-      },
+      user,
     });
   } catch (error) {
     console.error("Error in /auth/me:", error.message);
