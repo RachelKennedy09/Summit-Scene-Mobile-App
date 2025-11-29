@@ -243,57 +243,65 @@ Trello Sprint done
 
 ### Sprint Goals
 
-1.
+1. Add full multi-theme support across the entire mobile app
 
-1.
+2. Create a ThemeContext capable of loading + saving themes
 
-1. 
-
-2.
-
-3.
+3. Support Light, Dark, Feminine, Masculine, and Rainbow themes
+4. Add theme selection UI to the Account screen
+5. Ensure all existing screens refresh correctly when the theme changes
+6. Fix calendar visibility issues on dark themes
+7. Maintain compatibility with all existing UI components
 
 ### Challenges + How I Solved Them
 
+<b>Issue: Date picker numbers invisible on dark mode </b> On Android, the calendar day numbers stayed black even when switching into dark theme, making them unreadable.
+
+<b>Fix:</b>
+
+- Wrapped the DateTimePicker inside a themed white card background
+
+- Applied themeVariant={theme.isDark ? "dark" : "light"} as a fallback for iOS
+
+- Ensured backgroundColor: theme.card is forced behind all pickers
+
 <b>Issue: </b>
-
-
-<b>Fix:</b> 
-
-   
-
- 
-
-<b>Issue:  </b> 
 
 <b>Fix:
 </b>
-<b>Issue:  </b> 
+<b>Issue: </b>
 
-<b>Fix:</b> 
+<b>Fix:</b>
 
 ### Wins + Breakthroughs
 
-- 
+- Added 5 complete global themes
 
-- 
+- Fully upgraded the ThemeContext system:
 
-- 
+- Added a theme selector UI to AccountScreen with beautiful pill buttons
 
-- 
+- Theme architecture now supports unlimited future themes
 
-- 
-
-- 
-
-### What I Learned
+- Strengthened entire UI foundation for future Sprint 10 UI polish
 
 -
 
-- 
+### What I Learned
 
-- 
+- How to build a reusable global theme system in React Native
 
-- 
+- How to design themes using tokens (background, card, text, accent, etc.)
+- How to theme native components like DateTimePicker that resist color change
 
-### photos of progress Sprint 12 
+-
+
+### photos of progress Sprint 12
+
+App Photo of Theme pills
+
+![alt text](devlogimages/APPthemepillsaccountscreen.png)
+
+Trello sprint 12 - themes done
+
+![alt text](devlogimages/TrelloSprint12themes.png)
