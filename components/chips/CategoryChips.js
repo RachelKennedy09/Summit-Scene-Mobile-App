@@ -1,7 +1,6 @@
 import React from "react";
 import { ScrollView, Pressable, Text, StyleSheet, View } from "react-native";
-
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 const CATEGORIES = [
   "All",
@@ -16,7 +15,12 @@ const CATEGORIES = [
   "Art",
 ];
 
-export default function CategoryChips({ selectedCategory, onSelectCategory }) {
+export default function CategoryChips({
+  selectedCategory,
+  onSelectCategory,
+}) {
+  const { theme } = useTheme();
+
   return (
     <View style={styles.wrapper}>
       <ScrollView
@@ -31,10 +35,22 @@ export default function CategoryChips({ selectedCategory, onSelectCategory }) {
             <Pressable
               key={category}
               onPress={() => onSelectCategory(category)}
-              style={[styles.chip, isActive && styles.chipActive]}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: isActive ? theme.accent : theme.card,
+                  borderColor: isActive ? theme.accent : theme.border,
+                },
+              ]}
             >
               <Text
-                style={[styles.chipText, isActive && styles.chipTextActive]}
+                style={[
+                  styles.chipText,
+                  {
+                    color: isActive ? theme.background : theme.textMuted,
+                    fontWeight: isActive ? "700" : "500",
+                  },
+                ]}
               >
                 {category}
               </Text>
@@ -60,24 +76,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.secondary,
     marginRight: 10,
     minWidth: 70,
     alignItems: "center",
     justifyContent: "center",
   },
-  chipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.accent,
-  },
   chipText: {
-    color: colors.textLight,
     fontSize: 14,
-    fontWeight: "500",
-  },
-  chipTextActive: {
-    color: colors.textLight,
-    fontWeight: "700",
   },
 });

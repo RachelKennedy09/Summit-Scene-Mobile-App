@@ -38,6 +38,7 @@ export const darkTheme = {
   textMain: "#F9FAFB",
   textMuted: "#9CA3AF",
   textOnAccent: "#FFFFFF",
+  text: "#F9FAFB",
 
   // accents
   accent: "#6B7280",

@@ -1,6 +1,3 @@
-// screens/account/EditProfileScreen.js
-// Lets logged-in users edit their profile fields (not email/password yet)
-
 import React, { useState } from "react";
 import {
   View,
@@ -13,18 +10,23 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function EditProfileScreen({ navigation }) {
   const { user, updateProfile, isAuthLoading } = useAuth();
+  const { theme } = useTheme();
 
   // Safeguard – if somehow no user
   if (!user) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <Text style={styles.heading}>Edit profile</Text>
-          <Text style={styles.helperText}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: theme.background }]}
+      >
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+          <Text style={[styles.heading, { color: theme.text }]}>
+            Edit profile
+          </Text>
+          <Text style={[styles.helperText, { color: theme.textMuted }]}>
             You need to be logged in to edit your profile.
           </Text>
         </View>
@@ -33,15 +35,13 @@ export default function EditProfileScreen({ navigation }) {
   }
 
   const isBusiness = user.role === "business";
-  const isLocal = user.role === "local";
+  const isLocal = user.role === "local"; // (still here if you use it later)
 
-  // Role-based heading + helper text
   const titleText = isBusiness ? "Event posting profile" : "Edit profile";
   const helperText = isBusiness
     ? "This is how your profile appears when you make an event."
     : "This info shows on your Account screen and on Community posts.";
 
-  // Pre-fill fields from current user
   const [name, setName] = useState(user.name || "");
   const [town, setTown] = useState(user.town || "");
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || "");
@@ -82,35 +82,53 @@ export default function EditProfileScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: theme.background }]}
         contentContainerStyle={{ paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Role-based heading + helper */}
-        <Text style={styles.heading}>{titleText}</Text>
+        <Text style={[styles.heading, { color: theme.text }]}>{titleText}</Text>
 
-        <Text style={styles.helperText}>{helperText}</Text>
+        <Text style={[styles.helperText, { color: theme.textMuted }]}>
+          {helperText}
+        </Text>
 
         {/* Name */}
-        <Text style={styles.label}>Name</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Name</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={name}
           onChangeText={setName}
           placeholder="Your name"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
         />
 
         {/* Town */}
-        <Text style={styles.label}>
+        <Text style={[styles.label, { color: theme.text }]}>
           {isBusiness
             ? "Where is your business located?"
             : "Where do you live?"}
         </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={town}
           onChangeText={setTown}
           placeholder={
@@ -118,28 +136,43 @@ export default function EditProfileScreen({ navigation }) {
               ? "Banff, Canmore, Lake Louise..."
               : "Banff, Canmore, Lake Louise... or visiting?"
           }
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
         />
 
         {/* Avatar URL */}
-        <Text style={styles.label}>
+        <Text style={[styles.label, { color: theme.text }]}>
           {isBusiness ? "Photo of your business (URL)" : "Profile photo URL"}
         </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={avatarUrl}
           onChangeText={setAvatarUrl}
           placeholder="https://example.com/your-photo.jpg"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           autoCapitalize="none"
         />
 
         {/* Looking for / business type */}
-        <Text style={styles.label}>
+        <Text style={[styles.label, { color: theme.text }]}>
           {isBusiness ? "Business type" : "What are you looking for?"}
         </Text>
         <TextInput
-          style={[styles.input, styles.multiline]}
+          style={[
+            styles.input,
+            styles.multiline,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={lookingFor}
           onChangeText={setLookingFor}
           multiline
@@ -149,13 +182,21 @@ export default function EditProfileScreen({ navigation }) {
               ? "Cafe, yoga studio, music venue..."
               : "Markets, yoga buddies, music nights, hiking friends..."
           }
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
         />
 
         {/* Bio */}
-        <Text style={styles.label}>Short bio</Text>
+        <Text style={[styles.label, { color: theme.text }]}>Short bio</Text>
         <TextInput
-          style={[styles.input, styles.multiline]}
+          style={[
+            styles.input,
+            styles.multiline,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={bio}
           onChangeText={setBio}
           multiline
@@ -165,30 +206,48 @@ export default function EditProfileScreen({ navigation }) {
               ? "Tell people about your business, vibe, and what you host."
               : "Tell locals who you are and what you love..."
           }
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
         />
 
         {/* Instagram */}
-        <Text style={styles.label}>Instagram (optional)</Text>
+        <Text style={[styles.label, { color: theme.text }]}>
+          Instagram (optional)
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+              color: theme.text,
+            },
+          ]}
           value={instagram}
           onChangeText={setInstagram}
           placeholder="@yourhandle"
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           autoCapitalize="none"
         />
 
         {/* Website – business only */}
         {isBusiness && (
           <>
-            <Text style={styles.label}>Website (optional)</Text>
+            <Text style={[styles.label, { color: theme.text }]}>
+              Website (optional)
+            </Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
               value={website}
               onChangeText={setWebsite}
               placeholder="https://your-business.com"
-              placeholderTextColor={colors.textMuted}
+              placeholderTextColor={theme.textMuted}
               autoCapitalize="none"
             />
           </>
@@ -197,22 +256,34 @@ export default function EditProfileScreen({ navigation }) {
         {/* Buttons */}
         <View style={styles.buttonRow}>
           <Pressable
-            style={[styles.secondaryButton]}
+            style={[
+              styles.secondaryButton,
+              {
+                borderColor: theme.border,
+              },
+            ]}
             onPress={handleCancel}
             disabled={isAuthLoading}
           >
-            <Text style={styles.secondaryButtonText}>Cancel</Text>
+            <Text style={[styles.secondaryButtonText, { color: theme.text }]}>
+              Cancel
+            </Text>
           </Pressable>
 
           <Pressable
             style={[
               styles.primaryButton,
+              {
+                backgroundColor: theme.accent,
+              },
               isAuthLoading && styles.buttonDisabled,
             ]}
             onPress={handleSave}
             disabled={isAuthLoading}
           >
-            <Text style={styles.primaryButtonText}>
+            <Text
+              style={[styles.primaryButtonText, { color: theme.background }]}
+            >
               {isAuthLoading ? "Saving..." : "Save changes"}
             </Text>
           </Pressable>
@@ -225,7 +296,6 @@ export default function EditProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,
@@ -235,28 +305,22 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 8,
   },
   helperText: {
     fontSize: 12,
-    color: colors.textMuted,
     marginBottom: 16,
   },
   label: {
     fontSize: 13,
-    color: colors.textLight,
     marginBottom: 4,
     marginTop: 10,
   },
   input: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: colors.textLight,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   multiline: {
     minHeight: 70,
@@ -269,13 +333,11 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: colors.accent,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: colors.textLight,
     fontWeight: "700",
     fontSize: 15,
   },
@@ -283,12 +345,10 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.border,
     paddingVertical: 12,
     alignItems: "center",
   },
   secondaryButtonText: {
-    color: colors.textLight,
     fontWeight: "600",
     fontSize: 14,
   },

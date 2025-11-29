@@ -13,8 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
@@ -30,6 +29,7 @@ const TOWNS = [
 
 export default function CommunityPostScreen({ navigation }) {
   const { token } = useAuth();
+  const { theme } = useTheme();
 
   const [type, setType] = useState("highwayconditions");
   const [town, setTown] = useState("Banff");
@@ -113,7 +113,9 @@ export default function CommunityPostScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -123,14 +125,16 @@ export default function CommunityPostScreen({ navigation }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.heading}>New Community Post</Text>
-          <Text style={styles.subheading}>
+          <Text style={[styles.heading, { color: theme.text }]}>
+            New Community Post
+          </Text>
+          <Text style={[styles.subheading, { color: theme.textMuted }]}>
             Share highway conditions, rides, or find an event buddy. Your
             account name will appear on this post and its replies.
           </Text>
 
           {/* Board selector */}
-          <Text style={styles.label}>Board</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>Board</Text>
           <View style={styles.row}>
             {POST_TYPES.map((option) => {
               const isActive = option.value === type;
@@ -138,10 +142,26 @@ export default function CommunityPostScreen({ navigation }) {
                 <Pressable
                   key={option.value}
                   onPress={() => setType(option.value)}
-                  style={[styles.pill, isActive && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    {
+                      borderColor: isActive
+                        ? theme.accent
+                        : theme.border,
+                      backgroundColor: isActive
+                        ? theme.accentSoft || theme.card
+                        : theme.card,
+                    },
+                  ]}
                 >
                   <Text
-                    style={[styles.pillText, isActive && styles.pillTextActive]}
+                    style={[
+                      styles.pillText,
+                      {
+                        color: isActive ? theme.text : theme.textMuted,
+                        fontWeight: isActive ? "600" : "400",
+                      },
+                    ]}
                   >
                     {option.label}
                   </Text>
@@ -151,7 +171,7 @@ export default function CommunityPostScreen({ navigation }) {
           </View>
 
           {/* Town selector */}
-          <Text style={styles.label}>Town</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>Town</Text>
           <View style={styles.row}>
             {TOWNS.map((option) => {
               const isActive = option.value === town;
@@ -159,10 +179,26 @@ export default function CommunityPostScreen({ navigation }) {
                 <Pressable
                   key={option.value}
                   onPress={() => setTown(option.value)}
-                  style={[styles.pill, isActive && styles.pillActive]}
+                  style={[
+                    styles.pill,
+                    {
+                      borderColor: isActive
+                        ? theme.accent
+                        : theme.border,
+                      backgroundColor: isActive
+                        ? theme.accentSoft || theme.card
+                        : theme.card,
+                    },
+                  ]}
                 >
                   <Text
-                    style={[styles.pillText, isActive && styles.pillTextActive]}
+                    style={[
+                      styles.pillText,
+                      {
+                        color: isActive ? theme.text : theme.textMuted,
+                        fontWeight: isActive ? "600" : "400",
+                      },
+                    ]}
                   >
                     {option.label}
                   </Text>
@@ -172,12 +208,18 @@ export default function CommunityPostScreen({ navigation }) {
           </View>
 
           {/* Date */}
-          <Text style={styles.label}>Date</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>Date</Text>
           <Pressable
             onPress={() => setShowDatePicker(true)}
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.card,
+              },
+            ]}
           >
-            <Text style={{ color: colors.textLight }}>
+            <Text style={{ color: theme.text }}>
               {targetDate.toLocaleDateString()}
             </Text>
           </Pressable>
@@ -200,39 +242,78 @@ export default function CommunityPostScreen({ navigation }) {
           )}
 
           {/* Title */}
-          <Text style={styles.label}>Title</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>Title</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.card,
+                color: theme.text,
+              },
+            ]}
             placeholder="Short summary..."
-            placeholderTextColor="#66758a"
+            placeholderTextColor={theme.textMuted}
             value={title}
             onChangeText={setTitle}
           />
 
           {/* Details */}
-          <Text style={styles.label}>Details</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Details
+          </Text>
           <TextInput
-            style={[styles.input, styles.inputMultiline]}
+            style={[
+              styles.input,
+              styles.inputMultiline,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.card,
+                color: theme.text,
+              },
+            ]}
             placeholder={detailsPlaceholder}
-            placeholderTextColor="#66758a"
+            placeholderTextColor={theme.textMuted}
             value={body}
             onChangeText={setBody}
             multiline
             numberOfLines={4}
           />
-          <Text style={styles.helperText}>
+          <Text style={[styles.helperText, { color: theme.textMuted }]}>
             Replies are public. Avoid sharing phone numbers or emails unless
             you’re comfortable doing so.
           </Text>
 
-          {error && <Text style={styles.errorText}>{error}</Text>}
+          {error && (
+            <Text
+              style={[
+                styles.errorText,
+                { color: theme.error || "#ff4d4f" },
+              ]}
+            >
+              {error}
+            </Text>
+          )}
 
           <Pressable
             onPress={handleSubmit}
             disabled={submitting}
-            style={[styles.submitButton, submitting && { opacity: 0.6 }]}
+            style={[
+              styles.submitButton,
+              {
+                backgroundColor: theme.accent,
+              },
+              submitting && { opacity: 0.6 },
+            ]}
           >
-            <Text style={styles.submitButtonText}>
+            <Text
+              style={[
+                styles.submitButtonText,
+                {
+                  color: theme.background,
+                },
+              ]}
+            >
               {submitting ? "Posting..." : "Share Post"}
             </Text>
           </Pressable>
@@ -245,7 +326,6 @@ export default function CommunityPostScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -255,23 +335,19 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 16,
   },
   label: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 6,
     marginTop: 12,
   },
   helperText: {
     fontSize: 12,
-    color: colors.textMuted,
     marginTop: 4,
   },
   row: {
@@ -285,29 +361,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.primary,
-  },
-  pillActive: {
-    backgroundColor: colors.secondary,
-    borderColor: colors.accent,
   },
   pillText: {
     fontSize: 13,
-    color: colors.textMuted,
-  },
-  pillTextActive: {
-    color: colors.textLight,
-    fontWeight: "600",
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: colors.textLight,
-    backgroundColor: colors.secondary,
   },
   inputMultiline: {
     height: 100,
@@ -315,18 +377,15 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 8,
-    color: colors.error,
     fontSize: 13,
   },
   submitButton: {
     marginTop: 20,
-    backgroundColor: colors.accent,
-    paddingVertical: 12,
     borderRadius: 999,
+    paddingVertical: 12,
     alignItems: "center",
   },
   submitButtonText: {
-    color: colors.textLight,
     fontSize: 15,
     fontWeight: "600",
   },

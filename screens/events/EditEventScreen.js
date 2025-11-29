@@ -19,8 +19,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../context/AuthContext.js";
 import { updateEvent } from "../../services/eventsApi.js";
-
-import { colors } from "../../theme/colors.js";
+import { useTheme } from "../../context/ThemeContext";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -69,6 +68,7 @@ function formatTime(selectedTime) {
 
 export default function EditEventScreen({ route, navigation }) {
   const { token } = useAuth();
+  const { theme } = useTheme();
   const { event, onUpdated } = route.params; // event passed from EventDetail/MyEvents
 
   // ----- INITIAL STATE FROM EXISTING EVENT -----
@@ -204,44 +204,76 @@ export default function EditEventScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.heading}>Edit Event</Text>
+        <Text style={[styles.heading, { color: theme.text }]}>Edit Event</Text>
 
         {/* Title */}
-        <Text style={styles.label}>Title *</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Title *</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              color: theme.text,
+              borderColor: theme.border,
+            },
+          ]}
           placeholder="Event title"
+          placeholderTextColor={theme.textMuted}
           value={title}
           onChangeText={setTitle}
         />
 
         {/* Town */}
-        <Text style={styles.label}>Town *</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Town *</Text>
         <Pressable
-          style={styles.selectButton}
+          style={[
+            styles.selectButton,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
           onPress={() => setShowTownModal(true)}
         >
-          <Text style={styles.selectButtonText}>{town}</Text>
+          <Text style={[styles.selectButtonText, { color: theme.text }]}>
+            {town}
+          </Text>
         </Pressable>
 
         {/* Category */}
-        <Text style={styles.label}>Category *</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Category *
+        </Text>
         <Pressable
-          style={styles.selectButton}
+          style={[
+            styles.selectButton,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
           onPress={() => setShowCategoryModal(true)}
         >
-          <Text style={styles.selectButtonText}>{category}</Text>
+          <Text style={[styles.selectButtonText, { color: theme.text }]}>
+            {category}
+          </Text>
         </Pressable>
 
         {/* Date */}
-        <Text style={styles.label}>Date (YYYY-MM-DD) *</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Date (YYYY-MM-DD) *
+        </Text>
         <Pressable onPress={() => setShowDatePicker(true)}>
           <View pointerEvents="none">
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border,
+                },
+              ]}
               placeholder="Select a date"
+              placeholderTextColor={theme.textMuted}
               value={date}
               editable={false}
             />
@@ -249,12 +281,22 @@ export default function EditEventScreen({ route, navigation }) {
         </Pressable>
 
         {/* Start Time */}
-        <Text style={styles.label}>Start time (optional)</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Start time (optional)
+        </Text>
         <Pressable onPress={() => setShowTimePicker(true)}>
           <View pointerEvents="none">
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border,
+                },
+              ]}
               placeholder="Select start time"
+              placeholderTextColor={theme.textMuted}
               value={time}
               editable={false}
             />
@@ -262,12 +304,22 @@ export default function EditEventScreen({ route, navigation }) {
         </Pressable>
 
         {/* End Time */}
-        <Text style={styles.label}>End time (optional)</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          End time (optional)
+        </Text>
         <Pressable onPress={() => setShowEndTimePicker(true)}>
           <View pointerEvents="none">
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.card,
+                  color: theme.text,
+                  borderColor: theme.border,
+                },
+              ]}
               placeholder="Select end time"
+              placeholderTextColor={theme.textMuted}
               value={endTime}
               editable={false}
             />
@@ -275,19 +327,40 @@ export default function EditEventScreen({ route, navigation }) {
         </Pressable>
 
         {/* Location */}
-        <Text style={styles.label}>Location</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Location
+        </Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.card,
+              color: theme.text,
+              borderColor: theme.border,
+            },
+          ]}
           placeholder="Venue or address"
+          placeholderTextColor={theme.textMuted}
           value={location}
           onChangeText={setLocation}
         />
 
         {/* Description */}
-        <Text style={styles.label}>Description</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Description
+        </Text>
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[
+            styles.input,
+            styles.textArea,
+            {
+              backgroundColor: theme.card,
+              color: theme.text,
+              borderColor: theme.border,
+            },
+          ]}
           placeholder="Tell people what to expect"
+          placeholderTextColor={theme.textMuted}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -295,11 +368,20 @@ export default function EditEventScreen({ route, navigation }) {
 
         {/* Save button */}
         <Pressable
-          style={[styles.button, loading && styles.buttonDisabled]}
+          style={[
+            styles.button,
+            { backgroundColor: theme.accent },
+            loading && styles.buttonDisabled,
+          ]}
           onPress={handleSubmit}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: theme.background },
+            ]}
+          >
             {loading ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>
@@ -313,8 +395,15 @@ export default function EditEventScreen({ route, navigation }) {
         onRequestClose={() => setShowTownModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Town</Text>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: theme.card },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Select Town
+            </Text>
             {TOWNS.map((t) => (
               <Pressable
                 key={t}
@@ -324,14 +413,28 @@ export default function EditEventScreen({ route, navigation }) {
                   setShowTownModal(false);
                 }}
               >
-                <Text style={styles.modalOptionText}>{t}</Text>
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    { color: theme.text },
+                  ]}
+                >
+                  {t}
+                </Text>
               </Pressable>
             ))}
             <Pressable
               style={styles.modalCancel}
               onPress={() => setShowTownModal(false)}
             >
-              <Text style={styles.modalCancelText}>Cancel</Text>
+              <Text
+                style={[
+                  styles.modalCancelText,
+                  { color: theme.accent },
+                ]}
+              >
+                Cancel
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -345,8 +448,15 @@ export default function EditEventScreen({ route, navigation }) {
         onRequestClose={() => setShowCategoryModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Category</Text>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: theme.card },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Select Category
+            </Text>
             {FORM_CATEGORIES.map((cat) => (
               <Pressable
                 key={cat}
@@ -356,14 +466,28 @@ export default function EditEventScreen({ route, navigation }) {
                   setShowCategoryModal(false);
                 }}
               >
-                <Text style={styles.modalOptionText}>{cat}</Text>
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    { color: theme.text },
+                  ]}
+                >
+                  {cat}
+                </Text>
               </Pressable>
             ))}
             <Pressable
               style={styles.modalCancel}
               onPress={() => setShowCategoryModal(false)}
             >
-              <Text style={styles.modalCancelText}>Cancel</Text>
+              <Text
+                style={[
+                  styles.modalCancelText,
+                  { color: theme.accent },
+                ]}
+              >
+                Cancel
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -377,7 +501,12 @@ export default function EditEventScreen({ route, navigation }) {
           onRequestClose={() => setShowDatePicker(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
               <DateTimePicker
                 value={dateObj}
                 mode="date"
@@ -389,13 +518,30 @@ export default function EditEventScreen({ route, navigation }) {
                   style={styles.pickerSecondaryButton}
                   onPress={() => setShowDatePicker(false)}
                 >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
                 </Pressable>
                 <Pressable
-                  style={styles.pickerPrimaryButton}
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
                   onPress={handleConfirmDate}
                 >
-                  <Text style={styles.pickerPrimaryText}>Use this date</Text>
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this date
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -411,7 +557,12 @@ export default function EditEventScreen({ route, navigation }) {
           onRequestClose={() => setShowTimePicker(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
               <DateTimePicker
                 value={timeObj}
                 mode="time"
@@ -423,13 +574,30 @@ export default function EditEventScreen({ route, navigation }) {
                   style={styles.pickerSecondaryButton}
                   onPress={() => setShowTimePicker(false)}
                 >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
                 </Pressable>
                 <Pressable
-                  style={styles.pickerPrimaryButton}
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
                   onPress={handleConfirmTime}
                 >
-                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this time
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -445,7 +613,12 @@ export default function EditEventScreen({ route, navigation }) {
           onRequestClose={() => setShowEndTimePicker(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.pickerModalContent}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
               <DateTimePicker
                 value={endTimeObj}
                 mode="time"
@@ -457,13 +630,30 @@ export default function EditEventScreen({ route, navigation }) {
                   style={styles.pickerSecondaryButton}
                   onPress={() => setShowEndTimePicker(false)}
                 >
-                  <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
                 </Pressable>
                 <Pressable
-                  style={styles.pickerPrimaryButton}
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
                   onPress={handleConfirmEndTime}
                 >
-                  <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this time
+                  </Text>
                 </Pressable>
               </View>
             </View>
@@ -477,7 +667,6 @@ export default function EditEventScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   container: {
     padding: 16,
@@ -486,37 +675,33 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 16,
-    color: colors.textLight,
   },
   label: {
     fontSize: 14,
     marginBottom: 4,
-    color: colors.textMuted,
   },
   input: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
-    color: colors.textLight,
+    borderWidth: 1,
   },
   textArea: {
     height: 100,
     textAlignVertical: "top",
   },
   selectButton: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginBottom: 12,
+    borderWidth: 1,
   },
   selectButtonText: {
-    color: colors.textLight,
+    fontSize: 14,
   },
   button: {
-    backgroundColor: colors.cta,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",
@@ -527,7 +712,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: colors.primary,
     fontWeight: "700",
     fontSize: 16,
   },
@@ -538,12 +722,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   modalContent: {
-    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
   modalTitle: {
-    color: colors.textLight,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
@@ -552,7 +734,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   modalOptionText: {
-    color: colors.textLight,
     fontSize: 16,
   },
   modalCancel: {
@@ -560,11 +741,9 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   modalCancelText: {
-    color: colors.cta,
     fontSize: 14,
   },
   pickerModalContent: {
-    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
@@ -580,17 +759,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   pickerSecondaryText: {
-    color: colors.textMuted,
     fontSize: 14,
   },
   pickerPrimaryButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: colors.cta,
   },
   pickerPrimaryText: {
-    color: colors.primary,
     fontWeight: "600",
     fontSize: 14,
   },

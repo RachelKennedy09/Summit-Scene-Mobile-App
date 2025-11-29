@@ -1,8 +1,6 @@
-// lets new users create an account that we store via the /register API
-
 // screens/RegisterScreen.js
-// WHAT: Registration screen UI
-// WHY: Lets new users create an account that we store via the /register API
+//  Registration screen UI
+//  Lets new users create an account that we store via the /register API
 
 import React, { useState } from "react";
 import {
@@ -20,12 +18,12 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 function RegisterScreen() {
   const { register, isAuthLoading } = useAuth();
   const navigation = useNavigation();
+  const { theme } = useTheme();
 
   const [name, setName] = useState(""); // optional display name
   const [email, setEmail] = useState("");
@@ -69,14 +67,10 @@ function RegisterScreen() {
       // navigation will switch based on user later
     } catch (error) {
       console.error("Error in /register:", error);
-
-      if (error.name === "ValidationError") {
-        return res
-          .status(400)
-          .json({ message: "Please check your details and try again." });
-      }
-
-      res.status(500).json({ message: "Server error during registration." });
+      Alert.alert(
+        "Registration failed",
+        error.message || "Please check your details and try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +81,7 @@ function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -97,35 +91,49 @@ function RegisterScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.inner}>
-              <Text style={styles.title}>
+              <Text style={[styles.title, { color: theme.text }]}>
                 Create your Summit Scene account{" "}
               </Text>
-              <Text style={styles.subtitle}>
+              <Text style={[styles.subtitle, { color: theme.textMuted }]}>
                 Sign up to post, save, and/or explore local events in your
                 mountain town.
               </Text>
 
               {/* Name */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Name</Text>
+                <Text style={[styles.label, { color: theme.text }]}>Name</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    },
+                  ]}
                   value={name}
                   onChangeText={setName}
                   placeholder="Your name"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={theme.textMuted}
                 />
               </View>
 
               {/* Email */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email</Text>
+                <Text style={[styles.label, { color: theme.text }]}>Email</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    },
+                  ]}
                   value={email}
                   onChangeText={setEmail}
                   placeholder="you@example.com"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={theme.textMuted}
                   autoCapitalize="none"
                   keyboardType="email-address"
                 />
@@ -133,19 +141,28 @@ function RegisterScreen() {
 
               {/* Password */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
+                <Text style={[styles.label, { color: theme.text }]}>
+                  Password
+                </Text>
                 <TextInput
-                  style={styles.input}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    },
+                  ]}
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Create a password"
-                  placeholderTextColor={colors.textMuted}
+                  placeholderTextColor={theme.textMuted}
                   secureTextEntry
                 />
               </View>
 
               {/* Account type selection */}
-              <Text style={styles.sectionLabel}>
+              <Text style={[styles.sectionLabel, { color: theme.text }]}>
                 What type of account is this?
               </Text>
 
@@ -154,19 +171,23 @@ function RegisterScreen() {
                 <Pressable
                   style={[
                     styles.roleOption,
-                    isLocal && styles.roleOptionSelected,
+                    {
+                      borderColor: theme.border,
+                      backgroundColor: theme.card,
+                    },
+                    isLocal && {
+                      borderColor: theme.accent,
+                      backgroundColor: theme.accentSoft || theme.card,
+                    },
                   ]}
                   onPress={() => setRole("local")}
                 >
-                  <Text
-                    style={[
-                      styles.roleTitle,
-                      isLocal && styles.roleTitleSelected,
-                    ]}
-                  >
+                  <Text style={[styles.roleTitle, { color: theme.text }]}>
                     I'm here to find things to do!
                   </Text>
-                  <Text style={styles.roleSubtitle}>
+                  <Text
+                    style={[styles.roleSubtitle, { color: theme.textMuted }]}
+                  >
                     Discover what's happening in Banff, Canmore, and Lake
                     Louise.
                   </Text>
@@ -176,19 +197,23 @@ function RegisterScreen() {
                 <Pressable
                   style={[
                     styles.roleOption,
-                    isBusiness && styles.roleOptionSelected,
+                    {
+                      borderColor: theme.border,
+                      backgroundColor: theme.card,
+                    },
+                    isBusiness && {
+                      borderColor: theme.accent,
+                      backgroundColor: theme.accentSoft || theme.card,
+                    },
                   ]}
                   onPress={() => setRole("business")}
                 >
-                  <Text
-                    style={[
-                      styles.roleTitle,
-                      isBusiness && styles.roleTitleSelected,
-                    ]}
-                  >
+                  <Text style={[styles.roleTitle, { color: theme.text }]}>
                     I'm a registered business / organizer
                   </Text>
-                  <Text style={styles.roleSubtitle}>
+                  <Text
+                    style={[styles.roleSubtitle, { color: theme.textMuted }]}
+                  >
                     Post and manage events for your venue, shop, or
                     organization.
                   </Text>
@@ -196,41 +221,66 @@ function RegisterScreen() {
               </View>
 
               {/* LOCAL FIELDS */}
-              {role === "local" && (
+              {isLocal && (
                 <>
-                  <Text style={styles.sectionLabel}>
+                  <Text style={[styles.sectionLabel, { color: theme.text }]}>
                     Tell visitors and locals a bit about you
                   </Text>
 
                   {/* TOWN / PLACE OF RESIDENCE */}
-                  <Text style={styles.label}>Where do you live?</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Where do you live?
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="Banff, Canmore, Lake Louise... Visiting?"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={town}
                     onChangeText={setTown}
                   />
 
                   {/* AVATAR URL */}
-                  <Text style={styles.label}>Profile photo URL (optional)</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Profile photo URL (optional)
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="https://example.com/your-photo.jpg"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={avatarUrl}
                     onChangeText={setAvatarUrl}
                   />
 
                   {/* SHORT BIO */}
-                  <Text style={styles.label}>Short bio</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Short bio
+                  </Text>
                   <TextInput
                     style={[
                       styles.input,
                       { height: 80, textAlignVertical: "top" },
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
                     ]}
                     placeholder="Tell locals who you are and what you love..."
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     multiline
                     numberOfLines={3}
                     value={bio}
@@ -238,14 +288,21 @@ function RegisterScreen() {
                   />
 
                   {/* LOOKING FOR */}
-                  <Text style={styles.label}>What are you looking for?</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    What are you looking for?
+                  </Text>
                   <TextInput
                     style={[
                       styles.input,
                       { height: 60, textAlignVertical: "top" },
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
                     ]}
                     placeholder="Markets, yoga buddies, music nights, hiking friends..."
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     multiline
                     numberOfLines={2}
                     value={lookingFor}
@@ -253,11 +310,20 @@ function RegisterScreen() {
                   />
 
                   {/* SOCIAL LINKS */}
-                  <Text style={styles.label}>Instagram (optional)</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Instagram (optional)
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="@yourhandle"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={instagram}
                     onChangeText={setInstagram}
                   />
@@ -265,35 +331,47 @@ function RegisterScreen() {
               )}
 
               {/* BUSINESS FIELDS */}
-              {role === "business" && (
+              {isBusiness && (
                 <>
-                  <Text style={styles.sectionLabel}>
+                  <Text style={[styles.sectionLabel, { color: theme.text }]}>
                     Tell visitors and locals about your business
                   </Text>
 
                   {/* BUSINESS LOCATION */}
-                  <Text style={styles.label}>
+                  <Text style={[styles.label, { color: theme.text }]}>
                     Where is your business located?
                   </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="Banff, Canmore, Lake Louise..."
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={town}
                     onChangeText={setTown}
                   />
 
                   {/* BUSINESS TYPE */}
-                  <Text style={styles.label}>
+                  <Text style={[styles.label, { color: theme.text }]}>
                     What type of business is this?
                   </Text>
                   <TextInput
                     style={[
                       styles.input,
                       { height: 60, textAlignVertical: "top" },
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
                     ]}
                     placeholder="Cafe, yoga studio, live music venue, shop..."
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     multiline
                     numberOfLines={2}
                     value={lookingFor} // reused field, just different meaning for business
@@ -301,31 +379,58 @@ function RegisterScreen() {
                   />
 
                   {/* WEBSITE */}
-                  <Text style={styles.label}>Website</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Website
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="https://your-business.com"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={website}
                     onChangeText={setWebsite}
                   />
 
                   {/* BUSINESS PHOTO */}
-                  <Text style={styles.label}>Photo of your business (URL)</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Photo of your business (URL)
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="https://example.com/your-shop-front.jpg"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={avatarUrl} // reuse avatarUrl as 'business photo'
                     onChangeText={setAvatarUrl}
                   />
 
                   {/* SOCIAL LINKS (OPTIONAL) */}
-                  <Text style={styles.label}>Instagram (optional)</Text>
+                  <Text style={[styles.label, { color: theme.text }]}>
+                    Instagram (optional)
+                  </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      },
+                    ]}
                     placeholder="@yourbusiness"
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor={theme.textMuted}
                     value={instagram}
                     onChangeText={setInstagram}
                   />
@@ -336,12 +441,22 @@ function RegisterScreen() {
               <Pressable
                 style={[
                   styles.button,
+                  {
+                    backgroundColor: theme.accent,
+                  },
                   (isSubmitting || isAuthLoading) && styles.buttonDisabled,
                 ]}
                 onPress={handleRegister}
                 disabled={isSubmitting || isAuthLoading}
               >
-                <Text style={styles.buttonText}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    {
+                      color: theme.background,
+                    },
+                  ]}
+                >
                   {isSubmitting || isAuthLoading
                     ? "Creating account..."
                     : "Create Account"}
@@ -349,7 +464,14 @@ function RegisterScreen() {
               </Pressable>
 
               <Pressable onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.linkText}>
+                <Text
+                  style={[
+                    styles.linkText,
+                    {
+                      color: theme.accent,
+                    },
+                  ]}
+                >
                   Already have an account? Log in
                 </Text>
               </Pressable>
@@ -366,7 +488,6 @@ export default RegisterScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -379,67 +500,48 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 24,
   },
   inputGroup: {
     marginBottom: 16,
   },
   label: {
-    color: colors.textLight,
     marginBottom: 6,
     fontSize: 14,
   },
   input: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: colors.textLight,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   sectionLabel: {
     marginTop: 8,
     marginBottom: 8,
     fontWeight: "500",
-    color: colors.textLight,
   },
   roleColumn: {
     gap: 10,
     marginBottom: 16,
   },
   roleOption: {
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 10,
     padding: 10,
-    backgroundColor: colors.primary,
-  },
-  roleOptionSelected: {
-    borderColor: colors.success,
-    backgroundColor: colors.successTint,
+    borderWidth: 1,
   },
   roleTitle: {
     fontWeight: "600",
     marginBottom: 4,
-    color: colors.textLight,
-  },
-  roleTitleSelected: {
-    color: colors.textLight,
   },
   roleSubtitle: {
     fontSize: 12,
-    color: colors.textMuted,
   },
   button: {
     marginTop: 8,
-    backgroundColor: colors.success,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
@@ -448,13 +550,11 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: colors.textDark,
     fontWeight: "700",
     fontSize: 16,
   },
   linkText: {
     marginTop: 16,
-    color: colors.accent,
     textAlign: "center",
     fontSize: 14,
   },

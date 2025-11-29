@@ -15,12 +15,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuth } from "../../context/AuthContext";
-
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function EditCommunityPostScreen({ route, navigation }) {
   const { post } = route.params; // post passed in from CommunityScreen
   const { token } = useAuth();
+  const { theme } = useTheme();
 
   const [title, setTitle] = useState(post.title || "");
   const [body, setBody] = useState(post.body || "");
@@ -82,20 +82,26 @@ export default function EditCommunityPostScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.heading}>Edit Community Post</Text>
-        <Text style={styles.subheading}>
+        <Text style={[styles.heading, { color: theme.text }]}>
+          Edit Community Post
+        </Text>
+        <Text style={[styles.subheading, { color: theme.textMuted }]}>
           Update the details of your post. Board and town stay the same.
         </Text>
 
         {/* Show board + town as readonly */}
         <View style={styles.readonlyRow}>
-          <Text style={styles.readonlyLabel}>Board:</Text>
-          <Text style={styles.readonlyValue}>
+          <Text style={[styles.readonlyLabel, { color: theme.textMuted }]}>
+            Board:
+          </Text>
+          <Text style={[styles.readonlyValue, { color: theme.text }]}>
             {post.type === "highwayconditions"
               ? "Highway Conditions"
               : post.type === "rideshare"
@@ -105,14 +111,27 @@ export default function EditCommunityPostScreen({ route, navigation }) {
         </View>
 
         <View style={styles.readonlyRow}>
-          <Text style={styles.readonlyLabel}>Town:</Text>
-          <Text style={styles.readonlyValue}>{post.town}</Text>
+          <Text style={[styles.readonlyLabel, { color: theme.textMuted }]}>
+            Town:
+          </Text>
+          <Text style={[styles.readonlyValue, { color: theme.text }]}>
+            {post.town}
+          </Text>
         </View>
 
         {/* Date */}
-        <Text style={styles.label}>Date</Text>
-        <Pressable onPress={() => setShowDatePicker(true)} style={styles.input}>
-          <Text style={{ color: colors.textLight }}>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Date</Text>
+        <Pressable
+          onPress={() => setShowDatePicker(true)}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.border,
+              backgroundColor: theme.card,
+            },
+          ]}
+        >
+          <Text style={{ color: theme.text }}>
             {targetDate.toLocaleDateString()}
           </Text>
         </Pressable>
@@ -132,35 +151,70 @@ export default function EditCommunityPostScreen({ route, navigation }) {
         )}
 
         {/* Title */}
-        <Text style={styles.label}>Title</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Title</Text>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              borderColor: theme.border,
+              backgroundColor: theme.card,
+              color: theme.text,
+            },
+          ]}
           placeholder="Short summary..."
-          placeholderTextColor="#66758a"
+          placeholderTextColor={theme.textMuted}
           value={title}
           onChangeText={setTitle}
         />
 
         {/* Body */}
-        <Text style={styles.label}>Details</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Details</Text>
         <TextInput
-          style={[styles.input, styles.inputMultiline]}
+          style={[
+            styles.input,
+            styles.inputMultiline,
+            {
+              borderColor: theme.border,
+              backgroundColor: theme.card,
+              color: theme.text,
+            },
+          ]}
           placeholder="Update any info, conditions, times, meetup spot, etc."
-          placeholderTextColor="#66758a"
+          placeholderTextColor={theme.textMuted}
           value={body}
           onChangeText={setBody}
           multiline
           numberOfLines={4}
         />
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && (
+          <Text
+            style={[
+              styles.errorText,
+              { color: theme.error || "#ff4d4f" },
+            ]}
+          >
+            {error}
+          </Text>
+        )}
 
         <Pressable
           onPress={handleSave}
           disabled={submitting}
-          style={[styles.submitButton, submitting && { opacity: 0.6 }]}
+          style={[
+            styles.submitButton,
+            {
+              backgroundColor: theme.accent,
+            },
+            submitting && { opacity: 0.6 },
+          ]}
         >
-          <Text style={styles.submitButtonText}>
+          <Text
+            style={[
+              styles.submitButtonText,
+              { color: theme.background },
+            ]}
+          >
             {submitting ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>
@@ -172,7 +226,6 @@ export default function EditCommunityPostScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
 
   scrollContent: {
@@ -184,13 +237,11 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
 
   subheading: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 16,
   },
 
@@ -203,20 +254,17 @@ const styles = StyleSheet.create({
 
   readonlyLabel: {
     fontSize: 14,
-    color: colors.textMuted,
     marginRight: 4,
   },
 
   readonlyValue: {
     fontSize: 14,
-    color: colors.textLight,
     fontWeight: "600",
   },
 
   /* ---- INPUT LABEL ---- */
   label: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 6,
     marginTop: 12,
   },
@@ -224,12 +272,9 @@ const styles = StyleSheet.create({
   /* ---- INPUTS ---- */
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: colors.textLight,
-    backgroundColor: colors.secondary,
     fontSize: 14,
   },
 
@@ -241,21 +286,18 @@ const styles = StyleSheet.create({
   /* ---- ERRORS ---- */
   errorText: {
     marginTop: 8,
-    color: colors.error,
     fontSize: 13,
   },
 
   /* ---- SUBMIT BUTTON ---- */
   submitButton: {
     marginTop: 20,
-    backgroundColor: colors.accent,
     paddingVertical: 12,
     borderRadius: 999,
     alignItems: "center",
   },
 
   submitButtonText: {
-    color: colors.textLight,
     fontSize: 15,
     fontWeight: "600",
   },

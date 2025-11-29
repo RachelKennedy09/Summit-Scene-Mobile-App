@@ -15,14 +15,13 @@ import {
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
-
-import { colors } from "../../theme/colors";
-
+import { useTheme } from "../../context/ThemeContext";
 
 const API_BASE_URL = "http://172.28.248.13:4000/api";
 
 export default function MyEventsScreen({ navigation }) {
   const { user, token } = useAuth();
+  const { theme } = useTheme();
   const isBusiness = user?.role === "business";
 
   const [events, setEvents] = useState([]);
@@ -118,92 +117,6 @@ export default function MyEventsScreen({ navigation }) {
     return label;
   }
 
-  function renderEventItem({ item }) {
-    const dateTimeLabel = buildDateTimeLabel(item);
-
-    return (
-      <View style={styles.card}>
-        {/* Tap the main card to open EventDetail */}
-        <Pressable
-          onPress={() =>
-            navigation.navigate("EventDetail", {
-              event: item,
-              // lets EventDetail ask MyEvents to reload
-              onUpdated: fetchMyEvents,
-            })
-          }
-        >
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.meta}>
-            {item.town} • {item.category}
-          </Text>
-          <Text style={styles.dateText}>{dateTimeLabel}</Text>
-          {item.location ? (
-            <Text style={styles.location}>{item.location}</Text>
-          ) : null}
-        </Pressable>
-
-        {/* Action buttons: Edit and Delete */}
-        <View style={styles.cardActions}>
-          <Pressable
-            style={[styles.actionButton, styles.editButton]}
-            onPress={() => handleEdit(item)}
-          >
-            <Text style={styles.actionButtonText}>Edit</Text>
-          </Pressable>
-
-          <Pressable
-            style={[styles.actionButton, styles.deleteButton]}
-            onPress={() => handleDelete(item)}
-          >
-            <Text style={styles.actionButtonText}>Delete</Text>
-          </Pressable>
-        </View>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading your events...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Pressable style={styles.retryButton} onPress={fetchMyEvents}>
-          <Text style={styles.retryText}>Try again</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  if (!events.length) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.emptyTitle}>No events yet</Text>
-        <Text style={styles.emptySubtitle}>
-          Events you create with your business account will show up here.
-        </Text>
-        {isBusiness && (
-          <Pressable
-            style={styles.primaryButton}
-            onPress={() => navigation.navigate("tabs", { screen: "Post" })}
-          >
-            <Text style={styles.primaryButtonText}>
-              Create your first event
-            </Text>
-          </Pressable>
-        )}
-      </View>
-    );
-  }
-
   function handleEdit(event) {
     // navigate to an edit screen
     navigation.navigate("EditEvent", { event });
@@ -246,34 +159,236 @@ export default function MyEventsScreen({ navigation }) {
     }
   }
 
+  function renderEventItem({ item }) {
+    const dateTimeLabel = buildDateTimeLabel(item);
+
+    return (
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: theme.card, borderColor: theme.border },
+        ]}
+      >
+        {/* Tap the main card to open EventDetail */}
+        <Pressable
+          onPress={() =>
+            navigation.navigate("EventDetail", {
+              event: item,
+              // lets EventDetail ask MyEvents to reload
+              onUpdated: fetchMyEvents,
+            })
+          }
+        >
+          <Text style={[styles.title, { color: theme.text }]}>
+            {item.title}
+          </Text>
+          <Text style={[styles.meta, { color: theme.textMuted }]}>
+            {item.town} • {item.category}
+          </Text>
+          <Text style={[styles.dateText, { color: theme.text }]}>
+            {dateTimeLabel}
+          </Text>
+          {item.location ? (
+            <Text style={[styles.location, { color: theme.textMuted }]}>
+              {item.location}
+            </Text>
+          ) : null}
+        </Pressable>
+
+        {/* Action buttons: Edit and Delete */}
+        <View style={styles.cardActions}>
+          <Pressable
+            style={[
+              styles.actionButton,
+              { backgroundColor: theme.accent },
+            ]}
+            onPress={() => handleEdit(item)}
+          >
+            <Text
+              style={[
+                styles.actionButtonText,
+                { color: theme.onAccent || theme.background },
+              ]}
+            >
+              Edit
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.actionButton,
+              { backgroundColor: theme.danger || "#ff4d4f" },
+            ]}
+            onPress={() => handleDelete(item)}
+          >
+            <Text
+              style={[
+                styles.actionButtonText,
+                { color: theme.onDanger || theme.background },
+              ]}
+            >
+              Delete
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View
+        style={[
+          styles.center,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <ActivityIndicator size="large" color={theme.accent} />
+        <Text style={[styles.loadingText, { color: theme.text }]}>
+          Loading your events...
+        </Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View
+        style={[
+          styles.center,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <Text
+          style={[
+            styles.errorText,
+            { color: theme.error || theme.danger || "#ff4d4f" },
+          ]}
+        >
+          {error}
+        </Text>
+        <Pressable
+          style={[
+            styles.retryButton,
+            { borderColor: theme.accent },
+          ]}
+          onPress={fetchMyEvents}
+        >
+          <Text
+            style={[
+              styles.retryText,
+              { color: theme.accent },
+            ]}
+          >
+            Try again
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (!events.length) {
+    return (
+      <View
+        style={[
+          styles.center,
+          { backgroundColor: theme.background },
+        ]}
+      >
+        <Text style={[styles.emptyTitle, { color: theme.text }]}>
+          No events yet
+        </Text>
+        <Text
+          style={[
+            styles.emptySubtitle,
+            { color: theme.textMuted },
+          ]}
+        >
+          Events you create with your business account will show up here.
+        </Text>
+        {isBusiness && (
+          <Pressable
+            style={[
+              styles.primaryButton,
+              { backgroundColor: theme.success },
+            ]}
+            onPress={() => navigation.navigate("tabs", { screen: "Post" })}
+          >
+            <Text
+              style={[
+                styles.primaryButtonText,
+                { color: theme.onSuccess || theme.background },
+              ]}
+            >
+              Create your first event
+            </Text>
+          </Pressable>
+        )}
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.screenTitle}>My Events</Text>
-      <Text style={styles.screenSubtitle}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.background },
+      ]}
+    >
+      <Text style={[styles.screenTitle, { color: theme.text }]}>
+        My Events
+      </Text>
+      <Text
+        style={[
+          styles.screenSubtitle,
+          { color: theme.textMuted },
+        ]}
+      >
         Events created by {user?.name || user?.email}
       </Text>
 
       {/* 🔹 Quick shortcut to Post Event tab */}
       {isBusiness && (
         <Pressable
-          style={styles.primaryButton}
+          style={[
+            styles.primaryButton,
+            { backgroundColor: theme.success },
+          ]}
           onPress={() => navigation.navigate("tabs", { screen: "Post" })}
         >
-          <Text style={styles.primaryButtonText}>Post a new event</Text>
+          <Text
+            style={[
+              styles.primaryButtonText,
+              { color: theme.onSuccess || theme.background },
+            ]}
+          >
+            Post a new event
+          </Text>
         </Pressable>
       )}
 
       {/* Upcoming Events */}
       {upcomingEvents.length > 0 && (
         <>
-          <Text style={styles.sectionHeading}>My Upcoming Events</Text>
+          <Text
+            style={[
+              styles.sectionHeading,
+              { color: theme.text },
+            ]}
+          >
+            My Upcoming Events
+          </Text>
           <FlatList
             data={upcomingEvents}
             keyExtractor={(item) => item._id}
             renderItem={renderEventItem}
             contentContainerStyle={styles.listContent}
             refreshControl={
-              <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.accent}
+              />
             }
           />
         </>
@@ -282,14 +397,25 @@ export default function MyEventsScreen({ navigation }) {
       {/* Past Events */}
       {pastEvents.length > 0 && (
         <>
-          <Text style={styles.sectionHeading}>My Past Events</Text>
+          <Text
+            style={[
+              styles.sectionHeading,
+              { color: theme.text },
+            ]}
+          >
+            My Past Events
+          </Text>
           <FlatList
             data={pastEvents}
             keyExtractor={(item) => item._id}
             renderItem={renderEventItem}
             contentContainerStyle={styles.listContent}
             refreshControl={
-              <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={onRefresh}
+                tintColor={theme.accent}
+              />
             }
           />
         </>
@@ -301,25 +427,21 @@ export default function MyEventsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   screenTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
   screenSubtitle: {
     fontSize: 13,
-    color: colors.textMuted,
     marginBottom: 12,
   },
   sectionHeading: {
     fontSize: 16,
     fontWeight: "600",
-    color: colors.textLight,
     marginTop: 16,
     marginBottom: 8,
   },
@@ -327,46 +449,38 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   card: {
-    backgroundColor: colors.secondary,
     borderRadius: 12,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: colors.textLight,
     marginBottom: 4,
   },
   meta: {
     fontSize: 13,
-    color: colors.textMuted,
     marginBottom: 4,
   },
   dateText: {
     fontSize: 13,
-    color: colors.textLight,
   },
   location: {
     fontSize: 12,
-    color: colors.textMuted,
     marginTop: 4,
   },
   center: {
     flex: 1,
-    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
   loadingText: {
     marginTop: 12,
-    color: colors.textLight,
+    fontSize: 14,
   },
   errorText: {
-    color: colors.error,
     textAlign: "center",
     marginBottom: 16,
   },
@@ -375,34 +489,28 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.cta,
   },
   retryText: {
-    color: colors.cta,
     fontWeight: "600",
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: colors.textLight,
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtitle: {
     fontSize: 13,
-    color: colors.textMuted,
     marginBottom: 16,
     textAlign: "center",
   },
   primaryButton: {
-    backgroundColor: colors.success,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
     marginTop: 8,
   },
   primaryButtonText: {
-    color: colors.textDark,
     fontWeight: "700",
   },
   cardActions: {
@@ -416,14 +524,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
   },
-  editButton: {
-    backgroundColor: colors.accent,
-  },
-  deleteButton: {
-    backgroundColor: colors.danger,
-  },
   actionButtonText: {
-    color: colors.textDark,
     fontSize: 12,
     fontWeight: "600",
   },

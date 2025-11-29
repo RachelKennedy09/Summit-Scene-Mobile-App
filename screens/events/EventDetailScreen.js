@@ -19,8 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 
 import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
-
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 // Helper: derive business host info from event.createdBy (or fallback to event.user)
 function getEventHost(event) {
@@ -75,6 +74,7 @@ function isEventOwner(event, user) {
 export default function EventDetailScreen({ route }) {
   const navigation = useNavigation();
   const { user, token } = useAuth();
+  const { theme } = useTheme();
   const [hostProfile, setHostProfile] = useState(null);
 
   // event passed in from navigate("EventDetail", { event })
@@ -82,9 +82,13 @@ export default function EventDetailScreen({ route }) {
 
   if (!event) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: theme.background }]}
+      >
         <View style={styles.center}>
-          <Text style={styles.errorText}>Event details not available.</Text>
+          <Text style={[styles.errorText, { color: theme.text }]}>
+            Event details not available.
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -174,12 +178,19 @@ export default function EventDetailScreen({ route }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: theme.background }]}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.card}>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
           {/* Hero image */}
           {event.imageUrl ? (
             <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
@@ -188,78 +199,191 @@ export default function EventDetailScreen({ route }) {
           <View style={styles.content}>
             {/* Category + town row */}
             <View style={styles.topRow}>
-              <View style={styles.categoryPill}>
-                <Text style={styles.categoryText}>{category}</Text>
+              <View
+                style={[
+                  styles.categoryPill,
+                  { backgroundColor: theme.accentSoft || theme.accent },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    { color: theme.onAccent || theme.background },
+                  ]}
+                >
+                  {category}
+                </Text>
               </View>
-              {town ? <Text style={styles.townText}>{town}</Text> : null}
+              {town ? (
+                <Text style={[styles.townText, { color: theme.textMuted }]}>
+                  {town}
+                </Text>
+              ) : null}
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>{title}</Text>
+            <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
 
             {/* Date + time row */}
             <View style={styles.metaRow}>
               <View style={styles.metaItem}>
-                <Text style={styles.metaLabel}>Date</Text>
-                <Text style={styles.metaValue}>{dateLabel}</Text>
+                <Text style={[styles.metaLabel, { color: theme.textMuted }]}>
+                  Date
+                </Text>
+                <Text style={[styles.metaValue, { color: theme.text }]}>
+                  {dateLabel}
+                </Text>
               </View>
               <View style={styles.metaItem}>
-                <Text style={styles.metaLabel}>Time</Text>
-                <Text style={styles.metaValue}>{timeLabel}</Text>
+                <Text style={[styles.metaLabel, { color: theme.textMuted }]}>
+                  Time
+                </Text>
+                <Text style={[styles.metaValue, { color: theme.text }]}>
+                  {timeLabel}
+                </Text>
               </View>
             </View>
 
             {/* Location + map link */}
             {location ? (
               <View style={styles.locationBlock}>
-                <Text style={styles.metaLabel}>Location</Text>
-                <Text style={styles.locationText}>{location}</Text>
+                <Text style={[styles.metaLabel, { color: theme.textMuted }]}>
+                  Location
+                </Text>
+                <Text
+                  style={[styles.locationText, { color: theme.text }]}
+                >
+                  {location}
+                </Text>
 
-                <Pressable style={styles.mapButton} onPress={handleOpenMaps}>
-                  <Text style={styles.mapButtonText}>Open in Maps</Text>
+                <Pressable
+                  style={[
+                    styles.mapButton,
+                    {
+                      borderColor: theme.accent,
+                    },
+                  ]}
+                  onPress={handleOpenMaps}
+                >
+                  <Text
+                    style={[
+                      styles.mapButtonText,
+                      { color: theme.accent },
+                    ]}
+                  >
+                    Open in Maps
+                  </Text>
                 </Pressable>
               </View>
             ) : null}
 
             {/* Description */}
             <View style={styles.section}>
-              <Text style={styles.sectionHeading}>About this event</Text>
-              <Text style={styles.description}>{description}</Text>
+              <Text
+                style={[
+                  styles.sectionHeading,
+                  { color: theme.text },
+                ]}
+              >
+                About this event
+              </Text>
+              <Text
+                style={[
+                  styles.description,
+                  { color: theme.textMuted },
+                ]}
+              >
+                {description}
+              </Text>
             </View>
 
             {/* Hosted by (business) block */}
             {host && (
-              <View style={styles.hostCard}>
-                <Text style={styles.hostSectionTitle}>Hosted by</Text>
+              <View
+                style={[
+                  styles.hostCard,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.hostSectionTitle,
+                    { color: theme.text },
+                  ]}
+                >
+                  Hosted by
+                </Text>
 
                 <View style={styles.hostRow}>
-                  <View style={styles.hostAvatar}>
+                  <View
+                    style={[
+                      styles.hostAvatar,
+                      { backgroundColor: theme.card },
+                    ]}
+                  >
                     {host.avatarUrl ? (
                       <Image
                         source={{ uri: host.avatarUrl }}
                         style={styles.hostAvatarImage}
                       />
                     ) : (
-                      <Text style={styles.hostAvatarInitial}>
+                      <Text
+                        style={[
+                          styles.hostAvatarInitial,
+                          { color: theme.text },
+                        ]}
+                      >
                         {host.name.charAt(0).toUpperCase()}
                       </Text>
                     )}
                   </View>
 
                   <View style={styles.hostTextCol}>
-                    <Text style={styles.hostName}>{host.name}</Text>
-                    <Text style={styles.hostTown}>{host.town}</Text>
+                    <Text
+                      style={[
+                        styles.hostName,
+                        { color: theme.text },
+                      ]}
+                    >
+                      {host.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.hostTown,
+                        { color: theme.textMuted },
+                      ]}
+                    >
+                      {host.town}
+                    </Text>
                     {host.businessType ? (
-                      <Text style={styles.hostMeta}>{host.businessType}</Text>
+                      <Text
+                        style={[
+                          styles.hostMeta,
+                          { color: theme.textMuted },
+                        ]}
+                      >
+                        {host.businessType}
+                      </Text>
                     ) : null}
                   </View>
                 </View>
 
                 <Pressable
-                  style={styles.hostProfileButton}
+                  style={[
+                    styles.hostProfileButton,
+                    { borderColor: theme.accent },
+                  ]}
                   onPress={() => setHostProfile(host)}
                 >
-                  <Text style={styles.hostProfileButtonText}>
+                  <Text
+                    style={[
+                      styles.hostProfileButtonText,
+                      { color: theme.accent },
+                    ]}
+                  >
                     View event posting profile
                   </Text>
                 </Pressable>
@@ -268,26 +392,67 @@ export default function EventDetailScreen({ route }) {
 
             {/* owner-only section */}
             {isOwner && (
-              <View style={styles.ownerSection}>
-                <Text style={styles.ownerBadge}>This is your event</Text>
+              <View
+                style={[
+                  styles.ownerSection,
+                  { backgroundColor: theme.card },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.ownerBadge,
+                    {
+                      backgroundColor: theme.accent,
+                      color: theme.onAccent || theme.background,
+                    },
+                  ]}
+                >
+                  This is your event
+                </Text>
 
                 <View style={styles.ownerButtonsRow}>
                   <Pressable
-                    style={[styles.ownerButton, styles.editButton]}
+                    style={[
+                      styles.ownerButton,
+                      styles.editButton,
+                      { backgroundColor: theme.accent },
+                    ]}
                     onPress={handleEdit}
                   >
-                    <Text style={styles.ownerButtonText}>Edit Event</Text>
+                    <Text
+                      style={[
+                        styles.ownerButtonText,
+                        { color: theme.onAccent || theme.background },
+                      ]}
+                    >
+                      Edit Event
+                    </Text>
                   </Pressable>
 
                   <Pressable
-                    style={[styles.ownerButton, styles.deleteButton]}
+                    style={[
+                      styles.ownerButton,
+                      styles.deleteButton,
+                      {
+                        backgroundColor:
+                          theme.danger || "#ff4d4f",
+                      },
+                    ]}
                     onPress={handleDelete}
                   >
-                    <Text style={styles.ownerButtonText}>Delete Event</Text>
+                    <Text
+                      style={[
+                        styles.ownerButtonText,
+                        { color: theme.onDanger || theme.background },
+                      ]}
+                    >
+                      Delete Event
+                    </Text>
                   </Pressable>
                 </View>
               </View>
             )}
+
             {hostProfile && (
               <Modal
                 visible={true}
@@ -296,47 +461,106 @@ export default function EventDetailScreen({ route }) {
                 onRequestClose={() => setHostProfile(null)}
               >
                 <View style={styles.profileModalOverlay}>
-                  <View style={styles.profileModalCard}>
+                  <View
+                    style={[
+                      styles.profileModalCard,
+                      {
+                        backgroundColor: theme.card,
+                        borderColor: theme.border,
+                      },
+                    ]}
+                  >
                     {/* Header */}
                     <View style={styles.profileModalHeader}>
-                      <Text style={styles.profileModalTitle}>
+                      <Text
+                        style={[
+                          styles.profileModalTitle,
+                          { color: theme.text },
+                        ]}
+                      >
                         Event posting profile
                       </Text>
                       <Pressable onPress={() => setHostProfile(null)}>
-                        <Text style={styles.profileModalClose}>Close</Text>
+                        <Text
+                          style={[
+                            styles.profileModalClose,
+                            { color: theme.accent },
+                          ]}
+                        >
+                          Close
+                        </Text>
                       </Pressable>
                     </View>
 
                     {/* Top row */}
                     <View style={styles.profileTopRow}>
-                      <View style={styles.profileAvatar}>
+                      <View
+                        style={[
+                          styles.profileAvatar,
+                          { backgroundColor: theme.card },
+                        ]}
+                      >
                         {hostProfile.avatarUrl ? (
                           <Image
                             source={{ uri: hostProfile.avatarUrl }}
                             style={styles.profileAvatarImage}
                           />
                         ) : (
-                          <Text style={styles.profileAvatarInitial}>
+                          <Text
+                            style={[
+                              styles.profileAvatarInitial,
+                              { color: theme.text },
+                            ]}
+                          >
                             {hostProfile.name.charAt(0).toUpperCase()}
                           </Text>
                         )}
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.profileName}>
+                        <Text
+                          style={[
+                            styles.profileName,
+                            { color: theme.text },
+                          ]}
+                        >
                           {hostProfile.name}
                         </Text>
-                        <Text style={styles.profileTown}>
+                        <Text
+                          style={[
+                            styles.profileTown,
+                            { color: theme.textMuted },
+                          ]}
+                        >
                           {hostProfile.town || "Rockies business"}
                         </Text>
-                        <Text style={styles.profileRole}>Business host</Text>
+                        <Text
+                          style={[
+                            styles.profileRole,
+                            { color: theme.textMuted },
+                          ]}
+                        >
+                          Business host
+                        </Text>
                       </View>
                     </View>
 
                     {/* About / business type */}
                     {hostProfile.bio ? (
                       <View style={styles.profileSection}>
-                        <Text style={styles.profileSectionLabel}>About</Text>
-                        <Text style={styles.profileSectionText}>
+                        <Text
+                          style={[
+                            styles.profileSectionLabel,
+                            { color: theme.textMuted },
+                          ]}
+                        >
+                          About
+                        </Text>
+                        <Text
+                          style={[
+                            styles.profileSectionText,
+                            { color: theme.text },
+                          ]}
+                        >
                           {hostProfile.bio}
                         </Text>
                       </View>
@@ -344,10 +568,20 @@ export default function EventDetailScreen({ route }) {
 
                     {hostProfile.businessType ? (
                       <View style={styles.profileSection}>
-                        <Text style={styles.profileSectionLabel}>
+                        <Text
+                          style={[
+                            styles.profileSectionLabel,
+                            { color: theme.textMuted },
+                          ]}
+                        >
                           Business type
                         </Text>
-                        <Text style={styles.profileSectionText}>
+                        <Text
+                          style={[
+                            styles.profileSectionText,
+                            { color: theme.text },
+                          ]}
+                        >
                           {hostProfile.businessType}
                         </Text>
                       </View>
@@ -356,10 +590,20 @@ export default function EventDetailScreen({ route }) {
                     {/* Instagram */}
                     {hostProfile.instagram ? (
                       <View style={styles.profileSection}>
-                        <Text style={styles.profileSectionLabel}>
+                        <Text
+                          style={[
+                            styles.profileSectionLabel,
+                            { color: theme.textMuted },
+                          ]}
+                        >
                           Instagram
                         </Text>
-                        <Text style={styles.profileLinkText}>
+                        <Text
+                          style={[
+                            styles.profileLinkText,
+                            { color: theme.accent },
+                          ]}
+                        >
                           {hostProfile.instagram}
                         </Text>
                       </View>
@@ -368,8 +612,20 @@ export default function EventDetailScreen({ route }) {
                     {/* Website */}
                     {hostProfile.website ? (
                       <View style={styles.profileSection}>
-                        <Text style={styles.profileSectionLabel}>Website</Text>
-                        <Text style={styles.profileLinkText}>
+                        <Text
+                          style={[
+                            styles.profileSectionLabel,
+                            { color: theme.textMuted },
+                          ]}
+                        >
+                          Website
+                        </Text>
+                        <Text
+                          style={[
+                            styles.profileLinkText,
+                            { color: theme.accent },
+                          ]}
+                        >
                           {hostProfile.website}
                         </Text>
                       </View>
@@ -388,12 +644,10 @@ export default function EventDetailScreen({ route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
 
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
 
   scrollContent: {
@@ -402,11 +656,9 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: colors.secondary,
     borderRadius: 20,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: colors.border,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
@@ -434,27 +686,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: colors.tealTint,
   },
 
   categoryText: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.accent,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
 
   townText: {
     fontSize: 13,
-    color: colors.textMuted,
     fontWeight: "500",
   },
 
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 10,
   },
 
@@ -471,13 +719,11 @@ const styles = StyleSheet.create({
 
   metaLabel: {
     fontSize: 12,
-    color: colors.textMuted,
     marginBottom: 2,
   },
 
   metaValue: {
     fontSize: 14,
-    color: colors.textLight,
     fontWeight: "500",
   },
 
@@ -487,7 +733,6 @@ const styles = StyleSheet.create({
 
   locationText: {
     fontSize: 14,
-    color: colors.textLight,
     marginBottom: 8,
   },
 
@@ -497,13 +742,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.accent,
-    backgroundColor: "transparent",
   },
 
   mapButtonText: {
     fontSize: 13,
-    color: colors.accent,
     fontWeight: "600",
   },
 
@@ -514,14 +756,12 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontSize: 16,
     fontWeight: "600",
-    color: colors.textLight,
     marginBottom: 6,
     marginTop: 8,
   },
 
   description: {
     fontSize: 14,
-    color: colors.textMuted,
     lineHeight: 20,
   },
 
@@ -529,7 +769,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: colors.tealTint,
   },
 
   ownerBadge: {
@@ -538,8 +777,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 999,
-    backgroundColor: colors.teal,
-    color: colors.textLight,
     fontSize: 12,
     fontWeight: "600",
     textTransform: "uppercase",
@@ -559,16 +796,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  editButton: {
-    backgroundColor: colors.teal,
-  },
+  editButton: {},
 
-  deleteButton: {
-    backgroundColor: colors.danger,
-  },
+  deleteButton: {},
 
   ownerButtonText: {
-    color: colors.textLight,
     fontWeight: "600",
     fontSize: 14,
   },
@@ -582,20 +814,17 @@ const styles = StyleSheet.create({
 
   errorText: {
     fontSize: 14,
-    color: colors.textLight,
   },
+
   hostCard: {
     marginTop: 20,
     padding: 16,
     borderRadius: 12,
-    backgroundColor: colors.secondary,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   hostSectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: colors.textLight,
     marginBottom: 8,
   },
   hostRow: {
@@ -607,7 +836,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.cardDark,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -620,7 +848,6 @@ const styles = StyleSheet.create({
   hostAvatarInitial: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.textLight,
   },
   hostTextCol: {
     flex: 1,
@@ -628,15 +855,12 @@ const styles = StyleSheet.create({
   hostName: {
     fontSize: 15,
     fontWeight: "600",
-    color: colors.textLight,
   },
   hostTown: {
     fontSize: 13,
-    color: colors.textMuted,
   },
   hostMeta: {
     fontSize: 12,
-    color: colors.textMuted,
     marginTop: 2,
   },
   hostProfileButton: {
@@ -644,13 +868,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.accent,
     alignItems: "center",
   },
   hostProfileButtonText: {
     fontSize: 13,
     fontWeight: "600",
-    color: colors.accent,
   },
 
   profileModalOverlay: {
@@ -660,11 +882,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   profileModalCard: {
-    backgroundColor: colors.secondary,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   profileModalHeader: {
     flexDirection: "row",
@@ -675,11 +895,9 @@ const styles = StyleSheet.create({
   profileModalTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.textLight,
   },
   profileModalClose: {
     fontSize: 14,
-    color: colors.accent,
     fontWeight: "600",
   },
   profileTopRow: {
@@ -691,7 +909,6 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.cardDark,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -704,21 +921,17 @@ const styles = StyleSheet.create({
   profileAvatarInitial: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.textLight,
   },
   profileName: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.textLight,
   },
   profileTown: {
     fontSize: 13,
-    color: colors.textMuted,
     marginTop: 2,
   },
   profileRole: {
     fontSize: 12,
-    color: colors.textMuted,
     marginTop: 2,
   },
   profileSection: {
@@ -727,15 +940,12 @@ const styles = StyleSheet.create({
   profileSectionLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: colors.textMuted,
     marginBottom: 2,
   },
   profileSectionText: {
     fontSize: 13,
-    color: colors.textLight,
   },
   profileLinkText: {
     fontSize: 13,
-    color: colors.accent,
   },
 });

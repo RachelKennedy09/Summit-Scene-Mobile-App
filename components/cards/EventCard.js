@@ -2,10 +2,13 @@
 
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import { colors } from "../../theme/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function EventCard({ event, onPress }) {
+  const { theme } = useTheme();
+
   if (!event) return null;
+
   const hasDate = Boolean(event.date);
   const hasStartTime = Boolean(event.time);
   const hasEndTime = Boolean(event.endTime);
@@ -32,36 +35,95 @@ export default function EventCard({ event, onPress }) {
         pressed && styles.cardPressed,
       ]}
     >
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
+          },
+        ]}
+      >
         {/* Category + town row */}
         <View style={styles.topRow}>
           {event.category ? (
-            <View style={styles.categoryPill}>
-              <Text style={styles.categoryText}>{event.category}</Text>
+            <View
+              style={[
+                styles.categoryPill,
+                {
+                  
+                  backgroundColor: theme.accentSoft || theme.card,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  {
+                    color: theme.accent,
+                  },
+                ]}
+              >
+                {event.category}
+              </Text>
             </View>
           ) : (
             <View />
           )}
 
           {event.town ? (
-            <Text style={styles.townText}>{event.town}</Text>
+            <Text
+              style={[
+                styles.townText,
+                {
+                  color: theme.textMuted,
+                },
+              ]}
+            >
+              {event.town}
+            </Text>
           ) : null}
         </View>
 
         {/* Title */}
-        <Text style={styles.title} numberOfLines={2}>
+        <Text
+          style={[
+            styles.title,
+            {
+              color: theme.text,
+            },
+          ]}
+          numberOfLines={2}
+        >
           {event.title || "Untitled event"}
         </Text>
 
         {/* Location */}
         {event.location ? (
-          <Text style={styles.location} numberOfLines={1}>
+          <Text
+            style={[
+              styles.location,
+              {
+                color: theme.text,
+              },
+            ]}
+            numberOfLines={1}
+          >
             📍 {event.location}
           </Text>
         ) : null}
 
         {/* Date + time */}
-        <Text style={styles.datetime}>{dateTimeLabel}</Text>
+        <Text
+          style={[
+            styles.datetime,
+            {
+              color: theme.textMuted,
+            },
+          ]}
+        >
+          {dateTimeLabel}
+        </Text>
       </View>
     </Pressable>
   );
@@ -79,11 +141,9 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: colors.secondary,
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: colors.border,
   },
 
   topRow: {
@@ -97,39 +157,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: colors.tealTint,
   },
 
   categoryText: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.accent,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
 
   townText: {
     fontSize: 12,
-    color: colors.textMuted,
     fontWeight: "500",
   },
 
   title: {
     fontSize: 16,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
 
   location: {
     fontSize: 13,
-    color: colors.textLight,
     marginBottom: 2,
   },
 
   datetime: {
     fontSize: 12,
-    color: colors.textMuted,
     marginTop: 2,
   },
 });

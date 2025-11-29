@@ -13,11 +13,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-import { useAuth } from "../../context/AuthContext.js";
 import { useNavigation } from "@react-navigation/native";
 
-import { colors } from "../../theme/colors";
+import { useAuth } from "../../context/AuthContext.js";
+import { createEvent } from "../../services/eventsApi.js";
+import { useTheme } from "../../context/ThemeContext";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -39,6 +39,7 @@ const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
 export default function PostEventScreen() {
   const navigation = useNavigation();
   const { token, logout } = useAuth();
+  const { theme } = useTheme();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -151,7 +152,7 @@ export default function PostEventScreen() {
 
       /* -----------------------------
        🔴 401 — invalid or deleted token
-    ------------------------------*/
+      ------------------------------*/
       if (status === 401) {
         Alert.alert(
           "Session expired",
@@ -168,7 +169,7 @@ export default function PostEventScreen() {
 
       /* -----------------------------
        🔴 403 — not a business
-    ------------------------------*/
+      ------------------------------*/
       if (status === 403) {
         Alert.alert(
           "Not allowed",
@@ -179,7 +180,7 @@ export default function PostEventScreen() {
 
       /* -----------------------------
        🔴 Other errors
-    ------------------------------*/
+      ------------------------------*/
       if (!ok) {
         Alert.alert("Error", data?.message || "Failed to create event.");
         return;
@@ -187,7 +188,7 @@ export default function PostEventScreen() {
 
       /* -----------------------------
        🟢 Success!
-    ------------------------------*/
+      ------------------------------*/
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
@@ -218,49 +219,85 @@ export default function PostEventScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
         <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.heading}>Post a New Event</Text>
+          <Text style={[styles.heading, { color: theme.text }]}>
+            Post a New Event
+          </Text>
 
           {/* Title */}
-          <Text style={styles.label}>Title *</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Title *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.border,
+                borderWidth: 1,
+              },
+            ]}
             placeholder="Event title"
+            placeholderTextColor={theme.textMuted}
             value={title}
             onChangeText={setTitle}
           />
 
           {/* Town */}
-          <Text style={styles.label}>Town *</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Town *
+          </Text>
           <Pressable
-            style={styles.selectButton}
+            style={[
+              styles.selectButton,
+              { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 },
+            ]}
             onPress={() => setShowTownModal(true)}
           >
-            <Text style={styles.selectButtonText}>{town}</Text>
+            <Text style={{ color: theme.text }}>{town}</Text>
           </Pressable>
 
           {/* Category */}
-          <Text style={styles.label}>Category *</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Category *
+          </Text>
           <Pressable
-            style={styles.selectButton}
+            style={[
+              styles.selectButton,
+              { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 },
+            ]}
             onPress={() => setShowCategoryModal(true)}
           >
-            <Text style={styles.selectButtonText}>{category}</Text>
+            <Text style={{ color: theme.text }}>{category}</Text>
           </Pressable>
 
           {/* Date */}
-          <Text style={styles.label}>Date (YYYY-MM-DD) *</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Date (YYYY-MM-DD) *
+          </Text>
           <Pressable onPress={() => setShowDatePicker(true)}>
             <View pointerEvents="none">
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
                 placeholder="Select a date"
+                placeholderTextColor={theme.textMuted}
                 value={date}
                 editable={false}
               />
@@ -268,12 +305,23 @@ export default function PostEventScreen() {
           </Pressable>
 
           {/* Start Time */}
-          <Text style={styles.label}>Start time (optional)</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Start time (optional)
+          </Text>
           <Pressable onPress={() => setShowTimePicker(true)}>
             <View pointerEvents="none">
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
                 placeholder="Select start time"
+                placeholderTextColor={theme.textMuted}
                 value={time}
                 editable={false}
               />
@@ -281,12 +329,23 @@ export default function PostEventScreen() {
           </Pressable>
 
           {/* End Time */}
-          <Text style={styles.label}>End time (optional)</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            End time (optional)
+          </Text>
           <Pressable onPress={() => setShowEndTimePicker(true)}>
             <View pointerEvents="none">
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    color: theme.text,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
                 placeholder="Select end time"
+                placeholderTextColor={theme.textMuted}
                 value={endTime}
                 editable={false}
               />
@@ -294,19 +353,42 @@ export default function PostEventScreen() {
           </Pressable>
 
           {/* Location */}
-          <Text style={styles.label}>Location</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Location
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.border,
+                borderWidth: 1,
+              },
+            ]}
             placeholder="Venue or address"
+            placeholderTextColor={theme.textMuted}
             value={location}
             onChangeText={setLocation}
           />
 
           {/* Description */}
-          <Text style={styles.label}>Description</Text>
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Description
+          </Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[
+              styles.input,
+              styles.textArea,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.border,
+                borderWidth: 1,
+              },
+            ]}
             placeholder="Tell people what to expect"
+            placeholderTextColor={theme.textMuted}
             value={description}
             onChangeText={setDescription}
             multiline
@@ -314,11 +396,22 @@ export default function PostEventScreen() {
 
           {/* Submit button */}
           <Pressable
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              {
+                backgroundColor: theme.accent,
+                opacity: loading ? 0.6 : 1,
+              },
+            ]}
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>
+            <Text
+              style={[
+                styles.buttonText,
+                { color: theme.onAccent || theme.background },
+              ]}
+            >
               {loading ? "Posting..." : "Post Event"}
             </Text>
           </Pressable>
@@ -332,8 +425,24 @@ export default function PostEventScreen() {
           onRequestClose={() => setShowTownModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select Town</Text>
+            <View
+              style={[
+                styles.modalContent,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modalTitle,
+                  { color: theme.text },
+                ]}
+              >
+                Select Town
+              </Text>
               {TOWNS.map((t) => (
                 <Pressable
                   key={t}
@@ -343,14 +452,28 @@ export default function PostEventScreen() {
                     setShowTownModal(false);
                   }}
                 >
-                  <Text style={styles.modalOptionText}>{t}</Text>
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      { color: theme.text },
+                    ]}
+                  >
+                    {t}
+                  </Text>
                 </Pressable>
               ))}
               <Pressable
                 style={styles.modalCancel}
                 onPress={() => setShowTownModal(false)}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text
+                  style={[
+                    styles.modalCancelText,
+                    { color: theme.accent },
+                  ]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -364,8 +487,24 @@ export default function PostEventScreen() {
           onRequestClose={() => setShowCategoryModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select Category</Text>
+            <View
+              style={[
+                styles.modalContent,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                  borderWidth: 1,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modalTitle,
+                  { color: theme.text },
+                ]}
+              >
+                Select Category
+              </Text>
               {FORM_CATEGORIES.map((cat) => (
                 <Pressable
                   key={cat}
@@ -375,14 +514,28 @@ export default function PostEventScreen() {
                     setShowCategoryModal(false);
                   }}
                 >
-                  <Text style={styles.modalOptionText}>{cat}</Text>
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      { color: theme.text },
+                    ]}
+                  >
+                    {cat}
+                  </Text>
                 </Pressable>
               ))}
               <Pressable
                 style={styles.modalCancel}
                 onPress={() => setShowCategoryModal(false)}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text
+                  style={[
+                    styles.modalCancelText,
+                    { color: theme.accent },
+                  ]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -396,7 +549,16 @@ export default function PostEventScreen() {
             onRequestClose={() => setShowDatePicker(false)}
           >
             <View style={styles.modalOverlay}>
-              <View style={styles.pickerModalContent}>
+              <View
+                style={[
+                  styles.pickerModalContent,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
+              >
                 <DateTimePicker
                   value={dateObj}
                   mode="date"
@@ -408,13 +570,30 @@ export default function PostEventScreen() {
                     style={styles.pickerSecondaryButton}
                     onPress={() => setShowDatePicker(false)}
                   >
-                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                    <Text
+                      style={[
+                        styles.pickerSecondaryText,
+                        { color: theme.textMuted },
+                      ]}
+                    >
+                      Cancel
+                    </Text>
                   </Pressable>
                   <Pressable
-                    style={styles.pickerPrimaryButton}
+                    style={[
+                      styles.pickerPrimaryButton,
+                      { backgroundColor: theme.accent },
+                    ]}
                     onPress={handleConfirmDate}
                   >
-                    <Text style={styles.pickerPrimaryText}>Use this date</Text>
+                    <Text
+                      style={[
+                        styles.pickerPrimaryText,
+                        { color: theme.onAccent || theme.background },
+                      ]}
+                    >
+                      Use this date
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -430,7 +609,16 @@ export default function PostEventScreen() {
             onRequestClose={() => setShowTimePicker(false)}
           >
             <View style={styles.modalOverlay}>
-              <View style={styles.pickerModalContent}>
+              <View
+                style={[
+                  styles.pickerModalContent,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
+              >
                 <DateTimePicker
                   value={timeObj}
                   mode="time"
@@ -442,13 +630,30 @@ export default function PostEventScreen() {
                     style={styles.pickerSecondaryButton}
                     onPress={() => setShowTimePicker(false)}
                   >
-                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                    <Text
+                      style={[
+                        styles.pickerSecondaryText,
+                        { color: theme.textMuted },
+                      ]}
+                    >
+                      Cancel
+                    </Text>
                   </Pressable>
                   <Pressable
-                    style={styles.pickerPrimaryButton}
+                    style={[
+                      styles.pickerPrimaryButton,
+                      { backgroundColor: theme.accent },
+                    ]}
                     onPress={handleConfirmTime}
                   >
-                    <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                    <Text
+                      style={[
+                        styles.pickerPrimaryText,
+                        { color: theme.onAccent || theme.background },
+                      ]}
+                    >
+                      Use this time
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -464,7 +669,16 @@ export default function PostEventScreen() {
             onRequestClose={() => setShowEndTimePicker(false)}
           >
             <View style={styles.modalOverlay}>
-              <View style={styles.pickerModalContent}>
+              <View
+                style={[
+                  styles.pickerModalContent,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
+              >
                 <DateTimePicker
                   value={endTimeObj}
                   mode="time"
@@ -476,13 +690,30 @@ export default function PostEventScreen() {
                     style={styles.pickerSecondaryButton}
                     onPress={() => setShowEndTimePicker(false)}
                   >
-                    <Text style={styles.pickerSecondaryText}>Cancel</Text>
+                    <Text
+                      style={[
+                        styles.pickerSecondaryText,
+                        { color: theme.textMuted },
+                      ]}
+                    >
+                      Cancel
+                    </Text>
                   </Pressable>
                   <Pressable
-                    style={styles.pickerPrimaryButton}
+                    style={[
+                      styles.pickerPrimaryButton,
+                      { backgroundColor: theme.accent },
+                    ]}
                     onPress={handleConfirmEndTime}
                   >
-                    <Text style={styles.pickerPrimaryText}>Use this time</Text>
+                    <Text
+                      style={[
+                        styles.pickerPrimaryText,
+                        { color: theme.onAccent || theme.background },
+                      ]}
+                    >
+                      Use this time
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -497,143 +728,100 @@ export default function PostEventScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
-
   container: {
     padding: 16,
+    paddingBottom: 40,
   },
-
   heading: {
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 16,
-    color: colors.textLight,
   },
-
   label: {
     fontSize: 14,
     marginBottom: 4,
-    color: colors.textMuted,
+    marginTop: 4,
   },
-
   input: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
-    color: colors.textLight,
   },
-
   textArea: {
     height: 100,
     textAlignVertical: "top",
   },
-
   selectButton: {
-    backgroundColor: colors.secondary,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     marginBottom: 12,
   },
-
-  selectButtonText: {
-    color: colors.textLight,
-  },
-
   button: {
-    backgroundColor: colors.cta,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 8,
     marginBottom: 40,
   },
-
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-
   buttonText: {
-    color: colors.primary,
     fontWeight: "700",
     fontSize: 16,
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     paddingHorizontal: 24,
   },
-
   modalContent: {
-    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
-
   modalTitle: {
-    color: colors.textLight,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
   },
-
   modalOption: {
     paddingVertical: 10,
   },
-
   modalOptionText: {
-    color: colors.textLight,
     fontSize: 16,
   },
-
   modalCancel: {
     marginTop: 12,
     alignSelf: "flex-end",
   },
-
   modalCancelText: {
-    color: colors.cta,
     fontSize: 14,
   },
-
   pickerModalContent: {
-    backgroundColor: colors.primary,
     borderRadius: 12,
     padding: 16,
   },
-
   pickerButtonsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
     marginTop: 12,
     gap: 8,
   },
-
   pickerSecondaryButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
   },
-
   pickerSecondaryText: {
-    color: colors.textMuted,
     fontSize: 14,
   },
-
   pickerPrimaryButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: colors.cta,
   },
-
   pickerPrimaryText: {
-    color: colors.primary,
     fontWeight: "600",
     fontSize: 14,
   },
