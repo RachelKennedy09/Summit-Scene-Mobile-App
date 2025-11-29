@@ -4,6 +4,7 @@
 
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
 
 import HubScreen from "../screens/hub/HubScreen";
 import MapScreen from "../screens/map/MapScreen";
@@ -25,7 +26,7 @@ export default function TabNavigator() {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
           backgroundColor: theme.card,
@@ -36,7 +37,24 @@ export default function TabNavigator() {
         tabBarLabelStyle: {
           fontSize: 11,
         },
-      }}
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === "Hub") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "Map") {
+            iconName = focused ? "map" : "map-outline";
+          } else if (route.name === "Post") {
+            iconName = focused ? "add-circle" : "add-circle-outline";
+          } else if (route.name === "Community") {
+            iconName = focused ? "chatbubbles" : "chatbubbles-outline";
+          } else if (route.name === "Account") {
+            iconName = focused ? "person" : "person-outline";
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
     >
       {/* Everyone gets Hub and Map */}
       <Tab.Screen name="Hub" component={HubScreen} options={{ title: "Hub" }} />
@@ -52,7 +70,7 @@ export default function TabNavigator() {
         />
       )}
 
-      {/*  Only Locals/Visitors see Community Tab */}
+      {/* Only Locals/Visitors see Community Tab */}
       {user?.role === "local" && (
         <Tab.Screen
           name="Community"

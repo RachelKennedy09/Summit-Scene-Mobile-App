@@ -305,3 +305,7 @@ App Photo of Theme pills
 Trello sprint 12 - themes done
 
 ![alt text](devlogimages/TrelloSprint12themes.png)
+
+Git Commit Sprint 12
+
+![alt text](devlogimages/GitCommitSprint12.png)

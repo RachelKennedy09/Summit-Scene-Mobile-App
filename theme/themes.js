@@ -26,6 +26,10 @@ export const lightTheme = {
   tabBarActive: "#26177aff",
   tabBarInactive: "#0a172eff",
 
+  tabActive: "#FF5C5C",
+  tabInactive: "#999",
+  tabBackground: "#fff",
+
   isDark: false,
 };
 
@@ -55,5 +59,8 @@ export const darkTheme = {
   tabBarActive: "#6B7280",
   tabBarInactive: "#6B7280",
 
+  tabActive: "#70CFFF",
+  tabInactive: "#777",
+  tabBackground: "#111",
   isDark: true,
 };

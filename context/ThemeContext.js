@@ -18,6 +18,9 @@ const themes = {
     accent: "#d7d9e4ff",
     onAccent: "#645b5bff",
     border: "#E0E0E0",
+    tabActive: "#FF5C5C",
+    tabInactive: "#999",
+    tabBackground: "#fff",
   },
   dark: {
     key: "dark",
@@ -30,6 +33,9 @@ const themes = {
     accent: "#464445ff",
     onAccent: "#1E1E1E",
     border: "#2A2A3A",
+    tabActive: "#70CFFF",
+    tabInactive: "#777",
+    tabBackground: "#111",
   },
   feminine: {
     key: "feminine",
@@ -47,16 +53,15 @@ const themes = {
     key: "masculine",
     label: "Masculine (Blue & Gold)",
     isDark: false,
-    background: "#F3F6FF", 
+    background: "#F3F6FF",
     card: "#FFFFFF",
     text: "#123152",
     textMuted: "#5E6E85",
-    accent: "#2F6FE4", 
+    accent: "#2F6FE4",
     onAccent: "#FDFDFD",
     border: "#d2d450ff",
-  
   },
-   rainbow: {
+  rainbow: {
     key: "rainbow",
     label: "Rainbow",
     isDark: false,
@@ -69,9 +74,7 @@ const themes = {
     accent: "#c5e610ff",
     onAccent: "#c251bcff",
     border: "#280ca7ff",
-  
-},
-
+  },
 };
 const ThemeContext = createContext(null);
 
