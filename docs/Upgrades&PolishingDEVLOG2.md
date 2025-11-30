@@ -320,45 +320,93 @@ Git Commit Sprint 12
 2. Hub Screen
 3. Account Tab
 4. Map
+5. Event Screens (Detail, Edit, Post)
+
+---
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Community screen was 1500 lines of code and becomming a bit messy</b>
+<b>Issue: Community screen was ~1500 lines of code and becoming a bit messy.</b>
 
-<b>Fix:</b> By moving backend requests into communityApi.js and moving UI markup into MemberProfileModal.js, my Community screen becomes much smaller, easier to read, and follows proper separation of concerns — data logic in services, UI logic in components.
-
----
-
-<b>Issue: Hub screen was 1000 lines of code</b>
-
-<b>Fix:</b>
+<b>Fix:</b> I moved my backend requests into a dedicated `communityApi.js` helper and moved UI for member profiles into `MemberProfileModal.js`. This keeps my Community screen much smaller and easier to read. It now follows separation of concerns: **data logic in services, presentational UI in components**, and the screen file mostly just wires everything together.
 
 ---
 
-<b>Issue: Account Screen</b>
+<b>Issue: Hub screen was nearly 1000 lines and mixing filters, layout, and list rendering in one file.</b>
 
-<b>Fix:</b>
+<b>Fix:</b> I extracted the entire filter/header area into a reusable `HubFilters` component. I also centralized `TOWNS`, `CATEGORIES`, and `DATE_FILTERS` constants, and kept the Hub screen focused on:
+
+- loading + filtering events
+- building the `resultSummary` string
+- rendering each event (with a small, focused `renderEvent` function)
+
+This made the Hub screen shorter, more readable, and easier to extend later (for example, if I want to add more filters).
 
 ---
 
-<b>Issue: Map Screen</b>
+<b>Issue: Account Screen was tightly coupled to hard-coded colors and had a bug using <code>styles.something</code> instead of <code>theme.something</code>.</b>
 
-<b>Fix:</b>
+<b>Fix:</b> I cleaned up the Account screen to use the `useTheme()` hook everywhere instead of raw `colors.*`. I also wired it into my theme picker (Light / Dark / Feminine / Masculine / Rainbow) so the account UI actually reflects the active theme. While doing this I fixed the `styles` reference bug by correctly switching to theme-based values (for example `theme.text`, `theme.textMuted`, etc.).
+
+---
+
+<b>Issue: Map Screen was large and duplicated a lot of Hub logic for filters and layout.</b>
+
+<b>Fix:</b> I extracted a `MapFilters` component that mirrors the Hub filter UX (town, category, date range) but is focused on map-specific copy and layout. The Map screen now:
+
+- uses the same town/category/date filters as the Hub
+- keeps map logic (markers, region, camera animation) in one place
+- delegates the pill UI + error/summary line to `MapFilters`
+
+I also made sure the map container uses theme-based colors instead of raw `colors.*`, which keeps things consistent across themes.
+
+---
+
+<b>Issue: Event screens (Detail, Edit, Post) were each implementing their own modals and pickers, which created a lot of duplicated code.</b>
+
+<b>Fix:</b> I did a shared “Event UI cleanup” pass:
+
+- **EventDetailScreen**
+
+  - Kept all the business logic (delete, navigate to Edit, host detection), but cleaned up how the UI uses `theme` for colors.
+  - Confirmed the “Hosted by” section uses a helper (`getEventHost`) so it only shows for business users.
+  - Made the owner-only area (“This is your event”, Edit / Delete buttons) clean and theme-aware.
+
+- **EditEventScreen**
+
+  - Swapped inline date/time pickers over to shared components:
+    - `DatePickerModal` for dates
+    - `TimePickerModal` for start and end times
+    - `SelectModal` for Town and Category
+  - Reused the same date formatting and time handling pattern as Post Event.
+  - This removed a lot of inline `<Modal>` markup and duplicate button layouts.
+
+- **PostEventScreen**
+  - Removed the inline `TimePickerModal` definition from this file and replaced it with the shared `TimePickerModal` component.
+  - Replaced town/category modals with reusable `SelectModal`.
+  - Hooked up `DatePickerModal` to use the same `dateObj → "YYYY-MM-DD"` helper.
+  - Kept all of the existing business logic (401 session expired → logout, 403 not a business, success → reset form + navigate to MyEvents).
+
+Overall, the Event tab is now more consistent and far less repetitive. Any future updates to date/time UX or select modals can be done in one place.
+
+---
 
 ### Wins + Breakthroughs
 
-- Shortened code and made community tab way more organized with api helper and profile modal file.
+- Shortened code and made the Community tab more organized by moving API logic into `communityApi.js` and profile UI into `MemberProfileModal.js`.
+- Extracted a `HubFilters` component so the Hub screen is focused on data + list rendering, not giant chunks of UI markup.
+- Cleaned up the Account tab to use `useTheme()` properly and fixed the `styles` vs `theme` bug, while also wiring in theme selection options.
+- Extracted a `MapFilters` component and aligned the Map filters (town/category/date) with the Hub tab, making the experience consistent across screens.
+- Reused shared UI pieces (`DatePickerModal`, `TimePickerModal`, `SelectModal`) between Post Event and Edit Event, removing a big chunk of duplicated `<Modal>` code.
+- Made the Event Detail / owner tools more readable and theme-aware without changing the core logic.
 
--
--
--
+---
 
 ### What I Learned
 
--
--
--
--
--
+- How to **separate concerns** in a React Native app: screens should orchestrate data + navigation, while components handle UI and layout.
+- That extracting **shared components** (filters, pickers, select modals) not only shortens files, but also makes future feature changes safer and faster.
+- How to lean on a central **ThemeContext** instead of hard-coded colors so new themes (light, dark, feminine, masculine, rainbow) “just work” across screens.
+- That cleanup sprints are just as important as feature sprints — once the screens are smaller and more modular, it’s mentally easier to add new features without fear of breaking everything.
 
 ### photos of progress Sprint 13
