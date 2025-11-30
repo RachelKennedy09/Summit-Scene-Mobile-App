@@ -9,9 +9,7 @@ import {
   StyleSheet,
   Pressable,
   Alert,
-  Image,
   ScrollView,
-  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
@@ -20,11 +18,14 @@ import { useNavigation } from "@react-navigation/native";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
 
+import AccountHeaderCard from "../../components/account/AccountHeaderCard";
+import ProfileCard from "../../components/account/ProfileCard";
+import ThemeSection from "../../components/account/ThemeSection";
+
 function AccountScreen() {
   const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
   const navigation = useNavigation();
 
-  // get theme + themeName + changer + light/dark toggle
   const { theme, themeName, setThemeName, toggleLightDark } = useTheme();
   const isDark = theme.isDark;
 
@@ -82,23 +83,6 @@ function AccountScreen() {
   const town = user.town || "Rockies local";
   const roleLabel = isBusiness ? "Business account" : "Local account";
 
-  // Role-based copy for profile section
-  const profileSectionTitle = isBusiness
-    ? "Event posting profile"
-    : "Community profile";
-
-  const profileSectionSubtitle = isBusiness
-    ? "This is how your profile appears on Hub and Map when you post events."
-    : "This is how your profile appears on Community posts and replies.";
-
-  // Do we have *any* extra profile info to show?
-  const hasProfileDetails = Boolean(
-    user.bio ||
-      user.lookingFor ||
-      user.instagram ||
-      (isBusiness && user.website)
-  );
-
   async function handleLogout() {
     await logout();
   }
@@ -114,318 +98,32 @@ function AccountScreen() {
         <Text style={[styles.title, { color: theme.text }]}>Account</Text>
 
         {/* PROFILE HEADER CARD */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.avatar,
-                { backgroundColor: theme.pill || colors.cardDark },
-              ]}
-            >
-              {avatarUrl ? (
-                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
-              ) : (
-                <Text
-                  style={[
-                    styles.avatarInitial,
-                    { color: theme.onAccent || theme.text },
-                  ]}
-                >
-                  {displayName.charAt(0).toUpperCase()}
-                </Text>
-              )}
-            </View>
-
-            <View style={styles.headerTextCol}>
-              <Text style={[styles.greeting, { color: theme.text }]}>
-                Hi, {displayName}
-              </Text>
-              <Text style={[styles.roleTag, { color: theme.textMuted }]}>
-                {roleLabel}
-              </Text>
-              <Text style={[styles.metaText, { color: theme.textMuted }]}>
-                Email: {user.email}
-              </Text>
-              <Text style={[styles.metaText, { color: theme.textMuted }]}>
-                Town: {town}
-              </Text>
-              <Text style={[styles.metaText, { color: theme.textMuted }]}>
-                Member since: {joinedText}
-              </Text>
-            </View>
-          </View>
-        </View>
+        <AccountHeaderCard
+          theme={theme}
+          displayName={displayName}
+          roleLabel={roleLabel}
+          email={user.email}
+          town={town}
+          joinedText={joinedText}
+          avatarUrl={avatarUrl}
+        />
 
         {/* COMMUNITY / EVENT PROFILE INFO */}
-        <View
-          style={[
-            styles.profileCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            {profileSectionTitle}
-          </Text>
-          <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>
-            {profileSectionSubtitle}
-          </Text>
+        <ProfileCard
+          theme={theme}
+          user={user}
+          isBusiness={isBusiness}
+          onEditProfile={() => navigation.navigate("EditProfile")}
+        />
 
-          {hasProfileDetails ? (
-            <>
-              {user.bio ? (
-                <>
-                  <Text style={[styles.label, { color: theme.textMuted }]}>
-                    About
-                  </Text>
-                  <Text style={[styles.value, { color: theme.text }]}>
-                    {user.bio}
-                  </Text>
-                </>
-              ) : null}
-
-              {user.lookingFor ? (
-                <>
-                  <Text style={[styles.label, { color: theme.textMuted }]}>
-                    {isBusiness ? "Business type" : "What you're looking for"}
-                  </Text>
-                  <Text style={[styles.value, { color: theme.text }]}>
-                    {user.lookingFor}
-                  </Text>
-                </>
-              ) : null}
-
-              {user.instagram ? (
-                <>
-                  <Text style={[styles.label, { color: theme.textMuted }]}>
-                    Instagram
-                  </Text>
-                  <Text style={[styles.linkValue, { color: theme.accent }]}>
-                    {user.instagram}
-                  </Text>
-                </>
-              ) : null}
-
-              {isBusiness && user.website ? (
-                <>
-                  <Text style={[styles.label, { color: theme.textMuted }]}>
-                    Website
-                  </Text>
-                  <Text style={[styles.linkValue, { color: theme.accent }]}>
-                    {user.website}
-                  </Text>
-                </>
-              ) : null}
-            </>
-          ) : (
-            // 🔹 When there are no details yet, still show a friendly "shell"
-            <Text style={[styles.value, { color: theme.textMuted }]}>
-              This is where your {isBusiness ? "event posting" : "community"}{" "}
-              profile details will show. Tap “Edit profile” to add more
-              information.
-            </Text>
-          )}
-
-          {/* EDIT PROFILE BUTTON */}
-          <Pressable
-            style={[styles.editButton, { backgroundColor: theme.accent }]}
-            onPress={() => navigation.navigate("EditProfile")}
-          >
-            <Text
-              style={[
-                styles.editButtonText,
-                { color: theme.onAccent || theme.background },
-              ]}
-            >
-              Edit profile
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* MULTI THEME BUTTONS */}
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: "600",
-            marginTop: 24,
-            marginBottom: 8,
-            color: theme.text,
-          }}
-        >
-          App Theme
-        </Text>
-
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {/* Light */}
-          <Pressable
-            onPress={() => setThemeName("light")}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor: themeName === "light" ? theme.accent : theme.border,
-              backgroundColor:
-                themeName === "light" ? theme.accent : theme.card,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color:
-                  themeName === "light" ? theme.onAccent || "#000" : theme.text,
-              }}
-            >
-              Light
-            </Text>
-          </Pressable>
-
-          {/* Dark */}
-          <Pressable
-            onPress={() => setThemeName("dark")}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor: themeName === "dark" ? theme.accent : theme.border,
-              backgroundColor: themeName === "dark" ? theme.accent : theme.card,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color:
-                  themeName === "dark" ? theme.onAccent || "#000" : theme.text,
-              }}
-            >
-              Dark
-            </Text>
-          </Pressable>
-
-          {/* Feminine */}
-          <Pressable
-            onPress={() => setThemeName("feminine")}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor:
-                themeName === "feminine" ? theme.accent : theme.border,
-              backgroundColor:
-                themeName === "feminine" ? theme.accent : theme.card,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color:
-                  themeName === "feminine"
-                    ? theme.onAccent || "#000"
-                    : theme.text,
-              }}
-            >
-              Feminine
-            </Text>
-          </Pressable>
-
-          {/* Masculine */}
-          <Pressable
-            onPress={() => setThemeName("masculine")}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor:
-                themeName === "masculine" ? theme.accent : theme.border,
-              backgroundColor:
-                themeName === "masculine" ? theme.accent : theme.card,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color:
-                  themeName === "masculine"
-                    ? theme.onAccent || "#000"
-                    : theme.text,
-              }}
-            >
-              Masculine
-            </Text>
-          </Pressable>
-          {/* Rainbow */}
-          <Pressable
-            onPress={() => setThemeName("rainbow")}
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 999,
-              borderWidth: 1,
-              borderColor:
-                themeName === "rainbow" ? theme.accent : theme.border,
-              backgroundColor:
-                themeName === "rainbow" ? theme.accent : theme.card,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              style={{
-                color:
-                  themeName === "rainbow"
-                    ? theme.onAccent || "#000"
-                    : theme.text,
-              }}
-            >
-              Rainbow
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* APPEARANCE TOGGLE (QUICK LIGHT/DARK) */}
-        <View
-          style={[
-            styles.themeCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <View style={styles.themeRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Appearance
-              </Text>
-              <Text
-                style={[styles.sectionSubtitle, { color: theme.textMuted }]}
-              >
-                Switch quickly between light and dark mode.
-              </Text>
-            </View>
-            <Switch
-              value={isDark}
-              onValueChange={toggleLightDark}
-              trackColor={{
-                false: theme.border,
-                true: theme.accent,
-              }}
-              thumbColor={isDark ? theme.accent : "#f4f3f4"}
-            />
-          </View>
-        </View>
+        {/* THEME + APPEARANCE */}
+        <ThemeSection
+          theme={theme}
+          themeName={themeName}
+          setThemeName={setThemeName}
+          isDark={isDark}
+          toggleLightDark={toggleLightDark}
+        />
 
         {/* BUSINESS ONLY: VIEW MY EVENTS */}
         {isBusiness && (
@@ -511,104 +209,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  card: {
-    backgroundColor: colors.secondary,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.cardDark,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  avatarImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-  },
-  avatarInitial: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.textLight,
-  },
-  headerTextCol: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.textLight,
-    marginBottom: 2,
-  },
-  roleTag: {
-    fontSize: 13,
-    fontWeight: "500",
-    color: colors.textMuted,
-    marginBottom: 6,
-  },
-  metaText: {
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-
-  profileCard: {
-    backgroundColor: colors.secondary,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.textLight,
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 8,
-    marginBottom: 2,
-  },
-  value: {
-    fontSize: 13,
-    color: colors.textLight,
-  },
-  linkValue: {
-    fontSize: 13,
-    color: colors.accent,
-  },
-
-  editButton: {
-    marginTop: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: colors.accent,
-    alignItems: "center",
-  },
-  editButtonText: {
-    color: colors.textLight,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-
   // "View My Events" button (for business accounts)
   accountButton: {
     backgroundColor: colors.cta,
@@ -664,20 +264,5 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: colors.textMuted,
     fontSize: 12,
-  },
-
-  // Theme card + row
-  themeCard: {
-    backgroundColor: colors.secondary,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  themeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
   },
 });

@@ -317,7 +317,9 @@ Git Commit Sprint 12
 ### Sprint Goals
 
 1. Community Screen 
-2. 
+2. Hub Screen
+3. Account Tab
+4. Map
 
 
 ### Challenges + How I Solved Them
@@ -328,7 +330,7 @@ Git Commit Sprint 12
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Hub screen was 1000 lines of code</b>
 
 <b>Fix:</b>
 
