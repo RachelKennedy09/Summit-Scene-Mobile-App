@@ -9,8 +9,6 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Modal,
-  Image,
 } from "react-native";
 
 import {
@@ -19,6 +17,8 @@ import {
   createCommunityReply,
   toggleCommunityLike,
 } from "../../services/communityApi";
+
+import MemberProfileModal from "./MemberProfileModal";
 
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -318,167 +318,12 @@ export default function CommunityScreen({ navigation }) {
         )}
       </ScrollView>
 
-      {/* Profile modal */}
-      {profileUser && (
-        <Modal
-          visible={true}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setProfileUser(null)}
-        >
-          <View style={styles.profileModalOverlay}>
-            <View
-              style={[
-                styles.profileModalCard,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: theme.border,
-                },
-              ]}
-            >
-              <View style={styles.profileModalHeader}>
-                <Text
-                  style={[styles.profileModalTitle, { color: theme.textMain }]}
-                >
-                  Member Profile
-                </Text>
-                <Pressable onPress={() => setProfileUser(null)}>
-                  <Text
-                    style={[styles.profileModalClose, { color: theme.accent }]}
-                  >
-                    Close
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={styles.profileTopRow}>
-                <View
-                  style={[
-                    styles.profileAvatar,
-                    { backgroundColor: theme.cardDark || colors.cardDark },
-                  ]}
-                >
-                  {profileUser.avatarUrl ? (
-                    <Image
-                      source={{ uri: profileUser.avatarUrl }}
-                      style={styles.profileAvatarImage}
-                    />
-                  ) : (
-                    <Text
-                      style={[
-                        styles.profileAvatarInitial,
-                        { color: theme.textMain },
-                      ]}
-                    >
-                      {profileUser.name?.charAt(0).toUpperCase() || "M"}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.profileName, { color: theme.textMain }]}>
-                    {profileUser.name}
-                  </Text>
-                  {profileUser.town ? (
-                    <Text
-                      style={[styles.profileTown, { color: theme.textMuted }]}
-                    >
-                      {profileUser.town}
-                    </Text>
-                  ) : null}
-                  <Text
-                    style={[styles.profileRole, { color: theme.textMuted }]}
-                  >
-                    {profileUser.role === "business"
-                      ? "Business host"
-                      : "Local member"}
-                  </Text>
-                </View>
-              </View>
-
-              {profileUser.bio ? (
-                <View style={styles.profileSection}>
-                  <Text
-                    style={[
-                      styles.profileSectionLabel,
-                      { color: theme.textMuted },
-                    ]}
-                  >
-                    About
-                  </Text>
-                  <Text
-                    style={[
-                      styles.profileSectionText,
-                      { color: theme.textMain },
-                    ]}
-                  >
-                    {profileUser.bio}
-                  </Text>
-                </View>
-              ) : null}
-
-              {profileUser.lookingFor ? (
-                <View style={styles.profileSection}>
-                  <Text
-                    style={[
-                      styles.profileSectionLabel,
-                      { color: theme.textMuted },
-                    ]}
-                  >
-                    {profileUser.role === "business"
-                      ? "Business type"
-                      : "Looking for"}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.profileSectionText,
-                      { color: theme.textMain },
-                    ]}
-                  >
-                    {profileUser.lookingFor}
-                  </Text>
-                </View>
-              ) : null}
-
-              {profileUser.instagram ? (
-                <View style={styles.profileSection}>
-                  <Text
-                    style={[
-                      styles.profileSectionLabel,
-                      { color: theme.textMuted },
-                    ]}
-                  >
-                    Instagram
-                  </Text>
-                  <Text
-                    style={[styles.profileLinkText, { color: theme.accent }]}
-                  >
-                    {profileUser.instagram}
-                  </Text>
-                </View>
-              ) : null}
-
-              {profileUser.role === "business" && profileUser.website ? (
-                <View style={styles.profileSection}>
-                  <Text
-                    style={[
-                      styles.profileSectionLabel,
-                      { color: theme.textMuted },
-                    ]}
-                  >
-                    Website
-                  </Text>
-                  <Text
-                    style={[styles.profileLinkText, { color: theme.accent }]}
-                  >
-                    {profileUser.website}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          </View>
-        </Modal>
-      )}
+      <MemberProfileModal
+        visible={!!profileUser}
+        user={profileUser}
+        theme={theme}
+        onClose={() => setProfileUser(null)}
+      />
     </SafeAreaView>
   );
 }
