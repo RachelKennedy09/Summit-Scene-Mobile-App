@@ -316,16 +316,15 @@ Git Commit Sprint 12
 
 ### Sprint Goals
 
-1. Community Screen - create components and shorten (1500 lines of code)
-2.
-3.
-4.
+1. Community Screen 
+2. 
+
 
 ### Challenges + How I Solved Them
 
-<b>Issue: </b>
+<b>Issue: Community screen was 1500 lines of code and becomming a bit messy</b>
 
-<b>Fix:</b>
+<b>Fix:</b> By moving backend requests into communityApi.js and moving UI markup into MemberProfileModal.js, my Community screen becomes much smaller, easier to read, and follows proper separation of concerns — data logic in services, UI logic in components.
 
 ---
 
@@ -341,7 +340,7 @@ Git Commit Sprint 12
 
 ### Wins + Breakthroughs
 
-- Added 5 complete global themes
+- Shortened code and made community tab way more organized with api helper and profile modal file.
 
 -
 -
