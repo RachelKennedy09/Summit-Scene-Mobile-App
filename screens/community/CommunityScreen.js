@@ -9,16 +9,24 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  TextInput,
-  Image,
   Modal,
+  Image,
 } from "react-native";
+
+import {
+  fetchCommunityPosts,
+  deleteCommunityPost,
+  createCommunityReply,
+  toggleCommunityLike,
+} from "../../services/communityApi";
+
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "../../context/AuthContext";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
+import CommunityPostCard from "./CommunityPostCard";
 
 // post types (backend values and labels)
 const POST_TYPES = [
@@ -27,27 +35,33 @@ const POST_TYPES = [
   { label: "Event Buddy", value: "eventbuddy" },
 ];
 
+// navigation route to community post screen, edit community post screen
 export default function CommunityScreen({ navigation }) {
+  //which board is currently active, eventbuddy default
   const [selectedType, setSelectedType] = useState("eventbuddy");
 
   // posts from API
   const [posts, setPosts] = useState([]);
 
+  // Error and loading states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [replyForPostId, setReplyForPostId] = useState(null); // which post is being replied to
+  // Reply states
+  const [replyForPostId, setReplyForPostId] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
 
+  // Profile modal
   const [profileUser, setProfileUser] = useState(null);
 
-  const { user, token } = useAuth(); // get JWT token
+  // logged in user object, JWT used for protected requests
+  const { user, token } = useAuth();
+
+  // current theme object
   const { theme } = useTheme();
 
-  const API_BASE_URL =
-    process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
-
+  // useMemo for performace
   const filteredPosts = useMemo(
     () => posts.filter((post) => post.type === selectedType),
     [posts, selectedType]
@@ -58,22 +72,7 @@ export default function CommunityScreen({ navigation }) {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(
-        `${API_BASE_URL}/api/community?type=${selectedType}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to load posts");
-      }
-
-      const data = await res.json();
+      const data = await fetchCommunityPosts(selectedType, token);
       setPosts(data);
     } catch (error) {
       console.error("Error fetching community posts:", error);
@@ -81,14 +80,16 @@ export default function CommunityScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, selectedType, token]);
+  }, [selectedType, token]);
 
+  // gaurantees fresh posts when coming back to community tab
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
     }, [fetchPosts])
   );
 
+  // Delete post handler
   const handleDeletePost = (postId) => {
     Alert.alert("Delete post?", "This action cannot be undone.", [
       { text: "Cancel", style: "cancel" },
@@ -97,19 +98,7 @@ export default function CommunityScreen({ navigation }) {
         style: "destructive",
         onPress: async () => {
           try {
-            const res = await fetch(`${API_BASE_URL}/api/community/${postId}`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (!res.ok) {
-              throw new Error("Failed to delete post");
-            }
-
-            // refresh the feed
+            await deleteCommunityPost(postId, token);
             fetchPosts();
           } catch (error) {
             console.error("Error deleting community post:", error);
@@ -120,6 +109,7 @@ export default function CommunityScreen({ navigation }) {
     ]);
   };
 
+  // Reply submit handler
   async function handleReplySubmit(postId) {
     if (!replyText.trim()) {
       Alert.alert("Reply required", "Please write something before sending.");
@@ -129,24 +119,8 @@ export default function CommunityScreen({ navigation }) {
     try {
       setSubmittingReply(true);
 
-      const res = await fetch(
-        `${API_BASE_URL}/api/community/${postId}/replies`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ body: replyText }),
-        }
-      );
+      await createCommunityReply(postId, replyText, token);
 
-      if (!res.ok) {
-        const errorBody = await res.json().catch(() => ({}));
-        throw new Error(errorBody.message || "Failed to send reply.");
-      }
-
-      // Clear local reply state and refresh posts
       setReplyText("");
       setReplyForPostId(null);
       fetchPosts();
@@ -158,48 +132,7 @@ export default function CommunityScreen({ navigation }) {
     }
   }
 
-  function isPostOwner(post) {
-    if (!user) return false;
-
-    const userId = user._id || user.id;
-    if (!userId) return false;
-
-    const postUserId =
-      typeof post.user === "string" ? post.user : post.user?._id;
-
-    if (!postUserId) return false;
-
-    return postUserId === userId;
-  }
-
-  // Helper: derive author identity info from post.user + post.name
-  function getPostAuthor(post) {
-    const userObj =
-      typeof post.user === "object" && post.user !== null ? post.user : null;
-
-    const name = userObj?.name || post.name || "SummitScene member";
-    const email = userObj?.email || "";
-    const role = userObj?.role || "local"; // e.g. "local" or "business"
-    const avatarUrl = userObj?.avatarUrl || null;
-    const town = userObj?.town || post.town || "";
-    const lookingFor = userObj?.lookingFor || "";
-    const instagram = userObj?.instagram || "";
-    const bio = userObj?.bio || "";
-    const website = userObj?.website || "";
-
-    return {
-      name,
-      email,
-      role,
-      avatarUrl,
-      town,
-      lookingFor,
-      instagram,
-      bio,
-      website,
-    };
-  }
-
+  // Like toggle handler
   async function handleToggleLike(postId) {
     if (!token) {
       Alert.alert("Login required", "Please log in to like posts.");
@@ -207,20 +140,7 @@ export default function CommunityScreen({ navigation }) {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/community/${postId}/likes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to update like.");
-      }
-
+      await toggleCommunityLike(postId, token);
       fetchPosts();
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -329,7 +249,7 @@ export default function CommunityScreen({ navigation }) {
             <Pressable
               onPress={fetchPosts}
               style={[
-                styles.typePillActive,
+                styles.typePill,
                 {
                   padding: 10,
                   marginTop: 10,
@@ -347,410 +267,36 @@ export default function CommunityScreen({ navigation }) {
         {!loading &&
           !error &&
           filteredPosts.map((post) => {
-            const isOwner = isPostOwner(post);
-            const {
-              name,
-              email,
-              role,
-              avatarUrl,
-              town,
-              lookingFor,
-              instagram,
-              bio,
-              website,
-            } = getPostAuthor(post);
-
-            const likesArray = Array.isArray(post.likes) ? post.likes : [];
-            const likesCount = likesArray.length;
-
-            const userId = user?._id || user?.id;
-
-            const isLikedByMe =
-              !!userId &&
-              likesArray.some((like) => {
-                if (typeof like === "string") return like === userId;
-                if (like && typeof like === "object" && like._id) {
-                  return like._id === userId;
-                }
-                return false;
-              });
-
-            const createdDate = new Date(post.createdAt);
             const postId = post._id ?? post.id;
             const isReplyOpen = replyForPostId === postId;
 
             return (
-              <View
+              <CommunityPostCard
                 key={postId}
-                style={[
-                  styles.sectionCard,
-                  {
-                    backgroundColor: theme.card,
-                    borderColor: theme.border,
-                  },
-                ]}
-              >
-                {/* Identity row */}
-                <View className="card-header" style={styles.cardHeaderRow}>
-                  <View style={styles.authorRow}>
-                    <View
-                      style={[
-                        styles.avatarCircle,
-                        { backgroundColor: theme.cardDark || colors.cardDark },
-                      ]}
-                    >
-                      {avatarUrl ? (
-                        <Image
-                          source={{ uri: avatarUrl }}
-                          style={styles.avatarImage}
-                        />
-                      ) : (
-                        <Text
-                          style={[
-                            styles.avatarInitial,
-                            { color: theme.textMain },
-                          ]}
-                        >
-                          {name.charAt(0).toUpperCase()}
-                        </Text>
-                      )}
-                    </View>
-                    <View style={styles.authorTextCol}>
-                      <Text
-                        style={[
-                          styles.authorNameText,
-                          { color: theme.textMain },
-                        ]}
-                      >
-                        {name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.timestampText,
-                          { color: theme.textMuted },
-                        ]}
-                      >
-                        {createdDate.toLocaleDateString()} •{" "}
-                        {createdDate.toLocaleTimeString([], {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                      </Text>
-                      {email ? (
-                        <Text
-                          style={[
-                            styles.authorEmailText,
-                            { color: theme.textMuted },
-                          ]}
-                        >
-                          {email}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </View>
-
-                  <View style={styles.badgeColumn}>
-                    <Text style={[styles.townTag, { color: theme.textMuted }]}>
-                      {town || "Rockies local"}
-                    </Text>
-
-                    <Text
-                      style={[
-                        styles.roleBadge,
-                        {
-                          backgroundColor: theme.cardDark || colors.cardDark,
-                          color: theme.textMain,
-                        },
-                      ]}
-                    >
-                      {role === "business" ? "Business host" : "Local member"}
-                    </Text>
-
-                    <Text
-                      style={[styles.dateBadge, { color: theme.textMuted }]}
-                    >
-                      For: {new Date(post.targetDate).toLocaleDateString()}
-                    </Text>
-
-                    {isOwner && (
-                      <Text
-                        style={[styles.ownerBadge, { color: theme.accent }]}
-                      >
-                        You
-                      </Text>
-                    )}
-                  </View>
-                </View>
-
-                {/* Title + body */}
-                <Text style={[styles.sectionTitle, { color: theme.textMain }]}>
-                  {post.title}
-                </Text>
-                <Text style={[styles.sectionText, { color: theme.textMuted }]}>
-                  {post.body}
-                </Text>
-
-                {/* Likes */}
-                <View style={styles.likesRow}>
-                  <Pressable
-                    style={[
-                      styles.likeButton,
-                      { borderColor: theme.border },
-                      isLikedByMe && {
-                        borderColor: theme.accent,
-                        backgroundColor: theme.accentSoft || colors.tealTint,
-                      },
-                    ]}
-                    onPress={() => handleToggleLike(postId)}
-                  >
-                    <Text
-                      style={[styles.likeButtonText, { color: theme.textMain }]}
-                    >
-                      {isLikedByMe ? "♥ Liked" : "♡ Like"}
-                    </Text>
-                  </Pressable>
-
-                  <Text
-                    style={[styles.likesCountText, { color: theme.textMuted }]}
-                  >
-                    {likesCount === 0
-                      ? "No likes yet"
-                      : likesCount === 1
-                      ? "1 like"
-                      : `${likesCount} likes`}
-                  </Text>
-                </View>
-
-                {/* Owner-only buttons */}
-                {isOwner && (
-                  <View style={styles.ownerActionsRow}>
-                    <Pressable
-                      style={[
-                        styles.editButton,
-                        { backgroundColor: theme.accent },
-                      ]}
-                      onPress={() =>
-                        navigation.navigate("EditCommunityPost", { post })
-                      }
-                    >
-                      <Text style={styles.editButtonText}>Edit</Text>
-                    </Pressable>
-                    <Pressable
-                      style={styles.deleteButton}
-                      onPress={() => handleDeletePost(postId)}
-                    >
-                      <Text style={styles.deleteButtonText}>Delete</Text>
-                    </Pressable>
-                  </View>
-                )}
-
-                {/* View profile */}
-                <View style={styles.profileRow}>
-                  <Pressable
-                    style={[
-                      styles.profileButton,
-                      { borderColor: theme.accent },
-                    ]}
-                    onPress={() =>
-                      setProfileUser({
-                        name,
-                        role,
-                        town,
-                        avatarUrl,
-                        lookingFor,
-                        instagram,
-                        bio,
-                        website,
-                      })
-                    }
-                  >
-                    <Text
-                      style={[
-                        styles.profileButtonText,
-                        { color: theme.accent },
-                      ]}
-                    >
-                      View profile
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {/* Divider before replies */}
-                <View
-                  style={[
-                    styles.replyDivider,
-                    { backgroundColor: theme.border },
-                  ]}
-                />
-
-                {/* Replies */}
-                {Array.isArray(post.replies) && post.replies.length > 0 && (
-                  <View style={styles.repliesContainer}>
-                    {post.replies.map((reply) => {
-                      const replyCreated = reply.createdAt
-                        ? new Date(reply.createdAt)
-                        : new Date();
-                      const replyKey =
-                        reply._id ?? replyCreated.getTime().toString();
-
-                      const replyUserObj =
-                        typeof reply.user === "object" && reply.user !== null
-                          ? reply.user
-                          : null;
-
-                      const replyName =
-                        replyUserObj?.name || reply.name || "Member";
-                      const replyAvatarUrl = replyUserObj?.avatarUrl || null;
-                      const replyTown = replyUserObj?.town || "";
-                      const replyRole = replyUserObj?.role || "local";
-
-                      return (
-                        <Pressable
-                          key={replyKey}
-                          style={styles.replyRow}
-                          onPress={() => {
-                            if (replyUserObj) {
-                              setProfileUser({
-                                name: replyName,
-                                role: replyRole,
-                                town: replyTown,
-                                avatarUrl: replyAvatarUrl,
-                                lookingFor: replyUserObj.lookingFor || "",
-                                instagram: replyUserObj.instagram || "",
-                                bio: replyUserObj.bio || "",
-                                website: replyUserObj.website || "",
-                              });
-                            }
-                          }}
-                        >
-                          <View
-                            style={[
-                              styles.replyAvatar,
-                              {
-                                backgroundColor:
-                                  theme.cardDark || colors.cardDark,
-                              },
-                            ]}
-                          >
-                            {replyAvatarUrl ? (
-                              <Image
-                                source={{ uri: replyAvatarUrl }}
-                                style={styles.replyAvatarImage}
-                              />
-                            ) : (
-                              <Text
-                                style={[
-                                  styles.replyAvatarInitial,
-                                  { color: theme.textMain },
-                                ]}
-                              >
-                                {replyName.charAt(0).toUpperCase()}
-                              </Text>
-                            )}
-                          </View>
-                          <View style={styles.replyContent}>
-                            <Text
-                              style={[
-                                styles.replyMeta,
-                                { color: theme.textMuted },
-                              ]}
-                            >
-                              <Text
-                                style={[
-                                  styles.replyAuthor,
-                                  { color: theme.textMain },
-                                ]}
-                              >
-                                {replyName}
-                              </Text>{" "}
-                              •{" "}
-                              {replyCreated.toLocaleTimeString([], {
-                                hour: "numeric",
-                                minute: "2-digit",
-                              })}
-                            </Text>
-                            {replyTown ? (
-                              <Text
-                                style={[
-                                  styles.replyTownMeta,
-                                  { color: theme.textMuted },
-                                ]}
-                              >
-                                {replyTown}
-                              </Text>
-                            ) : null}
-                            <Text
-                              style={[
-                                styles.replyBodyText,
-                                { color: theme.textMuted },
-                              ]}
-                            >
-                              {reply.body}
-                            </Text>
-                          </View>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                )}
-
-                {/* Reply toggle + input */}
-                <View style={styles.replyActionsRow}>
-                  <Pressable
-                    style={styles.replyButton}
-                    onPress={() => {
-                      if (isReplyOpen) {
-                        setReplyForPostId(null);
-                        setReplyText("");
-                      } else {
-                        setReplyForPostId(postId);
-                        setReplyText("");
-                      }
-                    }}
-                  >
-                    <Text
-                      style={[styles.replyButtonText, { color: theme.accent }]}
-                    >
-                      {isReplyOpen ? "Cancel" : "Reply"}
-                    </Text>
-                  </Pressable>
-                </View>
-
-                {isReplyOpen && (
-                  <View
-                    style={[
-                      styles.replyInputContainer,
-                      {
-                        backgroundColor: theme.background,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                  >
-                    <TextInput
-                      style={[styles.replyInput, { color: theme.textMain }]}
-                      value={replyText}
-                      onChangeText={setReplyText}
-                      placeholder="Write a reply..."
-                      placeholderTextColor={theme.textMuted}
-                      multiline
-                    />
-                    <Pressable
-                      style={[
-                        styles.sendReplyButton,
-                        { backgroundColor: theme.accent },
-                        (!replyText.trim() || submittingReply) &&
-                          styles.sendReplyButtonDisabled,
-                      ]}
-                      onPress={() => handleReplySubmit(postId)}
-                      disabled={!replyText.trim() || submittingReply}
-                    >
-                      <Text style={styles.sendReplyButtonText}>
-                        {submittingReply ? "Sending..." : "Send"}
-                      </Text>
-                    </Pressable>
-                  </View>
-                )}
-              </View>
+                post={post}
+                user={user}
+                theme={theme}
+                isReplyOpen={isReplyOpen}
+                replyText={replyText}
+                submittingReply={submittingReply}
+                onToggleReply={() => {
+                  if (isReplyOpen) {
+                    setReplyForPostId(null);
+                    setReplyText("");
+                  } else {
+                    setReplyForPostId(postId);
+                    setReplyText("");
+                  }
+                }}
+                onChangeReplyText={setReplyText}
+                onSubmitReply={() => handleReplySubmit(postId)}
+                onDelete={() => handleDeletePost(postId)}
+                onEdit={() =>
+                  navigation.navigate("EditCommunityPost", { post })
+                }
+                onToggleLike={() => handleToggleLike(postId)}
+                onOpenProfile={(profileData) => setProfileUser(profileData)}
+              />
             );
           })}
 
@@ -937,7 +483,7 @@ export default function CommunityScreen({ navigation }) {
   );
 }
 
-// ---- Styles (base colors from theme/colors, overridden by theme where needed) ----
+// ---- Styles (screen-level only) ----
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1020,114 +566,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
 
-  sectionCard: {
-    backgroundColor: colors.secondary,
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  cardHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 10,
-  },
-
-  authorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    marginRight: 8,
-  },
-
-  avatarCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.cardDark,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-
-  avatarImage: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-  },
-
-  avatarInitial: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.textLight,
-  },
-
-  authorTextCol: {
-    flexShrink: 1,
-  },
-
-  authorNameText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  authorEmailText: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
-  timestampText: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
-  badgeColumn: {
-    alignItems: "flex-end",
-    gap: 4,
-  },
-
-  townTag: {
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-
-  roleBadge: {
-    fontSize: 11,
-    color: colors.textLight,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 999,
-    backgroundColor: colors.cardDark,
-  },
-
-  dateBadge: {
-    fontSize: 11,
-    color: colors.textMuted,
-  },
-
-  ownerBadge: {
-    fontSize: 11,
-    color: colors.accent,
-    fontWeight: "700",
-  },
-
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.textLight,
-    marginBottom: 4,
-  },
-
-  sectionText: {
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-
   emptyState: {
     marginTop: 24,
     padding: 16,
@@ -1149,58 +587,16 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  ownerActionsRow: {
+  loadingRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    alignItems: "center",
     gap: 8,
-    marginTop: 12,
+    marginTop: 16,
   },
 
-  editButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: colors.accent,
-  },
-
-  editButtonText: {
+  loadingText: {
     color: colors.textLight,
-    fontWeight: "600",
     fontSize: 13,
-  },
-
-  deleteButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: colors.danger,
-  },
-
-  deleteButtonText: {
-    color: colors.textLight,
-    fontWeight: "600",
-    fontSize: 13,
-  },
-
-  profileRow: {
-    marginTop: 8,
-    marginBottom: 4,
-    flexDirection: "row",
-    justifyContent: "flex-start",
-  },
-
-  profileButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.accent,
-  },
-
-  profileButtonText: {
-    fontSize: 12,
-    color: colors.accent,
-    fontWeight: "600",
   },
 
   profileModalOverlay: {
@@ -1302,167 +698,5 @@ const styles = StyleSheet.create({
   profileLinkText: {
     fontSize: 13,
     color: colors.accent,
-  },
-
-  loadingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginTop: 16,
-  },
-
-  loadingText: {
-    color: colors.textLight,
-    fontSize: 13,
-  },
-
-  replyDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginTop: 12,
-    marginBottom: 8,
-  },
-
-  repliesContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-
-  replyRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-
-  replyAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: colors.cardDark,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-
-  replyAvatarImage: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-  },
-
-  replyAvatarInitial: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  replyContent: {
-    flex: 1,
-  },
-
-  replyMeta: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-
-  replyTownMeta: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-
-  replyAuthor: {
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  replyBodyText: {
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-
-  replyActionsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginTop: 4,
-  },
-
-  replyButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-
-  replyButtonText: {
-    fontSize: 13,
-    color: colors.accent,
-    fontWeight: "600",
-  },
-
-  replyInputContainer: {
-    marginTop: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.primary,
-    padding: 8,
-    gap: 6,
-  },
-
-  replyInput: {
-    minHeight: 40,
-    maxHeight: 120,
-    color: colors.textLight,
-    fontSize: 13,
-  },
-
-  sendReplyButton: {
-    alignSelf: "flex-end",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: colors.accent,
-  },
-
-  sendReplyButtonDisabled: {
-    opacity: 0.6,
-  },
-
-  sendReplyButtonText: {
-    color: colors.textLight,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  likesRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-    marginBottom: 4,
-  },
-
-  likeButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: 8,
-  },
-
-  likeButtonActive: {
-    borderColor: colors.accent,
-    backgroundColor: colors.tealTint,
-  },
-
-  likeButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  likesCountText: {
-    fontSize: 12,
-    color: colors.textMuted,
   },
 });

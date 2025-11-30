@@ -309,3 +309,50 @@ Trello sprint 12 - themes done
 Git Commit Sprint 12
 
 ![alt text](devlogimages/GitCommitSprint12.png)
+
+---
+
+## Sprint 13: File Cleanup before more features
+
+### Sprint Goals
+
+1. Community Screen - create components and shorten (1500 lines of code)
+2.
+3.
+4.
+
+### Challenges + How I Solved Them
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: </b>
+
+<b>Fix:</b>
+
+### Wins + Breakthroughs
+
+- Added 5 complete global themes
+
+-
+-
+-
+
+### What I Learned
+
+-
+-
+-
+-
+-
+
+### photos of progress Sprint 13
