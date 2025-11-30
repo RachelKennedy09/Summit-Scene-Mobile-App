@@ -11,17 +11,15 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Modal,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { useAuth } from "../../context/AuthContext.js";
 import { updateEvent } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
-
-// shared UI pieces
-import DatePickerModal from "../../components/DatePickerModal.js";
-import TimePickerModal from "../../components/TimePickerModal.js";
-import SelectModal from "../../components/SelectModal.js";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -112,12 +110,48 @@ export default function EditEventScreen({ route, navigation }) {
   const [showTownModal, setShowTownModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
-  // ---- DATE HANDLING ----
+  // ---- DATE HANDLING (same pattern as PostEvent) ----
   const applyDateFromDateObj = (jsDate) => {
     const year = jsDate.getFullYear();
     const month = String(jsDate.getMonth() + 1).padStart(2, "0");
     const day = String(jsDate.getDate()).padStart(2, "0");
     setDate(`${year}-${month}-${day}`);
+  };
+
+  // only update temp date; confirm button commits it
+  const handleDateChange = (_, selectedDate) => {
+    if (selectedDate) {
+      setDateObj(selectedDate);
+    }
+  };
+
+  const handleConfirmDate = () => {
+    applyDateFromDateObj(dateObj);
+    setShowDatePicker(false);
+  };
+
+  // ---- START TIME HANDLING ----
+  const handleTimeChange = (_, selectedTime) => {
+    if (selectedTime) {
+      setTimeObj(selectedTime);
+    }
+  };
+
+  const handleConfirmTime = () => {
+    setTime(formatTime(timeObj));
+    setShowTimePicker(false);
+  };
+
+  // ---- END TIME HANDLING ----
+  const handleEndTimeChange = (_, selectedTime) => {
+    if (selectedTime) {
+      setEndTimeObj(selectedTime);
+    }
+  };
+
+  const handleConfirmEndTime = () => {
+    setEndTime(formatTime(endTimeObj));
+    setShowEndTimePicker(false);
   };
 
   const handleSubmit = async () => {
@@ -148,6 +182,7 @@ export default function EditEventScreen({ route, navigation }) {
       const updatedEvent = await updateEvent(event._id, payload, token);
       console.info("Event updated:", updatedEvent);
 
+      // Let parent refresh if it passed a callback
       if (typeof onUpdated === "function") {
         onUpdated();
       }
@@ -292,7 +327,9 @@ export default function EditEventScreen({ route, navigation }) {
         </Pressable>
 
         {/* Location */}
-        <Text style={[styles.label, { color: theme.textMuted }]}>Location</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>
+          Location
+        </Text>
         <TextInput
           style={[
             styles.input,
@@ -339,75 +376,290 @@ export default function EditEventScreen({ route, navigation }) {
           onPress={handleSubmit}
           disabled={loading}
         >
-          <Text style={[styles.buttonText, { color: theme.background }]}>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: theme.background },
+            ]}
+          >
             {loading ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>
       </ScrollView>
 
-      {/* Town Select */}
-      <SelectModal
+      {/* Town Modal */}
+      <Modal
         visible={showTownModal}
-        title="Select Town"
-        options={TOWNS}
-        selectedValue={town}
-        onSelect={(value) => {
-          setTown(value);
-          setShowTownModal(false);
-        }}
-        onClose={() => setShowTownModal(false)}
-      />
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowTownModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: theme.card },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Select Town
+            </Text>
+            {TOWNS.map((t) => (
+              <Pressable
+                key={t}
+                style={styles.modalOption}
+                onPress={() => {
+                  setTown(t);
+                  setShowTownModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    { color: theme.text },
+                  ]}
+                >
+                  {t}
+                </Text>
+              </Pressable>
+            ))}
+            <Pressable
+              style={styles.modalCancel}
+              onPress={() => setShowTownModal(false)}
+            >
+              <Text
+                style={[
+                  styles.modalCancelText,
+                  { color: theme.accent },
+                ]}
+              >
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
-      {/* Category Select */}
-      <SelectModal
+      {/* Category Modal */}
+      <Modal
         visible={showCategoryModal}
-        title="Select Category"
-        options={FORM_CATEGORIES}
-        selectedValue={category}
-        onSelect={(value) => {
-          setCategory(value);
-          setShowCategoryModal(false);
-        }}
-        onClose={() => setShowCategoryModal(false)}
-      />
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowCategoryModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: theme.card },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Select Category
+            </Text>
+            {FORM_CATEGORIES.map((cat) => (
+              <Pressable
+                key={cat}
+                style={styles.modalOption}
+                onPress={() => {
+                  setCategory(cat);
+                  setShowCategoryModal(false);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.modalOptionText,
+                    { color: theme.text },
+                  ]}
+                >
+                  {cat}
+                </Text>
+              </Pressable>
+            ))}
+            <Pressable
+              style={styles.modalCancel}
+              onPress={() => setShowCategoryModal(false)}
+            >
+              <Text
+                style={[
+                  styles.modalCancelText,
+                  { color: theme.accent },
+                ]}
+              >
+                Cancel
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
-      {/* Date Picker */}
-      <DatePickerModal
-        visible={showDatePicker}
-        initialDate={dateObj}
-        onConfirm={(pickedDate) => {
-          setDateObj(pickedDate);
-          applyDateFromDateObj(pickedDate);
-          setShowDatePicker(false);
-        }}
-        onCancel={() => setShowDatePicker(false)}
-      />
+      {/* Date Picker Modal */}
+      {showDatePicker && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDatePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
+              <DateTimePicker
+                value={dateObj}
+                mode="date"
+                display={Platform.OS === "ios" ? "inline" : "calendar"}
+                onChange={handleDateChange}
+              />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
+                  onPress={handleConfirmDate}
+                >
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this date
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
 
-      {/* Start Time Picker */}
-      <TimePickerModal
-        visible={showTimePicker}
-        initialTime={timeObj}
-        onConfirm={(pickedTime) => {
-          setTimeObj(pickedTime);
-          setTime(formatTime(pickedTime));
-          setShowTimePicker(false);
-        }}
-        onCancel={() => setShowTimePicker(false)}
-        title="Select start time"
-      />
+      {/* Start Time Picker Modal */}
+      {showTimePicker && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
+              <DateTimePicker
+                value={timeObj}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "clock"}
+                onChange={handleTimeChange}
+              />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
+                  onPress={handleConfirmTime}
+                >
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this time
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
 
-      {/* End Time Picker */}
-      <TimePickerModal
-        visible={showEndTimePicker}
-        initialTime={endTimeObj}
-        onConfirm={(pickedTime) => {
-          setEndTimeObj(pickedTime);
-          setEndTime(formatTime(pickedTime));
-          setShowEndTimePicker(false);
-        }}
-        onCancel={() => setShowEndTimePicker(false)}
-        title="Select end time"
-      />
+      {/* End Time Picker Modal */}
+      {showEndTimePicker && (
+        <Modal
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowEndTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.pickerModalContent,
+                { backgroundColor: theme.card },
+              ]}
+            >
+              <DateTimePicker
+                value={endTimeObj}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "clock"}
+                onChange={handleEndTimeChange}
+              />
+              <View style={styles.pickerButtonsRow}>
+                <Pressable
+                  style={styles.pickerSecondaryButton}
+                  onPress={() => setShowEndTimePicker(false)}
+                >
+                  <Text
+                    style={[
+                      styles.pickerSecondaryText,
+                      { color: theme.textMuted },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.pickerPrimaryButton,
+                    { backgroundColor: theme.accent },
+                  ]}
+                  onPress={handleConfirmEndTime}
+                >
+                  <Text
+                    style={[
+                      styles.pickerPrimaryText,
+                      { color: theme.background },
+                    ]}
+                  >
+                    Use this time
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -462,5 +714,60 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "700",
     fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  modalOption: {
+    paddingVertical: 10,
+  },
+  modalOptionText: {
+    fontSize: 16,
+  },
+  modalCancel: {
+    marginTop: 12,
+    alignSelf: "flex-end",
+  },
+  modalCancelText: {
+    fontSize: 14,
+  },
+  pickerModalContent: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  pickerButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
+    gap: 8,
+  },
+  pickerSecondaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  pickerSecondaryText: {
+    fontSize: 14,
+  },
+  pickerPrimaryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  pickerPrimaryText: {
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

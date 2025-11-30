@@ -1,3 +1,6 @@
+// screens/PostEventScreen.js
+// Create a new event (Business only)
+
 import React, { useState } from "react";
 import {
   View,
@@ -7,217 +10,20 @@ import {
   TextInput,
   ScrollView,
   Alert,
-  Modal,
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 
 import { useAuth } from "../../context/AuthContext.js";
 import { createEvent } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
 
-function TimePickerModal({
-  visible,
-  initialTime,
-  onConfirm,
-  onCancel,
-  title = "Select time",
-}) {
-  const { theme } = useTheme();
-
-  // ❌ REMOVE this, it breaks hook ordering:
-  // if (!visible) return null;
-
-  const baseDate = initialTime || new Date();
-  const initialHours24 = baseDate.getHours();
-  const initialMinutes = baseDate.getMinutes();
-
-  const initialAmPm = initialHours24 >= 12 ? "PM" : "AM";
-  const initialHour12 = ((initialHours24 + 11) % 12) + 1;
-  const roundTo5 = Math.round(initialMinutes / 5) * 5;
-  const clampedMinutes = Math.min(55, roundTo5);
-  const initialMinute = String(clampedMinutes).padStart(2, "0");
-
-  const [hour, setHour] = useState(initialHour12);
-  const [minute, setMinute] = useState(initialMinute);
-  const [ampm, setAmpm] = useState(initialAmPm);
-
-  const textColor = theme.text || theme.textMain;
-  const textMuted = theme.textMuted;
-  const accent = theme.accent;
-  const onAccent = theme.textOnAccent || theme.background;
-
-  const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
-  const MINUTES = [
-    "00",
-    "05",
-    "10",
-    "15",
-    "20",
-    "25",
-    "30",
-    "35",
-    "40",
-    "45",
-    "50",
-    "55",
-  ];
-  const AMPM = ["AM", "PM"];
-
-  function handleConfirm() {
-    const base = new Date(baseDate.getTime());
-    let h24 = hour % 12;
-    if (ampm === "PM") h24 += 12;
-    base.setHours(h24, parseInt(minute, 10), 0, 0);
-    onConfirm(base);
-  }
-
-  const optionBase = {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    marginVertical: 2,
-    alignItems: "center",
-  };
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onCancel}
-    >
-      <View style={styles.modalOverlay}>
-        <View
-          style={[
-            styles.pickerModalContent,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
-              borderWidth: 1,
-            },
-          ]}
-        >
-          <Text style={[styles.modalTitle, { color: textColor }]}>{title}</Text>
-
-          <View style={styles.timePickerRow}>
-            {/* Hours */}
-            <View style={styles.timeColumn}>
-              <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
-                Hour
-              </Text>
-              <ScrollView style={{ maxHeight: 170 }}>
-                {HOURS.map((h) => {
-                  const selected = h === hour;
-                  return (
-                    <Pressable
-                      key={h}
-                      onPress={() => setHour(h)}
-                      style={[
-                        optionBase,
-                        selected && { backgroundColor: accent },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: selected ? onAccent : textColor,
-                          fontWeight: selected ? "700" : "400",
-                        }}
-                      >
-                        {h}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-
-            {/* Minutes */}
-            <View style={styles.timeColumn}>
-              <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
-                Min
-              </Text>
-              <ScrollView style={{ maxHeight: 170 }}>
-                {MINUTES.map((m) => {
-                  const selected = m === minute;
-                  return (
-                    <Pressable
-                      key={m}
-                      onPress={() => setMinute(m)}
-                      style={[
-                        optionBase,
-                        selected && { backgroundColor: accent },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: selected ? onAccent : textColor,
-                          fontWeight: selected ? "700" : "400",
-                        }}
-                      >
-                        {m}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-
-            {/* AM / PM */}
-            <View style={styles.timeColumn}>
-              <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
-                AM / PM
-              </Text>
-              <ScrollView style={{ maxHeight: 170 }}>
-                {AMPM.map((val) => {
-                  const selected = val === ampm;
-                  return (
-                    <Pressable
-                      key={val}
-                      onPress={() => setAmpm(val)}
-                      style={[
-                        optionBase,
-                        selected && { backgroundColor: accent },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: selected ? onAccent : textColor,
-                          fontWeight: selected ? "700" : "400",
-                        }}
-                      >
-                        {val}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </View>
-
-          <View style={styles.pickerButtonsRow}>
-            <Pressable style={styles.pickerSecondaryButton} onPress={onCancel}>
-              <Text style={[styles.pickerSecondaryText, { color: textMuted }]}>
-                Cancel
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[styles.pickerPrimaryButton, { backgroundColor: accent }]}
-              onPress={handleConfirm}
-            >
-              <Text style={[styles.pickerPrimaryText, { color: onAccent }]}>
-                Use this time
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-}
+// Shared components
+import DatePickerModal from "../../components/DatePickerModal";
+import TimePickerModal from "../../components/TimePickerModal";
+import SelectModal from "../../components/SelectModal";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [
@@ -233,7 +39,7 @@ const CATEGORIES = [
   "Art",
 ];
 
-// All will not be in the categories dropdown menu
+// "All" is not used in the create form dropdown
 const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
 
 export default function PostEventScreen() {
@@ -275,18 +81,6 @@ export default function PostEventScreen() {
     setDate(`${year}-${month}-${day}`);
   };
 
-  // DATE: only update temp date; confirmation button will commit it
-  const handleDateChange = (_, selectedDate) => {
-    if (selectedDate) {
-      setDateObj(selectedDate);
-    }
-  };
-
-  const handleConfirmDate = () => {
-    applyDateFromDateObj(dateObj);
-    setShowDatePicker(false);
-  };
-
   const formatTime = (selectedTime) => {
     let hours = selectedTime.getHours();
     const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
@@ -311,7 +105,6 @@ export default function PostEventScreen() {
     setLoading(true);
 
     try {
-      // Use your improved eventsApi.js function instead of raw fetch
       const { ok, status, data } = await createEvent(
         {
           title,
@@ -326,9 +119,7 @@ export default function PostEventScreen() {
         token
       );
 
-      /* -----------------------------
-       🔴 401 — invalid or deleted token
-      ------------------------------*/
+      // 401 — invalid or deleted token
       if (status === 401) {
         Alert.alert(
           "Session expired",
@@ -343,9 +134,7 @@ export default function PostEventScreen() {
         return;
       }
 
-      /* -----------------------------
-       🔴 403 — not a business
-      ------------------------------*/
+      // 403 — not a business
       if (status === 403) {
         Alert.alert(
           "Not allowed",
@@ -354,17 +143,13 @@ export default function PostEventScreen() {
         return;
       }
 
-      /* -----------------------------
-       🔴 Other errors
-      ------------------------------*/
+      // Other errors
       if (!ok) {
         Alert.alert("Error", data?.message || "Failed to create event.");
         return;
       }
 
-      /* -----------------------------
-       🟢 Success!
-      ------------------------------*/
+      // Success
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
@@ -599,160 +384,45 @@ export default function PostEventScreen() {
           </Pressable>
         </ScrollView>
 
-        {/* Town Modal */}
-        <Modal
+        {/* Town Select Modal (shared) */}
+        <SelectModal
           visible={showTownModal}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setShowTownModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: theme.border,
-                  borderWidth: 1,
-                },
-              ]}
-            >
-              <Text style={[styles.modalTitle, { color: theme.text }]}>
-                Select Town
-              </Text>
-              {TOWNS.map((t) => (
-                <Pressable
-                  key={t}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setTown(t);
-                    setShowTownModal(false);
-                  }}
-                >
-                  <Text style={[styles.modalOptionText, { color: theme.text }]}>
-                    {t}
-                  </Text>
-                </Pressable>
-              ))}
-              <Pressable
-                style={styles.modalCancel}
-                onPress={() => setShowTownModal(false)}
-              >
-                <Text style={[styles.modalCancelText, { color: theme.accent }]}>
-                  Cancel
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+          title="Select Town"
+          options={TOWNS}
+          selectedValue={town}
+          onSelect={(value) => {
+            setTown(value);
+            setShowTownModal(false);
+          }}
+          onClose={() => setShowTownModal(false)}
+        />
 
-        {/* Category Modal */}
-        <Modal
+        {/* Category Select Modal (shared) */}
+        <SelectModal
           visible={showCategoryModal}
-          animationType="slide"
-          transparent
-          onRequestClose={() => setShowCategoryModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: theme.border,
-                  borderWidth: 1,
-                },
-              ]}
-            >
-              <Text style={[styles.modalTitle, { color: theme.text }]}>
-                Select Category
-              </Text>
-              {FORM_CATEGORIES.map((cat) => (
-                <Pressable
-                  key={cat}
-                  style={styles.modalOption}
-                  onPress={() => {
-                    setCategory(cat);
-                    setShowCategoryModal(false);
-                  }}
-                >
-                  <Text style={[styles.modalOptionText, { color: theme.text }]}>
-                    {cat}
-                  </Text>
-                </Pressable>
-              ))}
-              <Pressable
-                style={styles.modalCancel}
-                onPress={() => setShowCategoryModal(false)}
-              >
-                <Text style={[styles.modalCancelText, { color: theme.accent }]}>
-                  Cancel
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+          title="Select Category"
+          options={FORM_CATEGORIES}
+          selectedValue={category}
+          onSelect={(value) => {
+            setCategory(value);
+            setShowCategoryModal(false);
+          }}
+          onClose={() => setShowCategoryModal(false)}
+        />
 
-        {showDatePicker && (
-          <Modal
-            transparent
-            animationType="fade"
-            onRequestClose={() => setShowDatePicker(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <View
-                style={[
-                  styles.pickerModalContent,
-                  {
-                    backgroundColor: theme.card,
-                    borderColor: theme.border,
-                    borderWidth: 1,
-                  },
-                ]}
-              >
-                <DateTimePicker
-                  value={dateObj}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "inline" : "calendar"}
-                  onChange={handleDateChange}
-                  themeVariant={theme.isDark ? "dark" : "light"}
-                />
-                <View style={styles.pickerButtonsRow}>
-                  <Pressable
-                    style={styles.pickerSecondaryButton}
-                    onPress={() => setShowDatePicker(false)}
-                  >
-                    <Text
-                      style={[
-                        styles.pickerSecondaryText,
-                        { color: theme.textMuted },
-                      ]}
-                    >
-                      Cancel
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.pickerPrimaryButton,
-                      { backgroundColor: theme.accent },
-                    ]}
-                    onPress={handleConfirmDate}
-                  >
-                    <Text
-                      style={[
-                        styles.pickerPrimaryText,
-                        { color: theme.onAccent || theme.background },
-                      ]}
-                    >
-                      Use this date
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </Modal>
-        )}
-        {/* Custom Time Picker – Start time */}
+        {/* Date Picker (shared) */}
+        <DatePickerModal
+          visible={showDatePicker}
+          initialDate={dateObj}
+          onConfirm={(pickedDate) => {
+            setDateObj(pickedDate);
+            applyDateFromDateObj(pickedDate);
+            setShowDatePicker(false);
+          }}
+          onCancel={() => setShowDatePicker(false)}
+        />
+
+        {/* Start Time Picker (shared) */}
         <TimePickerModal
           visible={showTimePicker}
           initialTime={timeObj}
@@ -765,7 +435,7 @@ export default function PostEventScreen() {
           }}
         />
 
-        {/* Custom Time Picker – End time */}
+        {/* End Time Picker (shared) */}
         <TimePickerModal
           visible={showEndTimePicker}
           initialTime={endTimeObj}
@@ -826,75 +496,5 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "700",
     fontSize: 16,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-  modalContent: {
-    borderRadius: 12,
-    padding: 16,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-  },
-  modalOption: {
-    paddingVertical: 10,
-  },
-  modalOptionText: {
-    fontSize: 16,
-  },
-  modalCancel: {
-    marginTop: 12,
-    alignSelf: "flex-end",
-  },
-  modalCancelText: {
-    fontSize: 14,
-  },
-  pickerModalContent: {
-    borderRadius: 12,
-    padding: 16,
-  },
-  pickerButtonsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 12,
-    gap: 8,
-  },
-  pickerSecondaryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  pickerSecondaryText: {
-    fontSize: 14,
-  },
-  pickerPrimaryButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  pickerPrimaryText: {
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  timePickerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    marginTop: 4,
-    marginBottom: 12,
-  },
-  timeColumn: {
-    flex: 1,
-    alignItems: "center",
-  },
-  timeColumnLabel: {
-    fontSize: 12,
-    marginBottom: 4,
   },
 });
