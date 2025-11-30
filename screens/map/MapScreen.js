@@ -12,8 +12,6 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  Pressable,
-  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
@@ -22,6 +20,7 @@ import { useNavigation } from "@react-navigation/native";
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
 import { colors } from "../../theme/colors.js";
 import { useTheme } from "../../context/ThemeContext";
+import MapFilters from "../../components/map/MapFilters";
 
 // Simple list of towns for the selector modal
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
@@ -68,7 +67,6 @@ const INITIAL_REGION = {
 function toDateOnlyString(value) {
   if (!value) return null;
 
-  // If already looks like YYYY-MM-DD, just return it
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return value;
   }
@@ -80,18 +78,13 @@ function toDateOnlyString(value) {
 
 export default function MapScreen() {
   const navigation = useNavigation();
-  const mapRef = useRef(null); // reference to the MapView
+  const mapRef = useRef(null);
   const { theme } = useTheme();
 
   // Filter state
   const [selectedTown, setSelectedTown] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDateFilter, setSelectedDateFilter] = useState("All");
-
-  // Modal state
-  const [isTownModalVisible, setIsTownModalVisible] = useState(false);
-  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
-  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
 
   // Data + status state
   const [events, setEvents] = useState([]);
@@ -106,11 +99,13 @@ export default function MapScreen() {
 
       const data = await fetchEventsFromApi();
 
-      const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateA - dateB;
-      });
+      const sorted = (Array.isArray(data) ? data : [])
+        .slice()
+        .sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateA - dateB;
+        });
 
       setEvents(sorted);
     } catch (error) {
@@ -125,7 +120,7 @@ export default function MapScreen() {
     loadEvents();
   }, [loadEvents]);
 
-  // Filter events based on town, category, date RANGE (same logic as Hub)
+  // Filter events for map markers (same logic as Hub date filters)
   const eventsForMap = useMemo(() => {
     const now = new Date();
     const todayStart = new Date(
@@ -156,14 +151,11 @@ export default function MapScreen() {
     }
 
     return events.filter((event) => {
-      // Town filter
       const townMatch = selectedTown === "All" || event.town === selectedTown;
 
-      // Category filter
       const categoryMatch =
         selectedCategory === "All" || event.category === selectedCategory;
 
-      // Date filter
       let dateMatch = true;
 
       if (selectedDateFilter !== "All") {
@@ -175,7 +167,7 @@ export default function MapScreen() {
           if (!y || !m || !d) {
             dateMatch = false;
           } else {
-            const eventDay = new Date(y, m - 1, d); // local start-of-day
+            const eventDay = new Date(y, m - 1, d);
 
             if (rangeStart && rangeEnd) {
               dateMatch = eventDay >= rangeStart && eventDay < rangeEnd;
@@ -188,7 +180,7 @@ export default function MapScreen() {
     });
   }, [events, selectedTown, selectedCategory, selectedDateFilter]);
 
-  // Friendly text for the summary line
+  // Summary line text
   const filterSummary = useMemo(() => {
     const count = eventsForMap.length;
 
@@ -214,7 +206,7 @@ export default function MapScreen() {
     return `Showing ${count} events in ${townLabel} for ${categoryLabel}${dateLabel}.`;
   }, [eventsForMap.length, selectedTown, selectedCategory, selectedDateFilter]);
 
-  // 🔹 Animate camera when selectedTown changes
+  // Animate camera when selectedTown changes
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -226,7 +218,7 @@ export default function MapScreen() {
         targetRegion = {
           latitude: coords.latitude,
           longitude: coords.longitude,
-          latitudeDelta: 0.12, // tighter zoom for town
+          latitudeDelta: 0.12,
           longitudeDelta: 0.18,
         };
       }
@@ -235,7 +227,6 @@ export default function MapScreen() {
     mapRef.current.animateToRegion(targetRegion, 800);
   }, [selectedTown]);
 
-  // When the user taps a marker go to EventDetail
   function handleMarkerPress(event) {
     navigation.navigate("EventDetail", {
       event,
@@ -243,106 +234,24 @@ export default function MapScreen() {
     });
   }
 
-  // --- Handlers for modal selections ---
-  const handleSelectTown = (town) => {
-    setSelectedTown(town);
-    setIsTownModalVisible(false);
-  };
-
-  const handleSelectCategory = (category) => {
-    setSelectedCategory(category);
-    setIsCategoryModalVisible(false);
-  };
-
-  const handleSelectDateFilter = (filter) => {
-    setSelectedDateFilter(filter);
-    setIsDateModalVisible(false);
-  };
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <Text style={[styles.heading, { color: theme.textMain }]}>
-        Explore by Map
-      </Text>
-      <Text style={[styles.subheading, { color: theme.textMuted }]}>
-        See events pinned across Banff, Canmore & Lake Louise.
-      </Text>
-
-      {error ? (
-        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
-      ) : null}
-
-      {/* Pills row – same layout as HubScreen */}
-      <View style={styles.pillRow}>
-        {/* Town Pill */}
-        <Pressable
-          style={[
-            styles.pill,
-            {
-              backgroundColor: theme.pill || theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-          onPress={() => setIsTownModalVisible(true)}
-        >
-          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
-            Town
-          </Text>
-          <Text style={[styles.pillValue, { color: theme.textMain }]}>
-            {selectedTown === "All" ? "All towns ▾" : `${selectedTown} ▾`}
-          </Text>
-        </Pressable>
-
-        {/* Category Pill */}
-        <Pressable
-          style={[
-            styles.pill,
-            {
-              backgroundColor: theme.pill || theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-          onPress={() => setIsCategoryModalVisible(true)}
-        >
-          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
-            Category
-          </Text>
-          <Text style={[styles.pillValue, { color: theme.textMain }]}>
-            {selectedCategory === "All"
-              ? "All categories ▾"
-              : `${selectedCategory} ▾`}
-          </Text>
-        </Pressable>
-
-        {/* Date Pill */}
-        <Pressable
-          style={[
-            styles.pill,
-            {
-              backgroundColor: theme.pill || theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-          onPress={() => setIsDateModalVisible(true)}
-        >
-          <Text style={[styles.pillLabel, { color: theme.textMuted }]}>
-            Date
-          </Text>
-          <Text style={[styles.pillValue, { color: theme.textMain }]}>
-            {selectedDateFilter} ▾
-          </Text>
-        </Pressable>
-      </View>
-
-      <View
-        style={[styles.sectionDivider, { backgroundColor: theme.border }]}
+      {/* Filters header */}
+      <MapFilters
+        selectedTown={selectedTown}
+        selectedCategory={selectedCategory}
+        selectedDateFilter={selectedDateFilter}
+        filterSummary={filterSummary}
+        error={error}
+        towns={TOWNS}
+        categories={CATEGORIES}
+        dateFilters={DATE_FILTERS}
+        onSelectTown={setSelectedTown}
+        onSelectCategory={setSelectedCategory}
+        onSelectDateFilter={setSelectedDateFilter}
       />
-
-      <Text style={[styles.filterSummaryText, { color: theme.textMuted }]}>
-        {filterSummary}
-      </Text>
 
       {/* Map area */}
       <View
@@ -369,7 +278,7 @@ export default function MapScreen() {
           >
             {eventsForMap.map((event) => {
               const coords = TOWN_COORDS[event.town];
-              if (!coords) return null; // skip if town missing or unknown
+              if (!coords) return null;
 
               const key =
                 event._id?.toString() ??
@@ -401,219 +310,6 @@ export default function MapScreen() {
           No events match this town + date range. Try another filter combo.
         </Text>
       )}
-
-      {/* Town Selector Modal */}
-      <Modal
-        visible={isTownModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsTownModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-              },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
-              Choose a town
-            </Text>
-
-            {TOWNS.map((town) => {
-              const isSelected = town === selectedTown;
-              return (
-                <Pressable
-                  key={town}
-                  style={[
-                    styles.townOption,
-                    {
-                      backgroundColor: theme.pill || theme.card,
-                      borderColor: "transparent",
-                    },
-                    isSelected && {
-                      backgroundColor: theme.accentSoft || theme.accent,
-                      borderColor: theme.accent,
-                    },
-                  ]}
-                  onPress={() => handleSelectTown(town)}
-                >
-                  <Text
-                    style={[
-                      styles.townOptionText,
-                      { color: theme.textMain },
-                      isSelected && styles.townOptionTextSelected,
-                    ]}
-                  >
-                    {town === "All" ? "All towns" : town}
-                  </Text>
-                  {isSelected && (
-                    <Text
-                      style={[styles.townCheckMark, { color: theme.accent }]}
-                    >
-                      ✓
-                    </Text>
-                  )}
-                </Pressable>
-              );
-            })}
-
-            <Pressable
-              style={styles.modalCloseButton}
-              onPress={() => setIsTownModalVisible(false)}
-            >
-              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
-                Cancel
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Category Selector Modal */}
-      <Modal
-        visible={isCategoryModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsCategoryModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-              },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
-              Choose a category
-            </Text>
-
-            {CATEGORIES.map((category) => {
-              const isSelected = category === selectedCategory;
-              return (
-                <Pressable
-                  key={category}
-                  style={[
-                    styles.townOption,
-                    {
-                      backgroundColor: theme.pill || theme.card,
-                      borderColor: "transparent",
-                    },
-                    isSelected && {
-                      backgroundColor: theme.accentSoft || theme.accent,
-                      borderColor: theme.accent,
-                    },
-                  ]}
-                  onPress={() => handleSelectCategory(category)}
-                >
-                  <Text
-                    style={[
-                      styles.townOptionText,
-                      { color: theme.textMain },
-                      isSelected && styles.townOptionTextSelected,
-                    ]}
-                  >
-                    {category === "All" ? "All categories" : category}
-                  </Text>
-                  {isSelected && (
-                    <Text
-                      style={[styles.townCheckMark, { color: theme.accent }]}
-                    >
-                      ✓
-                    </Text>
-                  )}
-                </Pressable>
-              );
-            })}
-
-            <Pressable
-              style={styles.modalCloseButton}
-              onPress={() => setIsCategoryModalVisible(false)}
-            >
-              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
-                Cancel
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Date Selector Modal */}
-      <Modal
-        visible={isDateModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsDateModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalCard,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-              },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: theme.textMain }]}>
-              Choose a date range
-            </Text>
-
-            {DATE_FILTERS.map((filter) => {
-              const isSelected = filter === selectedDateFilter;
-              return (
-                <Pressable
-                  key={filter}
-                  style={[
-                    styles.townOption,
-                    {
-                      backgroundColor: theme.pill || theme.card,
-                      borderColor: "transparent",
-                    },
-                    isSelected && {
-                      backgroundColor: theme.accentSoft || theme.accent,
-                      borderColor: theme.accent,
-                    },
-                  ]}
-                  onPress={() => handleSelectDateFilter(filter)}
-                >
-                  <Text
-                    style={[
-                      styles.townOptionText,
-                      { color: theme.textMain },
-                      isSelected && styles.townOptionTextSelected,
-                    ]}
-                  >
-                    {filter}
-                  </Text>
-                  {isSelected && (
-                    <Text
-                      style={[styles.townCheckMark, { color: theme.accent }]}
-                    >
-                      ✓
-                    </Text>
-                  )}
-                </Pressable>
-              );
-            })}
-
-            <Pressable
-              style={styles.modalCloseButton}
-              onPress={() => setIsDateModalVisible(false)}
-            >
-              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
-                Cancel
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -624,60 +320,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.textLight,
-    marginBottom: 4,
-  },
-  subheading: {
-    fontSize: 14,
-    color: colors.textMuted,
-    marginBottom: 8,
-  },
-  errorText: {
-    color: colors.error,
-    marginBottom: 6,
-    fontSize: 13,
-  },
-
-  // ---- Pills ----
-  pillRow: {
-    gap: 12,
-    marginBottom: 12,
-  },
-  pill: {
-    borderRadius: 999,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  pillLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: colors.textMuted,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  pillValue: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: colors.textLight,
-  },
-  sectionDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginTop: 4,
-    marginBottom: 6,
-  },
-  filterSummaryText: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginBottom: 8,
   },
 
   // ---- Map ----
@@ -707,66 +349,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: colors.textMuted,
     fontSize: 13,
-  },
-
-  // ----- Modal styles (same as Hub) -----
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalCard: {
-    width: "85%",
-    maxHeight: "70%",
-    backgroundColor: colors.secondary,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.textLight,
-    marginBottom: 12,
-  },
-  townOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 999,
-    marginBottom: 8,
-    backgroundColor: colors.cardDark,
-    borderWidth: 1,
-    borderColor: "transparent",
-  },
-  townOptionSelected: {
-    backgroundColor: colors.tealTint,
-    borderColor: colors.teal,
-  },
-  townOptionText: {
-    fontSize: 15,
-    color: colors.textLight,
-  },
-  townOptionTextSelected: {
-    fontWeight: "700",
-  },
-  townCheckMark: {
-    fontSize: 16,
-    color: colors.accent,
-  },
-  modalCloseButton: {
-    marginTop: 8,
-    alignSelf: "flex-end",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  modalCloseText: {
-    fontSize: 14,
-    color: colors.textMuted,
   },
 });

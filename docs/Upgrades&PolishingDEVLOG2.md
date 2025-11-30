@@ -316,11 +316,10 @@ Git Commit Sprint 12
 
 ### Sprint Goals
 
-1. Community Screen 
+1. Community Screen
 2. Hub Screen
 3. Account Tab
 4. Map
-
 
 ### Challenges + How I Solved Them
 
@@ -336,7 +335,13 @@ Git Commit Sprint 12
 
 ---
 
-<b>Issue: </b>
+<b>Issue: Account Screen</b>
+
+<b>Fix:</b>
+
+---
+
+<b>Issue: Map Screen</b>
 
 <b>Fix:</b>
 
