@@ -297,7 +297,7 @@ export default function HubScreen() {
 
         {refreshing && (
           <View style={styles.refreshOverlay}>
-            <ActivityIndicator size="large" color="#ffffff" />
+            <ActivityIndicator size="large" color={theme.accent} />
           </View>
         )}
       </View>
@@ -308,11 +308,9 @@ export default function HubScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -332,8 +330,8 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 24,
     textAlign: "center",
-    color: colors.textMuted,
     fontSize: 14,
+    // color comes from theme
   },
   center: {
     flex: 1,
@@ -342,7 +340,8 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 8,
-    color: colors.textMuted,
+    fontSize: 14,
+    // color comes from theme
   },
   refreshOverlay: {
     position: "absolute",

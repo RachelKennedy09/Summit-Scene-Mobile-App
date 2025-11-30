@@ -7,12 +7,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
@@ -99,13 +94,11 @@ export default function MapScreen() {
 
       const data = await fetchEventsFromApi();
 
-      const sorted = (Array.isArray(data) ? data : [])
-        .slice()
-        .sort((a, b) => {
-          const dateA = new Date(a.date);
-          const dateB = new Date(b.date);
-          return dateA - dateB;
-        });
+      const sorted = (Array.isArray(data) ? data : []).slice().sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB;
+      });
 
       setEvents(sorted);
     } catch (error) {
@@ -317,7 +310,6 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -328,8 +320,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.secondary,
   },
   map: {
     flex: 1,
@@ -341,13 +331,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 8,
-    color: colors.textMuted,
     fontSize: 14,
   },
   emptyText: {
     marginTop: 10,
     textAlign: "center",
-    color: colors.textMuted,
     fontSize: 13,
   },
 });

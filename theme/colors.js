@@ -1,5 +1,5 @@
-// theme/color.js
-// Global color palette for Summit Scene
+// theme/colors.js
+// Global color palette for SummitScene
 // Centralizes brand colors so we stay consistent across screens and components.
 
 export const colors = {
@@ -7,7 +7,7 @@ export const colors = {
   primary: "#0b1522", // deep mountain blue (backgrounds, headers)
   secondary: "#1e293b", // slate dark (cards, tab backgrounds)
   accent: "#3b82f6", // bright blue (buttons, categories)
-  pinkAccent: "#ec4899", // optional accent for chips or highlights
+  pinkAccent: "#f7b4d5ff", // optional accent for chips or highlights
 
   // TEXT
   textLight: "#e2e8f0", // light gray-blue (text on dark backgrounds)
@@ -27,12 +27,13 @@ export const colors = {
   warning: "#facc15",
   successTint: "#022c22",
 
-  // MAP MARKER COLORS
+  // MAP MARKER COLORS (FUTURE for custom pin colors)
   markerDefault: "#3b82f6",
   markerFood: "#f97316",
   markerMusic: "#8b5cf6",
   markerOutdoor: "#22c55e",
 
+  // Misc brand helpers
   cta: "#FF8A3D", // call-to-action orange (buttons, highlights)
   danger: "#b91c1c", // delete buttons
   teal: "#0f766e", // business-owner badge color
