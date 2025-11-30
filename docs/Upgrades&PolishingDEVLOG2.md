@@ -410,3 +410,5 @@ Overall, the Event tab is now more consistent and far less repetitive. Any futur
 - That cleanup sprints are just as important as feature sprints — once the screens are smaller and more modular, it’s mentally easier to add new features without fear of breaking everything.
 
 ### photos of progress Sprint 13
+
+![alt text](devlogimages/Gitcommitsprint13.png)
