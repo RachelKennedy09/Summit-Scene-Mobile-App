@@ -57,4 +57,4 @@ async function startServer() {
 // Call the startup process
 startServer();
 
-// export default app;
+export default app;
