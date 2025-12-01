@@ -138,7 +138,7 @@ SummitSceneMobileApp/
 │   │   ├── EventHostSection.js
 │   │   └── EventOwnerSection.js
 │       └──DatePickerModal.js
-│       └── TimePickerModal.js
+│       └──TimePickerModal.js
 │   ├── hub/
 │   │   └── HubFilters.js
 │   └── map/

@@ -40,7 +40,6 @@ export default function EditProfileScreen({ navigation }) {
   }
 
   const isBusiness = user.role === "business";
-  const isLocal = user.role === "local"; // (still here if you use it later)
 
   // Role-based heading + helper text
   const titleText = isBusiness ? "Event posting profile" : "Edit profile";

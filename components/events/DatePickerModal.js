@@ -1,6 +1,8 @@
 // components/events/DatePickerModal.js
 // Reusable date picker modal for selecting event dates
 
+// components/events/DatePickerModal.js
+
 import React, { useState } from "react";
 import {
   Modal,
@@ -27,23 +29,18 @@ export default function DatePickerModal({
   const baseDate = initialDate || new Date();
   const [selectedDate, setSelectedDate] = useState(baseDate);
 
-  const handleChange = (event, date) => {
+  const handleChange = (_event, date) => {
     if (date) {
       setSelectedDate(date);
     }
-
   };
 
   const handleConfirm = () => {
-    if (onConfirm) {
-      onConfirm(selectedDate);
-    }
+    onConfirm && onConfirm(selectedDate);
   };
 
   const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
+    onCancel && onCancel();
   };
 
   return (
@@ -57,10 +54,10 @@ export default function DatePickerModal({
         <View
           style={[
             styles.modalContainer,
-            { backgroundColor: theme.cardBackground || "#fff" },
+            { backgroundColor: theme.card || "#fff" },
           ]}
         >
-          <Text style={[styles.title, { color: theme.textPrimary || "#222" }]}>
+          <Text style={[styles.title, { color: theme.text || "#222" }]}>
             {title}
           </Text>
 
@@ -75,11 +72,31 @@ export default function DatePickerModal({
 
           <View style={styles.buttonRow}>
             <Pressable style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelText}>Cancel</Text>
+              <Text
+                style={[
+                  styles.cancelText,
+                  { color: theme.textMuted || "#777" },
+                ]}
+              >
+                Cancel
+              </Text>
             </Pressable>
 
-            <Pressable style={styles.confirmButton} onPress={handleConfirm}>
-              <Text style={styles.confirmText}>Confirm</Text>
+            <Pressable
+              style={[
+                styles.confirmButton,
+                { backgroundColor: theme.accent || "#2f7cff" },
+              ]}
+              onPress={handleConfirm}
+            >
+              <Text
+                style={[
+                  styles.confirmText,
+                  { color: theme.onAccent || "#fff" },
+                ]}
+              >
+                Confirm
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -122,17 +139,14 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: "#777",
   },
   confirmButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 999,
-    backgroundColor: "#2f7cff",
   },
   confirmText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
   },
 });
