@@ -22,4 +22,7 @@ This shows that authentication, event fetching, authorization middleware, and co
 
 
 Server Terminal Mocha/Chai test success
-![alt text](image.png)
+![alt text](devlogimages/TERMINALtestsuccess.png)
+
+Github commit ( Pre deployment on Render)
+![alt text](devlogimages/GitCommitTests.png)
