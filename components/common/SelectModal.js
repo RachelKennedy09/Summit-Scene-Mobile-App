@@ -1,13 +1,7 @@
 // components/SelectModal.js
 import React from "react";
-import {
-  View,
-  Text,
-  Modal,
-  Pressable,
-  StyleSheet,
-} from "react-native";
-import { useTheme } from "../context/ThemeContext";
+import { View, Text, Modal, Pressable, StyleSheet } from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function SelectModal({
   visible,
@@ -29,12 +23,7 @@ export default function SelectModal({
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View
-          style={[
-            styles.modalContent,
-            { backgroundColor: theme.card },
-          ]}
-        >
+        <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
           <Text style={[styles.modalTitle, { color: theme.text }]}>
             {title}
           </Text>
@@ -64,26 +53,14 @@ export default function SelectModal({
                   {opt}
                 </Text>
                 {isSelected && (
-                  <Text
-                    style={[
-                      styles.check,
-                      { color: theme.accent },
-                    ]}
-                  >
-                    ✓
-                  </Text>
+                  <Text style={[styles.check, { color: theme.accent }]}>✓</Text>
                 )}
               </Pressable>
             );
           })}
 
           <Pressable style={styles.cancelButton} onPress={onClose}>
-            <Text
-              style={[
-                styles.cancelText,
-                { color: theme.accent },
-              ]}
-            >
+            <Text style={[styles.cancelText, { color: theme.accent }]}>
               Cancel
             </Text>
           </Pressable>

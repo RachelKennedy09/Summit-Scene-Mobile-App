@@ -32,7 +32,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
   const [error, setError] = useState(null);
 
   const API_BASE_URL =
-    process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+    process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
 
   async function handleSave() {
     if (!title.trim() || !body.trim()) {

@@ -9,8 +9,7 @@ import {
   Modal,
 } from "react-native";
 
-
-import { useTheme } from "../context/ThemeContext"; // <-- note the path
+import { useTheme } from "../../context/ThemeContext"; // <-- note the path
 
 function TimePickerModal({
   visible,

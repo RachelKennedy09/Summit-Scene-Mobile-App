@@ -18,7 +18,7 @@ import {
   toggleCommunityLike,
 } from "../../services/communityApi";
 
-import MemberProfileModal from "./MemberProfileModal";
+import MemberProfileModal from "../../components/account/MemberProfileModal";
 
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,7 +26,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
-import CommunityPostCard from "./CommunityPostCard";
+import CommunityPostCard from "../../components/cards/CommunityPostCard";
 
 // post types (backend values and labels)
 const POST_TYPES = [

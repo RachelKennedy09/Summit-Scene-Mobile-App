@@ -17,7 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 import { useTheme } from "../../context/ThemeContext";
 
-const API_BASE_URL = "http://172.28.248.13:4000/api";
+const API_BASE_URL = "https://summit-scene-backend.onrender.com";
 
 export default function MyEventsScreen({ navigation }) {
   const { user, token } = useAuth();

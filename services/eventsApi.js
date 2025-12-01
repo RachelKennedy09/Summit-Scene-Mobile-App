@@ -2,7 +2,7 @@
 // Small helper for talking to the SummitScene backend
 
 const BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+  process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
 
 /* --------------------------------------------------
    FETCH ALL EVENTS

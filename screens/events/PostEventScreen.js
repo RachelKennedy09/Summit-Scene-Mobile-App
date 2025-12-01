@@ -21,9 +21,9 @@ import { createEvent } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
 
 // Shared components
-import DatePickerModal from "../../components/DatePickerModal";
-import TimePickerModal from "../../components/TimePickerModal";
-import SelectModal from "../../components/SelectModal";
+import DatePickerModal from "../../components/events/DatePickerModal.js";
+import TimePickerModal from "../../components/events/TimePickerModal.js";
+import SelectModal from "../../components/common/SelectModal";
 
 const TOWNS = ["Banff", "Canmore", "Lake Louise"];
 const CATEGORIES = [

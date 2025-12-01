@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // API base URL
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.28.248.13:4000";
+  process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
 
 // Single place for our token key
 const TOKEN_KEY = "authToken";

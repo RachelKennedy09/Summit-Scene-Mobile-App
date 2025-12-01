@@ -1,8 +1,191 @@
+## Running the Project Locally
+
+You can run both the backend and mobile client locally if desired.
+
+### 🔧 1. Clone the repository
+
+`git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git`
+
+`cd SummitSceneMobileApp`
+
+### 2. Set up the Backend (Node + Express)
+
+`cd server`
+
+`npm install`
+
+Create a `.env` file inside `server/`: (See .env.example)
+
+Start the server
+
+`npm start`
+
+You should see:
+
+"connected to MongoDB
+
+SummitScene API listening on port 4000"
+
+### 3. Run the Mobile App (Expo)
+
+Open a second terminal:
+
+`cd ..
+npm install
+expo start`
+
+Scan the QR code with your phone or run on an emulator.
+
+By default the app uses:
+
+**API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL
+|| "https://summit-scene-backend.onrender.com"**
+
+To use your local backend, run Expo with:
+
+`EXPO_PUBLIC_API_BASE_URL="http://YOUR_LOCAL_IP:4000" expo start`
+
+### 4. Production Deployment
+
+The backend is deployed on Render, and the mobile app is published on Expo, allowing anyone to test without local setup.
+
+(Links included below)
+
+https://summit-scene-backend.onrender.com
+
 ## 🏗 Architecture
 
-SummitScene is a full-stack JavaScript application with three main layers and two user roles:
+### 🔍 High-Level Architecture Diagram
+
+               ┌────────────────────────────┐
+               │    React Native App       │
+               │        (Expo)             │
+               │  - Hub / Map / Post       │
+               │  - Community / Account    │
+               └────────────┬──────────────┘
+                            │
+                            │  HTTPS (fetch, JSON)
+                            ▼
+               ┌────────────────────────────┐
+               │   Node.js + Express API    │
+               │        (Render)            │
+               │  Routes:                   │
+               │   - /api/auth              │
+               │   - /api/events            │
+               │   - /api/community         │
+               │                            │
+               │  Middleware:               │
+               │   - authMiddleware         │
+               │   - isBusiness             │
+               └────────────┬──────────────┘
+                            │
+                            │  Mongoose (ODM)
+                            ▼
+               ┌────────────────────────────┐
+               │      MongoDB Atlas         │
+               │  Collections:              │
+               │   - users                  │
+               │   - events                 │
+               │   - communityposts         │
+               └────────────────────────────┘
+
+## 📂 Folder Structure
+
+````text
+SummitSceneMobileApp/
+├── App.js
+├── app.json
+├── package.json              # Expo / mobile dependencies & scripts
+├── assets/                   # Images, icons, fonts, etc.
+│   ├── logo.png
+│   ├── splash.png
+│   └── icon.png
+│   └── adaptive-icon.png
+│   └── favicon.png
+├── screens/                  # Organized by feature/area
+│   ├── auth/
+│   │   ├── LoginScreen.js
+│   │   └── RegisterScreen.js
+│   ├── hub/
+│   │   └── HubScreen.js
+│   ├── map/
+│   │   └── MapScreen.js
+│   ├── events/
+│   │   ├── PostEventScreen.js
+│   │   ├── EditEventScreen.js
+│   │   └── EventDetailScreen.js
+│   │   └── MyEventsScreen.js
+│   ├── community/
+│   │   ├── CommunityScreen.js
+│   │
+│   │   └── CommunityPostScreen.js
+│   │   └── EditCommunityPostScreen.js
+│   │
+│   └── account/
+│       └── AccountScreen.js
+│       └── EditProfileScreen.js
+│
+├── components/               # Reusable UI components grouped by feature
+│   ├── account/
+│   │   └── AccountHeaderCard.js
+│   │   └── ProfileCard.js
+│   │   └── ThemeSection.js
+│   │   └── MemberProfileModal.js
+│   ├── cards/
+│   │   ├── EventCard.js
+│   │   └── CommunityPostCard.js
+│   ├── events/
+│   │   ├── EventHostSection.js
+│   │   └── EventOwnerSection.js
+│       └──DatePickerModal.js
+│       └── TimePickerModal.js
+│   ├── hub/
+│   │   └── HubFilters.js
+│   └── map/
+│       └── MapFilters.js
+│   └── common/
+│       └──  SelectModal.js
+│
+├── navigation/               # Navigation setup
+│   ├── RootNavigator.js
+│   └── TabNavigator.js
+├── context/                  # Global state (Context API)
+│   ├── AuthContext.js
+│   └── ThemeContext.js
+├── services/                 # API helper modules
+│   ├── eventsApi.js
+│   ├── communityApi.js
+│
+├── theme/
+│   ├── colors.js             # Shared color tokens
+│   └── themes.js             # Light / dark / extra themes
+└── server/                   # Backend (Node.js + Express API)
+    ├── package.json
+    ├── index.js              # Express app entrypoint (export default app)
+    ├── routes/
+    │   ├── auth.js
+    │   ├── events.js
+    │   └── community.js
+        └── users.js
+    ├── controllers/
+    │   ├── eventController.js
+    │   └── communityController.js
+    ├── models/
+    │   ├── User.js
+    │   ├── Event.js
+    │   └── CommunityPost.js
+    ├── middleware/
+    │   ├── auth.js           # Verifies JWT, attaches req.user
+    │   └── isBusiness.js     # Ensures user.role === "business"
+    ├── test/
+    │   └── api.test.js       # Mocha/Chai/Supertest integration tests
+    └── config/               # (optional) DB or config helpers if used
+        └── db.js             # Mongoose connection helper (if separated)
+
+## SummitScene is a full-stack mobile application with three main layers and two user roles:
 
 **Local users** – log in to browse events, use the map, read and create community posts (highway conditions, ride shares, event buddies).
+
 
 **Business users** – have all local capabilities plus the ability to create and manage events.
 
@@ -32,7 +215,7 @@ SummitScene is a full-stack JavaScript application with three main layers and tw
 
      **Routes** are grouped by function:
 
-     - `/api/auth`  
+     - `/api/auth`
         – user registration and login (returns JWT tokens for both locals and businesses)
      - `/api/events`
        – event CRUD for business users
@@ -79,6 +262,8 @@ SummitScene is a full-stack JavaScript application with three main layers and tw
 4. `isBusiness` checks that `req.user.role` is `"business"` and only then allows the request to continue.
 5. The events controller validates the payload, saves an `Event` document in MongoDB, and returns the new event.
 6. The frontend updates the UI so the user sees their event in the Hub and Map screens.
+
+
 
 **Data Flow Example 2: Local User Browsing and Posting in Community**
 
@@ -179,6 +364,41 @@ In the `server` folder run:
 - **npm** scripts for running the backend server, tests, and development tools.
 - A **devlog** (linked below) documents weekly progress, debugging steps, and key design decisions.
 
-```
 
-```
+
+## 🚀 Deployment
+
+SummitScene is fully deployed with a **live backend** on Render and a **mobile client** published with Expo. This allows the application to be tested on any device without requiring local server setup.
+
+### 📡 Backend Deployment (Node.js + Express)
+
+The backend API is deployed as a Render Web Service:
+
+**Live API Base URL:**
+`https://summit-scene-backend.onrender.com`
+
+#### Configuration Details:
+
+- **Hosting Provider:** Render (Node Web Service)
+- **Root Directory:** `server/` (monorepo structure)
+- **Build Command:** `npm install`
+- **Start Command:** `npm start`
+- **Environment Variables:**
+  - `MONGODB_URI` – MongoDB Atlas connection string
+  - `JWT_SECRET` – Secret used to sign JWT authentication tokens
+  - `NODE_ENV=production`
+- **Automatic deployments** are triggered on every push to the GitHub `main` branch.
+
+The backend connects directly to **MongoDB Atlas**, allowing real-time data storage across events, users, and community posts.
+
+---
+
+### 📱 Mobile App Deployment (Expo)
+
+The mobile client is built with **React Native (Expo)** and communicates with the Render backend through an environment variable:
+
+```js
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
+````
