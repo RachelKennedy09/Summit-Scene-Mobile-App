@@ -53,9 +53,9 @@ The backend is deployed on Render, and the mobile app is published on Expo, allo
 
 https://summit-scene-backend.onrender.com
 
-## 🏗 Architecture
+## Architecture
 
-### 🔍 High-Level Architecture Diagram
+### High-Level Architecture Diagram
 
                ┌────────────────────────────┐
                │    React Native App       │
@@ -89,20 +89,20 @@ https://summit-scene-backend.onrender.com
                │   - communityposts         │
                └────────────────────────────┘
 
-## 📂 Folder Structure
+### Folder Structure
 
-````text
+```text
 SummitSceneMobileApp/
 ├── App.js
 ├── app.json
-├── package.json              # Expo / mobile dependencies & scripts
-├── assets/                   # Images, icons, fonts, etc.
+├── package.json
+├── assets/
 │   ├── logo.png
 │   ├── splash.png
-│   └── icon.png
-│   └── adaptive-icon.png
+│   ├── icon.png
+│   ├── adaptive-icon.png
 │   └── favicon.png
-├── screens/                  # Organized by feature/area
+├── screens/
 │   ├── auth/
 │   │   ├── LoginScreen.js
 │   │   └── RegisterScreen.js
@@ -113,60 +113,62 @@ SummitSceneMobileApp/
 │   ├── events/
 │   │   ├── PostEventScreen.js
 │   │   ├── EditEventScreen.js
-│   │   └── EventDetailScreen.js
+│   │   ├── EventDetailScreen.js
 │   │   └── MyEventsScreen.js
 │   ├── community/
 │   │   ├── CommunityScreen.js
-│   │
-│   │   └── CommunityPostScreen.js
+│   │   ├── CommunityPostScreen.js
 │   │   └── EditCommunityPostScreen.js
-│   │
 │   └── account/
-│       └── AccountScreen.js
+│       ├── AccountScreen.js
 │       └── EditProfileScreen.js
 │
-├── components/               # Reusable UI components grouped by feature
+├── components/
 │   ├── account/
-│   │   └── AccountHeaderCard.js
-│   │   └── ProfileCard.js
-│   │   └── ThemeSection.js
+│   │   ├── AccountHeaderCard.js
+│   │   ├── ProfileCard.js
+│   │   ├── ThemeSection.js
 │   │   └── MemberProfileModal.js
 │   ├── cards/
 │   │   ├── EventCard.js
 │   │   └── CommunityPostCard.js
 │   ├── events/
 │   │   ├── EventHostSection.js
-│   │   └── EventOwnerSection.js
-│       └──DatePickerModal.js
-│       └──TimePickerModal.js
+│   │   ├── EventOwnerSection.js
+│   │   ├── DatePickerModal.js
+│   │   └── TimePickerModal.js
 │   ├── hub/
 │   │   └── HubFilters.js
-│   └── map/
-│       └── MapFilters.js
+│   ├── map/
+│   │   └── MapFilters.js
 │   └── common/
-│       └──  SelectModal.js
+│       └── SelectModal.js
 │
-├── navigation/               # Navigation setup
+├── navigation/
 │   ├── RootNavigator.js
 │   └── TabNavigator.js
-├── context/                  # Global state (Context API)
+│
+├── context/
 │   ├── AuthContext.js
 │   └── ThemeContext.js
-├── services/                 # API helper modules
+│
+├── services/
 │   ├── eventsApi.js
 │   ├── communityApi.js
+│   └── authApi.js
 │
 ├── theme/
-│   ├── colors.js             # Shared color tokens
-│   └── themes.js             # Light / dark / extra themes
-└── server/                   # Backend (Node.js + Express API)
+│   ├── colors.js
+│   └── themes.js
+│
+└── server/
     ├── package.json
-    ├── index.js              # Express app entrypoint (export default app)
+    ├── index.js
     ├── routes/
     │   ├── auth.js
     │   ├── events.js
-    │   └── community.js
-        └── users.js
+    │   ├── community.js
+    │   └── users.js
     ├── controllers/
     │   ├── eventController.js
     │   └── communityController.js
@@ -175,17 +177,18 @@ SummitSceneMobileApp/
     │   ├── Event.js
     │   └── CommunityPost.js
     ├── middleware/
-    │   ├── auth.js           # Verifies JWT, attaches req.user
-    │   └── isBusiness.js     # Ensures user.role === "business"
+    │   ├── auth.js
+    │   └── isBusiness.js
     ├── test/
-    │   └── api.test.js       # Mocha/Chai/Supertest integration tests
-    └── config/               # (optional) DB or config helpers if used
-        └── db.js             # Mongoose connection helper (if separated)
+    │   └── api.test.js
+    └── config/
+        └── db.js
+```
 
-## SummitScene is a full-stack mobile application with three main layers and two user roles:
+### SummitScene is a full-stack mobile application with three main layers and two user roles:
+
 
 **Local users** – log in to browse events, use the map, read and create community posts (highway conditions, ride shares, event buddies).
-
 
 **Business users** – have all local capabilities plus the ability to create and manage events.
 
@@ -216,7 +219,7 @@ SummitSceneMobileApp/
      **Routes** are grouped by function:
 
      - `/api/auth`
-        – user registration and login (returns JWT tokens for both locals and businesses)
+       – user registration and login (returns JWT tokens for both locals and businesses)
      - `/api/events`
        – event CRUD for business users
        - `GET /api/events` – list events (for all logged-in users to browse).
@@ -262,8 +265,6 @@ SummitSceneMobileApp/
 4. `isBusiness` checks that `req.user.role` is `"business"` and only then allows the request to continue.
 5. The events controller validates the payload, saves an `Event` document in MongoDB, and returns the new event.
 6. The frontend updates the UI so the user sees their event in the Hub and Map screens.
-
-
 
 **Data Flow Example 2: Local User Browsing and Posting in Community**
 
@@ -364,8 +365,6 @@ In the `server` folder run:
 - **npm** scripts for running the backend server, tests, and development tools.
 - A **devlog** (linked below) documents weekly progress, debugging steps, and key design decisions.
 
-
-
 ## 🚀 Deployment
 
 SummitScene is fully deployed with a **live backend** on Render and a **mobile client** published with Expo. This allows the application to be tested on any device without requiring local server setup.
@@ -397,8 +396,6 @@ The backend connects directly to **MongoDB Atlas**, allowing real-time data stor
 
 The mobile client is built with **React Native (Expo)** and communicates with the Render backend through an environment variable:
 
-```js
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ||
-  "https://summit-scene-backend.onrender.com";
-````
+process.env.EXPO_PUBLIC_API_BASE_URL ||
+"https://summit-scene-backend.onrender.com";
