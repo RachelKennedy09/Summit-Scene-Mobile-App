@@ -50,6 +50,14 @@ const TOWN_COORDS = {
   "Lake Louise": { latitude: 51.4254, longitude: -116.1773 },
 };
 
+// Normalized map (lowercase keys) for safer matching
+const NORMALIZED_TOWN_COORDS = Object.fromEntries(
+  Object.entries(TOWN_COORDS).map(([name, coords]) => [
+    name.toLowerCase(),
+    coords,
+  ])
+);
+
 // Map starting position (roughly between Banff & Canmore)
 const INITIAL_REGION = {
   latitude: 51.18,
@@ -69,6 +77,26 @@ function toDateOnlyString(value) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
   return d.toISOString().slice(0, 10);
+}
+
+// Tiny helper to "fan out" markers per town so they don't sit exactly on top of each other
+function getOffsetForTownIndex(index) {
+  // Bigger step so you can clearly see the difference at current zoom
+  const step = 0.02; // try 0.02 first, we can shrink later
+
+  const patterns = [
+    { lat: 0, lng: 0 }, // first marker center
+    { lat: step, lng: 0 },
+    { lat: -step, lng: 0 },
+    { lat: 0, lng: step },
+    { lat: 0, lng: -step },
+    { lat: step, lng: step },
+    { lat: -step, lng: -step },
+    { lat: step, lng: -step },
+    { lat: -step, lng: step },
+  ];
+
+  return patterns[index % patterns.length];
 }
 
 export default function MapScreen() {
@@ -269,31 +297,51 @@ export default function MapScreen() {
             style={styles.map}
             initialRegion={INITIAL_REGION}
           >
-            {eventsForMap.map((event) => {
-              const coords = TOWN_COORDS[event.town];
-              if (!coords) return null;
+            {(() => {
+              // Keep a count per town so we know how much to offset each marker
+              const townCounts = {};
 
-              const key =
-                event._id?.toString() ??
-                `${event.title}-${event.date}-${event.time}`;
+              return eventsForMap.map((event) => {
+                const rawTown = event.town || "";
+                const coords = TOWN_COORDS[rawTown];
 
-              const descriptionPieces = [];
-              if (event.location) descriptionPieces.push(event.location);
-              if (event.date)
-                descriptionPieces.push(toDateOnlyString(event.date));
-              if (event.time) descriptionPieces.push(event.time);
-              const description = descriptionPieces.join(" • ");
+                // If we really don't know the town, skip
+                if (!coords) return null;
 
-              return (
-                <Marker
-                  key={key}
-                  coordinate={coords}
-                  title={event.title}
-                  description={description}
-                  onPress={() => handleMarkerPress(event)}
-                />
-              );
-            })}
+                const townKey = rawTown;
+                const indexForTown = townCounts[townKey] || 0;
+                townCounts[townKey] = indexForTown + 1;
+
+                // Get a small offset based on how many markers we've already placed for this town
+                const offset = getOffsetForTownIndex(indexForTown);
+
+                const finalCoords = {
+                  latitude: coords.latitude + offset.lat,
+                  longitude: coords.longitude + offset.lng,
+                };
+
+                const key =
+                  event._id?.toString() ??
+                  `${event.title}-${event.date}-${event.time}`;
+
+                const descriptionPieces = [];
+                if (event.location) descriptionPieces.push(event.location);
+                const dateOnly = toDateOnlyString(event.date);
+                if (dateOnly) descriptionPieces.push(dateOnly);
+                if (event.time) descriptionPieces.push(event.time);
+                const description = descriptionPieces.join(" • ");
+
+                return (
+                  <Marker
+                    key={key}
+                    coordinate={finalCoords}
+                    title={event.title}
+                    description={description}
+                    onPress={() => handleMarkerPress(event)}
+                  />
+                );
+              });
+            })()}
           </MapView>
         )}
       </View>

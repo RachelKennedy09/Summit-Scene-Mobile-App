@@ -293,6 +293,7 @@ export default function HubScreen() {
               {emptyMessage}
             </Text>
           }
+          showsVerticalScrollIndicator={false}
         />
 
         {refreshing && (

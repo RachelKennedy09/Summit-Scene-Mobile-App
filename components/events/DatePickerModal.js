@@ -25,7 +25,6 @@ export default function DatePickerModal({
   const baseDate = initialDate || new Date();
   const [selectedDate, setSelectedDate] = useState(baseDate);
 
-  // ❗ hooks are above this line – now safe
   if (!visible) return null;
 
   const handleChange = (_event, date) => {
@@ -42,11 +41,20 @@ export default function DatePickerModal({
     onCancel && onCancel();
   };
 
+  // ---- Theme safety / contrast helpers ----
   const bg = theme.card || "#fff";
   const textMain = theme.text || "#222";
   const textMuted = theme.textMuted || "#777";
   const accent = theme.accent || "#2f7cff";
   const onAccent = theme.onAccent || "#fff";
+
+  // If you ever add theme.isDark / mode, you can hook into it here:
+  const isDarkTheme =
+    theme.isDark === true || theme.mode === "dark" || theme.name === "dark";
+
+  // For the picker itself we *force* a visible text color
+  const pickerTextColor = isDarkTheme ? "#ffffff" : "#111111";
+  const pickerThemeVariant = isDarkTheme ? "dark" : "light";
 
   return (
     <Modal
@@ -59,16 +67,28 @@ export default function DatePickerModal({
         <View style={[styles.modalContainer, { backgroundColor: bg }]}>
           <Text style={[styles.title, { color: textMain }]}>{title}</Text>
 
-          <View style={styles.pickerWrapper}>
+          <View
+            style={[
+              styles.pickerWrapper,
+              {
+                backgroundColor: isDarkTheme ? "#111" : "#f2f2f2",
+                borderRadius: 12,
+                paddingVertical: 4,
+                paddingHorizontal: Platform.OS === "ios" ? 0 : 8,
+              },
+            ]}
+          >
             <DateTimePicker
               value={selectedDate}
               mode="date"
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={handleChange}
+              textColor={pickerTextColor}
+              themeVariant={pickerThemeVariant}
             />
           </View>
 
-          <View style={styles.buttonRow}>
+          <View className="button-row" style={styles.buttonRow}>
             <Pressable style={styles.cancelButton} onPress={handleCancel}>
               <Text style={[styles.cancelText, { color: textMuted }]}>
                 Cancel

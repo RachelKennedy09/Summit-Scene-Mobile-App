@@ -376,7 +376,6 @@ Some components used hardcoded colors—causing mismatches when switching theme 
 - Improved readability and compatibility for native pickers
 - Created a reliable token-based design foundation for all future UI polish
 
-
 ### What I Learned
 
 - How to architect a reusable, global theme system in React Native
@@ -421,7 +420,7 @@ Git Commit - Sprint 12
 
 The file mixed UI, backend logic, modals, and profile rendering all in one place.
 
-<b>Fix:</b> 
+<b>Fix:</b>
 
 - Moved all backend requests to a new communityApi.js service
 - Extracted profile UI into MemberProfileModal.js
@@ -429,14 +428,13 @@ The file mixed UI, backend logic, modals, and profile rendering all in one place
   - loading posts
   - filtering
   - rendering the main layout
-  This follows clean separation of concerns.
+    This follows clean separation of concerns.
 
 ---
 
 <b>Issue: HubScreen was nearly 1000 lines and mixing filters + rendering</b>
 
 Filter UI, constants, and list rendering all lived in one giant file.
-
 
 <b>Fix:</b>
 
@@ -447,15 +445,15 @@ Filter UI, constants, and list rendering all lived in one giant file.
   - filtering logic
   - result summary
   - simple renderEvent() function
-  Much easier to extend for future Sprint 14–15 upgrades.
+    Much easier to extend for future Sprint 14–15 upgrades.
 
 ---
 
 <b>Issue: AccountScreen hard-coded colors + “styles.something” bug </b>
 
-Using raw colors.* broke theme support. The file also referenced styles.* incorrectly, causing UI errors.
+Using raw colors._ broke theme support. The file also referenced styles._ incorrectly, causing UI errors.
 
-<b>Fix:</b> 
+<b>Fix:</b>
 
 - Converted all color usage to useTheme() token values
 - Replaced every hard-coded color with theme tokens (text, muted, card, accent, etc.)
@@ -469,7 +467,7 @@ Using raw colors.* broke theme support. The file also referenced styles.* incorr
 
 Town/Category/Date filtering was repeated across two different screens.
 
-<b>Fix:</b> 
+<b>Fix:</b>
 
 - Extracted a dedicated MapFilters component
 - Reused the exact same filtering logic as Hub
@@ -478,7 +476,7 @@ Town/Category/Date filtering was repeated across two different screens.
   - region
   - camera animations
   - map rendering
-  Filtering UI is unified across Hub + Map.
+    Filtering UI is unified across Hub + Map.
 
 ---
 
@@ -486,7 +484,7 @@ Town/Category/Date filtering was repeated across two different screens.
 
 This caused massive duplication and inconsistent UX.
 
-<b>Fix: A shared “Event UI Cleanup” pass</b> 
+<b>Fix: A shared “Event UI Cleanup” pass</b>
 
 - **EventDetailScreen**
 
@@ -534,3 +532,71 @@ This makes adding new event UI behaviors incredibly easy going forward.
 ### photos of progress Sprint 13
 
 ![alt text](devlogimages/Gitcommitsprint13.png)
+
+---
+
+## Sprint 14: Map Marker Fix + Visual Improvements
+
+(Dec 4)
+
+### Sprint Goals
+
+1. Fix missing markers on MapScreen
+2. Add "Marker Fan-Out" system
+3. Improve debugging visibility
+4. Increase marker offset for professor demo
+5. Prepare Map tab for polished demonstration
+
+### Challenges + How I Solved Them
+
+<b>Issue:</b>
+
+Several newly created events were not appearing on the map. Only 2–3 markers were showing, even though the backend had many events.
+
+<b>Fix:</b>
+
+After investigating with debug logs, I confirmed events were loading correctly — the issue was marker overlapping. Multiple events in the same town (Banff/Canmore) shared the exact same coordinates.
+
+- Added a Marker Fan-Out helper to slightly offset each marker so they all appear individually.
+
+---
+
+<b>Issue:</b>
+
+Map logic was still stacking markers because the offset distance was too small for the current zoom level, so the “fan” was not visually noticeable.
+
+<b>Fix:</b>
+
+Increased offset from 0.003 to a more visible 0.02 so markers clearly spread out for demo purposes. This instantly made all events appear on the map.
+
+---
+
+<b>Issue: </b>
+
+Hard to verify which events were included in filtering. No visibility into the number of events being passed to the map.
+
+<b>Fix:</b>
+
+Added temporary debug logs inside eventsForMap to print:
+
+- event count
+- event titles
+- towns
+- dates
+  This allowed me to confirm the filtering logic was correct and that the missing markers were due to overlapping, not filtering or backend issues.
+
+### Wins + Breakthroughs
+
+- Map now displays all 8+ sample events, even when multiple share the same town.
+- Filters (Town, Category, Date) all work cleanly and update markers instantly.
+- All markers are now clickable and lead to the correct EventDetail page.
+- Map visually looks much more polished and feels ready for instructor testing.
+- Created a reusable offset helper that keeps markers clean and readable.
+
+### What I Learned
+
+- Even when the backend and filtering logic are correct, UI overlap can hide data.
+- Debug logs are essential for diagnosing filtering vs. UI issues.
+- Map markers require careful spatial adjustments to avoid stacking.
+- Increasing visual exaggeration is sometimes necessary for demos (professors won’t zoom in/out).
+- Consistency between Hub filtering and Map filtering greatly improves maintainability.

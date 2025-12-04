@@ -17,7 +17,10 @@ import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 import { useTheme } from "../../context/ThemeContext";
 
-const API_BASE_URL = "https://summit-scene-backend.onrender.com";
+// Use same base as rest of app
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
 
 export default function MyEventsScreen({ navigation }) {
   const { user, token } = useAuth();
@@ -32,22 +35,42 @@ export default function MyEventsScreen({ navigation }) {
   async function fetchMyEvents() {
     try {
       setError(null);
+
+      if (!token) {
+        throw new Error("You are not logged in. Please log in again.");
+      }
+
+      if (!isBusiness) {
+        throw new Error(
+          "Only business accounts have 'My Events'. Switch to a business account to see your events."
+        );
+      }
+
       setIsLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/events/mine`, {
+      const response = await fetch(`${API_BASE_URL}/api/events/mine`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        const message = data?.message || "Failed to load your events.";
-        throw new Error(message);
+      const text = await response.text();
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { error: text };
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        const message =
+          data.error ||
+          data.message ||
+          `Failed to load your events. (Status ${response.status})`;
+        console.log("My events error:", response.status, data);
+        throw new Error(message);
+      }
 
       // sort events by date (earlier first)
       const sorted = (data || []).slice().sort((a, b) => {
@@ -68,8 +91,11 @@ export default function MyEventsScreen({ navigation }) {
   useEffect(() => {
     if (token) {
       fetchMyEvents();
+    } else {
+      setIsLoading(false);
     }
-  }, [token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, isBusiness]);
 
   // Pull-to-refresh handler
   const onRefresh = useCallback(async () => {
@@ -118,7 +144,6 @@ export default function MyEventsScreen({ navigation }) {
   }
 
   function handleEdit(event) {
-    // navigate to an edit screen
     navigation.navigate("EditEvent", { event });
   }
 
@@ -127,10 +152,7 @@ export default function MyEventsScreen({ navigation }) {
       "Delete Event",
       `Are you sure you want to delete "${event.title}"?`,
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
@@ -147,7 +169,6 @@ export default function MyEventsScreen({ navigation }) {
         return;
       }
 
-      // shared helper
       await deleteEvent(event._id, token);
 
       Alert.alert("Deleted", `"${event.title}" has been removed.`);
@@ -174,7 +195,6 @@ export default function MyEventsScreen({ navigation }) {
           onPress={() =>
             navigation.navigate("EventDetail", {
               event: item,
-              // lets EventDetail ask MyEvents to reload
               onUpdated: fetchMyEvents,
             })
           }
@@ -198,10 +218,7 @@ export default function MyEventsScreen({ navigation }) {
         {/* Action buttons: Edit and Delete */}
         <View style={styles.cardActions}>
           <Pressable
-            style={[
-              styles.actionButton,
-              { backgroundColor: theme.accent },
-            ]}
+            style={[styles.actionButton, { backgroundColor: theme.accent }]}
             onPress={() => handleEdit(item)}
           >
             <Text
@@ -235,14 +252,11 @@ export default function MyEventsScreen({ navigation }) {
     );
   }
 
+  // ---- States ----
+
   if (isLoading) {
     return (
-      <View
-        style={[
-          styles.center,
-          { backgroundColor: theme.background },
-        ]}
-      >
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.accent} />
         <Text style={[styles.loadingText, { color: theme.text }]}>
           Loading your events...
@@ -253,12 +267,7 @@ export default function MyEventsScreen({ navigation }) {
 
   if (error) {
     return (
-      <View
-        style={[
-          styles.center,
-          { backgroundColor: theme.background },
-        ]}
-      >
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
         <Text
           style={[
             styles.errorText,
@@ -267,51 +276,32 @@ export default function MyEventsScreen({ navigation }) {
         >
           {error}
         </Text>
-        <Pressable
-          style={[
-            styles.retryButton,
-            { borderColor: theme.accent },
-          ]}
-          onPress={fetchMyEvents}
-        >
-          <Text
-            style={[
-              styles.retryText,
-              { color: theme.accent },
-            ]}
+        {isBusiness && (
+          <Pressable
+            style={[styles.retryButton, { borderColor: theme.accent }]}
+            onPress={fetchMyEvents}
           >
-            Try again
-          </Text>
-        </Pressable>
+            <Text style={[styles.retryText, { color: theme.accent }]}>
+              Try again
+            </Text>
+          </Pressable>
+        )}
       </View>
     );
   }
 
   if (!events.length) {
     return (
-      <View
-        style={[
-          styles.center,
-          { backgroundColor: theme.background },
-        ]}
-      >
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
         <Text style={[styles.emptyTitle, { color: theme.text }]}>
           No events yet
         </Text>
-        <Text
-          style={[
-            styles.emptySubtitle,
-            { color: theme.textMuted },
-          ]}
-        >
+        <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
           Events you create with your business account will show up here.
         </Text>
         {isBusiness && (
           <Pressable
-            style={[
-              styles.primaryButton,
-              { backgroundColor: theme.success },
-            ]}
+            style={[styles.primaryButton, { backgroundColor: theme.success }]}
             onPress={() => navigation.navigate("tabs", { screen: "Post" })}
           >
             <Text
@@ -329,31 +319,15 @@ export default function MyEventsScreen({ navigation }) {
   }
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.background },
-      ]}
-    >
-      <Text style={[styles.screenTitle, { color: theme.text }]}>
-        My Events
-      </Text>
-      <Text
-        style={[
-          styles.screenSubtitle,
-          { color: theme.textMuted },
-        ]}
-      >
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.screenTitle, { color: theme.text }]}>My Events</Text>
+      <Text style={[styles.screenSubtitle, { color: theme.textMuted }]}>
         Events created by {user?.name || user?.email}
       </Text>
 
-      {/* 🔹 Quick shortcut to Post Event tab */}
       {isBusiness && (
         <Pressable
-          style={[
-            styles.primaryButton,
-            { backgroundColor: theme.success },
-          ]}
+          style={[styles.primaryButton, { backgroundColor: theme.success }]}
           onPress={() => navigation.navigate("tabs", { screen: "Post" })}
         >
           <Text
@@ -370,12 +344,7 @@ export default function MyEventsScreen({ navigation }) {
       {/* Upcoming Events */}
       {upcomingEvents.length > 0 && (
         <>
-          <Text
-            style={[
-              styles.sectionHeading,
-              { color: theme.text },
-            ]}
-          >
+          <Text style={[styles.sectionHeading, { color: theme.text }]}>
             My Upcoming Events
           </Text>
           <FlatList
@@ -397,12 +366,7 @@ export default function MyEventsScreen({ navigation }) {
       {/* Past Events */}
       {pastEvents.length > 0 && (
         <>
-          <Text
-            style={[
-              styles.sectionHeading,
-              { color: theme.text },
-            ]}
-          >
+          <Text style={[styles.sectionHeading, { color: theme.text }]}>
             My Past Events
           </Text>
           <FlatList

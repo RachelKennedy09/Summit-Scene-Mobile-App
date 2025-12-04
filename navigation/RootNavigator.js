@@ -1,27 +1,22 @@
 // navigation/RootNavigator.js
-// Decides which stack to show based on auth state (logged in vs logged out)
-
 import React from "react";
 import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons"; // 👈 make sure this is imported
 
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext"; // 👈 use theme
 import TabNavigator from "./TabNavigator";
-
-// Events screens
 
 import EventDetailScreen from "../screens/events/EventDetailScreen";
 import MyEventsScreen from "../screens/events/MyEventsScreen";
 import EditEventScreen from "../screens/events/EditEventScreen";
 
-// Community Screens
 import CommunityPostScreen from "../screens/community/CommunityPostScreen";
 import EditCommunityPostScreen from "../screens/community/EditCommunityPostScreen";
 
-// Account / profile
 import EditProfileScreen from "../screens/account/EditProfileScreen";
 
-// Auth screens
 import LoginScreen from "../screens/auth/LoginScreen";
 import RegisterScreen from "../screens/auth/RegisterScreen";
 
@@ -29,7 +24,6 @@ import { colors } from "../theme/colors";
 
 const Stack = createNativeStackNavigator();
 
-// Simple loading screen while restoring auth session
 function AuthLoadingScreen() {
   return (
     <View style={styles.loadingContainer}>
@@ -40,18 +34,37 @@ function AuthLoadingScreen() {
 }
 
 export default function RootNavigator() {
-  // Read auth state from context
   const { user, isAuthLoading } = useAuth();
+  const { theme } = useTheme();
 
-  // Show loading screen while checking AsyncStorage / restoring session
   if (isAuthLoading) {
     return <AuthLoadingScreen />;
   }
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        // 🔹 Make the back button icon-only (no "< tabs" text)
+        headerBackButtonDisplayMode: "minimal",
+
+        // (optional / legacy, doesn’t hurt to keep)
+        headerBackTitleVisible: false,
+
+        // 🔹 Use your theme colors for header text + back icon
+        headerTintColor: theme.text,
+
+        // 🔹 Custom Ionicons back icon
+        headerBackImage: ({ tintColor }) => (
+          <Ionicons
+            name="chevron-back"
+            size={26}
+            color={tintColor || theme.text}
+            style={{ marginLeft: 4 }}
+          />
+        ),
+      }}
+    >
       {user ? (
-        // APP STACK: user is logged in -> show tabs and app screens
         <>
           <Stack.Screen
             name="tabs"
@@ -71,7 +84,7 @@ export default function RootNavigator() {
           <Stack.Screen
             name="EventDetail"
             component={EventDetailScreen}
-            options={{ title: "Event details" }}
+            options={{ title: "Event Details" }}
           />
           <Stack.Screen
             name="CommunityPost"
@@ -90,7 +103,6 @@ export default function RootNavigator() {
           />
         </>
       ) : (
-        // AUTH STACK: no user -> show login and register screens
         <>
           <Stack.Screen
             name="Login"
