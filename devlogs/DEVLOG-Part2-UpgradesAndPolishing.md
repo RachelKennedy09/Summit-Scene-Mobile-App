@@ -600,3 +600,103 @@ Added temporary debug logs inside eventsForMap to print:
 - Map markers require careful spatial adjustments to avoid stacking.
 - Increasing visual exaggeration is sometimes necessary for demos (professors won’t zoom in/out).
 - Consistency between Hub filtering and Map filtering greatly improves maintainability.
+
+---
+
+## Sprint 15: Avatar System - saving, rendering, and community integration
+
+(Dec 4)
+
+### Sprint Goals
+
+1. Build a full avatar system with 16 curated avatar images.
+2. Enable profile avatar selection on the Account screen.
+3. Persist avatar selections to the backend using avatarKey.
+4. Display avatar images across the entire app:
+
+- Account Header
+- ProfileCard
+- Community Posts
+- Community Replies
+- Member Profile Modal
+
+5. Fix backend update issues preventing avatar saving.
+6. Sync frontend state with backend responses to ensure avatars update instantly.
+
+### Challenges + How I Solved Them
+
+<b>Issue: Avatar would not save (backend rejecting updates)</b>
+
+Users could pick an avatar, but saving always failed with:
+
+    "No valid fields provided to update."
+
+This came from an old version of the backend /api/users/me route that required at least one validated field before updating.
+Since the update logic was still running older code on Render, avatar saves silently failed.
+
+<b>Fix:</b>
+
+- Updated the /api/users/me route to always accept avatarKey, even when other profile fields are unchanged.
+- Removed the old “No valid fields provided” guard.
+- Added a clear debug log:
+  - console.log("🔥 LIVE USERS /me v2 handler hit. Body:", req.body);
+- Redeployed backend to ensure the updated code was running.
+
+## After deployment, avatarKey updates began working instantly.
+
+<b>Issue: Avatar not showing on Community posts & replies</b>
+
+Even after picking an avatar, Community posts still showed only initials.
+
+Root cause:
+
+The backend never successfully stored avatarKey, so post.user.avatarKey was always null.
+
+<b>Fix:</b>
+
+Once the backend update route was corrected, the existing frontend logic immediately started working:
+
+- communityPostCard now pulls avatar from:
+
+`const avatarKey = userObj?.avatarKey;
+const avatarSource = AVATARS[avatarKey];`
+
+- Replies populate correctly through:
+
+`populate("replies.user", "name role avatarKey town ...");`
+
+Result:
+
+Posts and replies now show the correct avatar bubble and image.
+
+---
+
+<b>Issue: AuthContext not merging avatarKey after updates</b>
+
+When saving an avatar, the backend responded correctly, but the user state needed to refresh.
+
+<b>Fix:</b>
+
+Used the returned data.user from /api/users/me to immediately update context:
+
+`if (data.user) setUser(data.user);`
+
+This ensures avatar changes appear immediately without logging out.
+
+### Wins + Breakthroughs
+
+- Users can now choose from 16 curated avatars with diverse skin tones, hairstyles, and styles.
+- Avatar selection fully persists across sessions using JWT + MongoDB.
+- Community posts now display polished avatar images instead of initials.
+- Replies also show avatars for each member.
+- The Member Profile Modal now feels more alive and personable.
+- Account screen feels dramatically more polished and user-friendly.
+- All avatar logic fits cleanly into the existing theme and UI system.
+
+### What I Learned
+
+- A single outdated backend route can block an entire feature flow, even when the frontend is perfect.
+- Deployment verification (logs, version markers) is critical for debugging.
+- Populating reference fields (post.user, reply.user) is essential for rich UI features like avatars.
+- Good system design means the same data (avatarKey) works everywhere with minimal code.
+- Adding expressive logs like 🔥 LIVE USERS /me v2 handler hit makes debugging backend routes so much easier.
