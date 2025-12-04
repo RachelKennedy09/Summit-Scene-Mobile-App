@@ -420,3 +420,5 @@ Each DevLog includes:
 - Backend + frontend changes
 - Photos, screenshots, and commits
 - Technical learnings
+
+

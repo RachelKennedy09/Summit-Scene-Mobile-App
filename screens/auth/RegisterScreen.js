@@ -19,12 +19,13 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
+import AvatarPicker from "../../components/AvatarPicker";
 
 function RegisterScreen() {
   const { register, isAuthLoading } = useAuth();
   const navigation = useNavigation();
   const { theme } = useTheme();
-
+  const [avatarKey, setAvatarKey] = useState(null);
   const [name, setName] = useState(""); // optional display name
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +36,6 @@ function RegisterScreen() {
   // business = posting/managing events
   const [role, setRole] = useState("local");
 
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [town, setTown] = useState("");
   const [bio, setBio] = useState("");
   const [lookingFor, setLookingFor] = useState("");
@@ -43,7 +43,7 @@ function RegisterScreen() {
   const [website, setWebsite] = useState("");
 
   async function handleRegister() {
-    if (!email || !password) {
+    if (!name || !email || !password) {
       Alert.alert("Missing info", "Please enter at least email and password.");
       return;
     }
@@ -56,12 +56,12 @@ function RegisterScreen() {
         email,
         password,
         role,
-        avatarUrl,
         town,
         bio,
         lookingFor,
         instagram,
         website,
+        avatarKey,
       });
       // after successful registration, user is logged in automatically
       // navigation will switch based on user later
@@ -246,25 +246,6 @@ function RegisterScreen() {
                     onChangeText={setTown}
                   />
 
-                  {/* AVATAR URL */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Profile photo URL (optional)
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="https://example.com/your-photo.jpg"
-                    placeholderTextColor={theme.textMuted}
-                    value={avatarUrl}
-                    onChangeText={setAvatarUrl}
-                  />
-
                   {/* SHORT BIO */}
                   <Text style={[styles.label, { color: theme.text }]}>
                     Short bio
@@ -397,25 +378,6 @@ function RegisterScreen() {
                     onChangeText={setWebsite}
                   />
 
-                  {/* BUSINESS PHOTO */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Photo of your business (URL)
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="https://example.com/your-shop-front.jpg"
-                    placeholderTextColor={theme.textMuted}
-                    value={avatarUrl} // reuse avatarUrl as 'business photo'
-                    onChangeText={setAvatarUrl}
-                  />
-
                   {/* SOCIAL LINKS (OPTIONAL) */}
                   <Text style={[styles.label, { color: theme.text }]}>
                     Instagram (optional)
@@ -436,6 +398,12 @@ function RegisterScreen() {
                   />
                 </>
               )}
+              <Text
+                style={{ marginTop: 16, marginBottom: 8, fontWeight: "600" }}
+              >
+                Choose an avatar
+              </Text>
+              <AvatarPicker value={avatarKey} onChange={setAvatarKey} />
 
               {/* Sign up button*/}
               <Pressable

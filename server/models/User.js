@@ -37,9 +37,7 @@ const userSchema = new mongoose.Schema(
     },
 
     //  Profile Fields
-    avatarUrl: {
-      type: String, // URL-based avatars
-    },
+
     town: {
       type: String,
       trim: true,
@@ -59,6 +57,7 @@ const userSchema = new mongoose.Schema(
     website: {
       type: String, // Business only for their business website
     },
+    avatarKey: { type: String, default: null },
   },
   {
     // Automatically creates createdAt / updatedAt
@@ -77,6 +76,9 @@ userSchema.virtual("safeProfile").get(function () {
     name: this.name,
     email: this.email,
     role: this.role,
+    avatarKey: this.avatarKey,
+
+    town: this.town,
   };
 });
 

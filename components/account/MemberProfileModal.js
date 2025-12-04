@@ -2,18 +2,23 @@
 // Reusable modal for viewing a member's profile from the community tab
 
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Modal,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Modal, Image } from "react-native";
 import { colors } from "../../theme/colors";
+import { AVATARS } from "../../assets/avatars/avatarConfig";
 
 export default function MemberProfileModal({ visible, user, theme, onClose }) {
   if (!visible || !user) return null;
+
+  // Prefer pre-made avatar (avatarKey) 
+  const avatarSource =
+    user.avatarKey && AVATARS[user.avatarKey]
+      ? AVATARS[user.avatarKey]
+      : user.avatarUrl
+      ? { uri: user.avatarUrl }
+      : null;
+
+  const displayName = user.name || "SummitScene member";
+  const initial = (displayName && displayName.charAt(0).toUpperCase()) || "M";
 
   return (
     <Modal
@@ -33,15 +38,11 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
           ]}
         >
           <View style={styles.profileModalHeader}>
-            <Text
-              style={[styles.profileModalTitle, { color: theme.textMain }]}
-            >
+            <Text style={[styles.profileModalTitle, { color: theme.textMain }]}>
               Member Profile
             </Text>
             <Pressable onPress={onClose}>
-              <Text
-                style={[styles.profileModalClose, { color: theme.accent }]}
-              >
+              <Text style={[styles.profileModalClose, { color: theme.accent }]}>
                 Close
               </Text>
             </Pressable>
@@ -54,9 +55,9 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
                 { backgroundColor: theme.cardDark || colors.cardDark },
               ]}
             >
-              {user.avatarUrl ? (
+              {avatarSource ? (
                 <Image
-                  source={{ uri: user.avatarUrl }}
+                  source={avatarSource}
                   style={styles.profileAvatarImage}
                 />
               ) : (
@@ -66,19 +67,17 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
                     { color: theme.textMain },
                   ]}
                 >
-                  {user.name?.charAt(0).toUpperCase() || "M"}
+                  {initial}
                 </Text>
               )}
             </View>
 
             <View style={{ flex: 1 }}>
               <Text style={[styles.profileName, { color: theme.textMain }]}>
-                {user.name}
+                {displayName}
               </Text>
               {user.town ? (
-                <Text
-                  style={[styles.profileTown, { color: theme.textMuted }]}
-                >
+                <Text style={[styles.profileTown, { color: theme.textMuted }]}>
                   {user.town}
                 </Text>
               ) : null}
@@ -91,18 +90,12 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
           {user.bio ? (
             <View style={styles.profileSection}>
               <Text
-                style={[
-                  styles.profileSectionLabel,
-                  { color: theme.textMuted },
-                ]}
+                style={[styles.profileSectionLabel, { color: theme.textMuted }]}
               >
                 About
               </Text>
               <Text
-                style={[
-                  styles.profileSectionText,
-                  { color: theme.textMain },
-                ]}
+                style={[styles.profileSectionText, { color: theme.textMain }]}
               >
                 {user.bio}
               </Text>
@@ -112,18 +105,12 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
           {user.lookingFor ? (
             <View style={styles.profileSection}>
               <Text
-                style={[
-                  styles.profileSectionLabel,
-                  { color: theme.textMuted },
-                ]}
+                style={[styles.profileSectionLabel, { color: theme.textMuted }]}
               >
                 {user.role === "business" ? "Business type" : "Looking for"}
               </Text>
               <Text
-                style={[
-                  styles.profileSectionText,
-                  { color: theme.textMain },
-                ]}
+                style={[styles.profileSectionText, { color: theme.textMain }]}
               >
                 {user.lookingFor}
               </Text>
@@ -133,16 +120,11 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
           {user.instagram ? (
             <View style={styles.profileSection}>
               <Text
-                style={[
-                  styles.profileSectionLabel,
-                  { color: theme.textMuted },
-                ]}
+                style={[styles.profileSectionLabel, { color: theme.textMuted }]}
               >
                 Instagram
               </Text>
-              <Text
-                style={[styles.profileLinkText, { color: theme.accent }]}
-              >
+              <Text style={[styles.profileLinkText, { color: theme.accent }]}>
                 {user.instagram}
               </Text>
             </View>
@@ -151,16 +133,11 @@ export default function MemberProfileModal({ visible, user, theme, onClose }) {
           {user.role === "business" && user.website ? (
             <View style={styles.profileSection}>
               <Text
-                style={[
-                  styles.profileSectionLabel,
-                  { color: theme.textMuted },
-                ]}
+                style={[styles.profileSectionLabel, { color: theme.textMuted }]}
               >
                 Website
               </Text>
-              <Text
-                style={[styles.profileLinkText, { color: theme.accent }]}
-              >
+              <Text style={[styles.profileLinkText, { color: theme.accent }]}>
                 {user.website}
               </Text>
             </View>

@@ -1,8 +1,7 @@
 // screens/AccountScreen.js
-// Shows logged-in user's account info + profile fields + logout
 // Ties into Community / Event posting profile + Edit Profile + full theme picker
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
-
+import AvatarPicker from "../../components/AvatarPicker";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -23,7 +22,14 @@ import ProfileCard from "../../components/account/ProfileCard";
 import ThemeSection from "../../components/account/ThemeSection";
 
 function AccountScreen() {
-  const { user, logout, isAuthLoading, upgradeToBusiness } = useAuth();
+  const {
+    user,
+    logout,
+    isAuthLoading,
+    upgradeToBusiness,
+    updateProfile, // 👈 make sure this is here
+  } = useAuth();
+
   const navigation = useNavigation();
 
   const { theme, themeName, setThemeName, toggleLightDark } = useTheme();
@@ -33,6 +39,15 @@ function AccountScreen() {
   const isLocal = user?.role === "local";
 
   const [isUpgrading, setIsUpgrading] = useState(false);
+
+  // avatar selection state (synced with logged-in user)
+  const [selectedAvatarKey, setSelectedAvatarKey] = useState(
+    user?.avatarKey ?? null
+  );
+
+  useEffect(() => {
+    setSelectedAvatarKey(user?.avatarKey ?? null);
+  }, [user?.avatarKey]);
 
   // Safeguard: AccountScreen should only show when user != null
   if (!user) {
@@ -71,6 +86,28 @@ function AccountScreen() {
     }
   }
 
+  // ✅ Avatar save – always send avatarKey explicitly
+  async function handleSaveAvatar() {
+    // Must be string or null. If nothing is selected, bail early.
+    if (typeof selectedAvatarKey !== "string" && selectedAvatarKey !== null) {
+      Alert.alert("Nothing to update", "Please pick an avatar first.");
+      return;
+    }
+
+    const payload = { avatarKey: selectedAvatarKey }; // explicit
+
+    console.log("AccountScreen.handleSaveAvatar payload:", payload);
+
+    try {
+      const updated = await updateProfile(payload);
+      console.log("Avatar updated on backend to:", updated?.avatarKey);
+      Alert.alert("Profile updated", "Your avatar has been saved.");
+    } catch (error) {
+      console.error("Error in handleSaveAvatar:", error);
+      Alert.alert("Update failed", error.message || "Failed to update avatar.");
+    }
+  }
+
   // Format joined date nicely
   let joinedText = "Unknown";
   if (user.createdAt) {
@@ -79,7 +116,6 @@ function AccountScreen() {
   }
 
   const displayName = user.name || user.email;
-  const avatarUrl = user.avatarUrl;
   const town = user.town || "Rockies local";
   const roleLabel = isBusiness ? "Business account" : "Local account";
 
@@ -105,8 +141,34 @@ function AccountScreen() {
           email={user.email}
           town={town}
           joinedText={joinedText}
-          avatarUrl={avatarUrl}
+          avatarKey={user.avatarKey}
         />
+
+        {/* AVATAR PICKER SECTION */}
+        <View style={{ marginTop: 16, marginBottom: 8 }}>
+          <Text style={[styles.sectionLabel, { color: theme.textMuted }]}>
+            Choose your avatar
+          </Text>
+
+          <AvatarPicker
+            value={selectedAvatarKey}
+            onChange={setSelectedAvatarKey}
+          />
+
+          <Pressable
+            style={[
+              styles.accountButton,
+              { backgroundColor: theme.accent, marginBottom: 16 },
+              isAuthLoading && styles.buttonDisabled,
+            ]}
+            onPress={handleSaveAvatar}
+            disabled={isAuthLoading}
+          >
+            <Text style={styles.accountButtonText}>
+              {isAuthLoading ? "Saving..." : "Save avatar"}
+            </Text>
+          </Pressable>
+        </View>
 
         {/* COMMUNITY / EVENT PROFILE INFO */}
         <ProfileCard
@@ -221,6 +283,12 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: "700",
     fontSize: 15,
+  },
+
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    marginBottom: 8,
   },
 
   // "Upgrade to business" button (for locals)

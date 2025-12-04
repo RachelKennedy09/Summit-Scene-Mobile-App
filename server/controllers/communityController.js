@@ -18,11 +18,11 @@ export async function getCommunityPosts(req, res) {
     const posts = await CommunityPost.find(filter)
       .populate(
         "user",
-        "name email role avatarUrl town bio lookingFor instagram website"
+        "name email role avatarKey town bio lookingFor instagram website"
       )
       .populate(
         "replies.user",
-        "name role avatarUrl town lookingFor instagram bio website"
+        "name role avatarKey town lookingFor instagram bio website"
       )
       .sort({ createdAt: -1 });
 
@@ -198,13 +198,17 @@ export async function addCommunityReply(req, res) {
 
     await post.save();
 
+    // populate replies.user with avatarKey and profile info
     await post.populate(
       "replies.user",
-      "name role avatarUrl town lookingFor instagram bio website"
+      "name role avatarKey town lookingFor instagram bio website"
     );
 
-    // Optionally populate user again for returning
-    const populated = await post.populate("user", "name email role");
+    // also include avatarKey etc on the main post user
+    const populated = await post.populate(
+      "user",
+      "name email role avatarKey town bio lookingFor instagram website"
+    );
 
     return res.status(201).json({
       message: "Reply added successfully.",

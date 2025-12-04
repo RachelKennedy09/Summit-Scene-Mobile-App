@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import AvatarPicker from "../../components/AvatarPicker";
 
 export default function EditProfileScreen({ navigation }) {
   const { user, updateProfile, isAuthLoading } = useAuth();
@@ -55,6 +56,7 @@ export default function EditProfileScreen({ navigation }) {
   const [lookingFor, setLookingFor] = useState(user.lookingFor || "");
   const [instagram, setInstagram] = useState(user.instagram || "");
   const [website, setWebsite] = useState(user.website || "");
+  const [avatarKey, setAvatarKey] = useState(user?.avatarKey || null);
 
   async function handleSave() {
     try {
@@ -65,6 +67,7 @@ export default function EditProfileScreen({ navigation }) {
         bio,
         lookingFor,
         instagram,
+        avatarKey,
       };
 
       if (isBusiness) {
@@ -265,6 +268,15 @@ export default function EditProfileScreen({ navigation }) {
               />
             </>
           )}
+          {/* AVATAR key */}
+          <Text
+            style={[
+              styles.label,
+              { marginTop: 16, fontWeight: "600", color: theme.text },
+            ]}
+          >
+            Avatar
+          </Text>
 
           {/* Buttons */}
           <View style={styles.buttonRow}>

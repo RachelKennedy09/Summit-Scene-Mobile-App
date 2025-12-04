@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { colors } from "../../theme/colors";
+import { AVATARS } from "../../assets/avatars/avatarConfig";
 
 export default function AccountHeaderCard({
   theme,
@@ -10,8 +11,13 @@ export default function AccountHeaderCard({
   email,
   town,
   joinedText,
-  avatarUrl,
+  avatarKey,
 }) {
+  const avatarSource =
+    avatarKey && AVATARS[avatarKey] ? AVATARS[avatarKey] : null;
+
+  const initial = (displayName && displayName.charAt(0).toUpperCase()) || "?";
+
   return (
     <View
       style={[
@@ -29,8 +35,8 @@ export default function AccountHeaderCard({
             { backgroundColor: theme.pill || colors.cardDark },
           ]}
         >
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+          {avatarSource ? (
+            <Image source={avatarSource} style={styles.avatarImage} />
           ) : (
             <Text
               style={[
@@ -38,7 +44,7 @@ export default function AccountHeaderCard({
                 { color: theme.onAccent || theme.text },
               ]}
             >
-              {displayName.charAt(0).toUpperCase()}
+              {initial}
             </Text>
           )}
         </View>

@@ -11,6 +11,8 @@ import {
 
 import { colors } from "../../theme/colors";
 
+import { AVATARS } from "../../assets/avatars/avatarConfig";
+
 // Helper to derive author identity info from post.user + post.name
 function getPostAuthor(post) {
   const userObj =
@@ -19,7 +21,10 @@ function getPostAuthor(post) {
   const name = userObj?.name || post.name || "SummitScene member";
   const email = userObj?.email || "";
   const role = userObj?.role || "local"; // e.g. "local" or "business"
-  const avatarUrl = userObj?.avatarUrl || null;
+
+  // refer avatarKey for your premade avatars
+  const avatarKey = userObj?.avatarKey || post.avatarKey || null;
+
   const town = userObj?.town || post.town || "";
   const lookingFor = userObj?.lookingFor || "";
   const instagram = userObj?.instagram || "";
@@ -30,13 +35,17 @@ function getPostAuthor(post) {
     name,
     email,
     role,
-    avatarUrl,
+    avatarKey,
     town,
     lookingFor,
     instagram,
     bio,
     website,
   };
+}
+function getAvatarSource(avatarKey) {
+  if (!avatarKey) return null;
+  return AVATARS[avatarKey] || null;
 }
 
 export default function CommunityPostCard({
@@ -58,7 +67,8 @@ export default function CommunityPostCard({
     name,
     email,
     role,
-    avatarUrl,
+    avatarKey,
+
     town,
     lookingFor,
     instagram,
@@ -67,6 +77,9 @@ export default function CommunityPostCard({
   } = getPostAuthor(post);
 
   const createdDate = post.createdAt ? new Date(post.createdAt) : null;
+
+  //  Map avatarKey -> local image
+  const avatarSource = getAvatarSource(avatarKey);
 
   // likes
   const likesArray = Array.isArray(post.likes) ? post.likes : [];
@@ -114,8 +127,8 @@ export default function CommunityPostCard({
               { backgroundColor: theme.cardDark || colors.cardDark },
             ]}
           >
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+            {avatarSource ? (
+              <Image source={avatarSource} style={styles.avatarImage} />
             ) : (
               <Text style={[styles.avatarInitial, { color: theme.textMain }]}>
                 {name.charAt(0).toUpperCase()}
@@ -236,7 +249,7 @@ export default function CommunityPostCard({
               name,
               role,
               town,
-              avatarUrl,
+              avatarKey,
               lookingFor,
               instagram,
               bio,
@@ -268,7 +281,11 @@ export default function CommunityPostCard({
                 : null;
 
             const replyName = replyUserObj?.name || reply.name || "Member";
-            const replyAvatarUrl = replyUserObj?.avatarUrl || null;
+
+            // get avatar key + image for reply user
+            const replyAvatarKey =
+              replyUserObj?.avatarKey || reply.avatarKey || null;
+            const replyAvatarSource = getAvatarSource(replyAvatarKey);
             const replyTown = replyUserObj?.town || "";
             const replyRole = replyUserObj?.role || "local";
 
@@ -282,7 +299,7 @@ export default function CommunityPostCard({
                       name: replyName,
                       role: replyRole,
                       town: replyTown,
-                      avatarUrl: replyAvatarUrl,
+                      avatarKey: replyAvatarKey,
                       lookingFor: replyUserObj.lookingFor || "",
                       instagram: replyUserObj.instagram || "",
                       bio: replyUserObj.bio || "",
@@ -299,9 +316,9 @@ export default function CommunityPostCard({
                     },
                   ]}
                 >
-                  {replyAvatarUrl ? (
+                  {replyAvatarSource ? (
                     <Image
-                      source={{ uri: replyAvatarUrl }}
+                      source={replyAvatarSource}
                       style={styles.replyAvatarImage}
                     />
                   ) : (

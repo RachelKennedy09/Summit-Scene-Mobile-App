@@ -8,7 +8,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // API base URL
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
 
 // Single place for our token key
 const TOKEN_KEY = "authToken";
@@ -119,18 +120,17 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // REGISTER: create a new account
   async function register({
     name,
     email,
     password,
     role,
-    avatarUrl,
     town,
     bio,
     lookingFor,
     instagram,
     website,
+    avatarKey,
   }) {
     try {
       setIsAuthLoading(true);
@@ -145,13 +145,12 @@ export function AuthProvider({ children }) {
           email,
           password,
           role,
-          // only send these if they exist
-          avatarUrl: avatarUrl || undefined,
           town: town || undefined,
           bio: bio || undefined,
           lookingFor: lookingFor || undefined,
           instagram: instagram || undefined,
           website: website || undefined,
+          avatarKey: avatarKey || undefined,
         }),
       });
 
@@ -162,13 +161,21 @@ export function AuthProvider({ children }) {
         throw new Error(message);
       }
 
+      // 👇 Make sure avatarKey is present even if backend forgot it
+      const mergedUser = {
+        ...data.user,
+        avatarKey: data.user?.avatarKey ?? avatarKey ?? null,
+      };
+
+      console.log("Merged user in AuthContext.register:", mergedUser);
+
       // store auth in context
       setToken(data.token);
-      setUser(data.user);
+      setUser(mergedUser);
 
       await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
-      return data;
+      return { ...data, user: mergedUser };
     } catch (error) {
       console.error("Error in register:", error);
       throw error;
@@ -277,7 +284,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     upgradeToBusiness,
-    updateProfile, // expose this to screens
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

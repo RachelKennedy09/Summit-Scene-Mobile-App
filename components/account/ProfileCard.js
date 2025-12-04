@@ -1,7 +1,8 @@
 // components/account/ProfileCard.js
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image } from "react-native";
 import { colors } from "../../theme/colors";
+import { AVATARS } from "../../assets/avatars/avatarConfig";
 
 export default function ProfileCard({
   theme,
@@ -24,6 +25,18 @@ export default function ProfileCard({
       (isBusiness && user.website)
   );
 
+  // --- Avatar logic: prefer avatarKey -> avatarUrl -> initials ---
+  const avatarSource =
+    user?.avatarKey && AVATARS[user.avatarKey]
+      ? AVATARS[user.avatarKey]
+      : user?.avatarUrl
+      ? { uri: user.avatarUrl }
+      : null;
+
+  const displayName = user?.name || "SummitScene member";
+  const initial = (displayName && displayName.charAt(0).toUpperCase()) || "?";
+  const town = user?.town || "Rockies local";
+
   return (
     <View
       style={[
@@ -34,6 +47,39 @@ export default function ProfileCard({
         },
       ]}
     >
+      {/* Header row with avatar + name/town */}
+      <View style={styles.headerRow}>
+        <View
+          style={[
+            styles.avatar,
+            { backgroundColor: theme.pill || colors.cardDark },
+          ]}
+        >
+          {avatarSource ? (
+            <Image source={avatarSource} style={styles.avatarImage} />
+          ) : (
+            <Text
+              style={[
+                styles.avatarInitial,
+                { color: theme.onAccent || theme.text },
+              ]}
+            >
+              {initial}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.headerTextCol}>
+          <Text style={[styles.headerName, { color: theme.text }]}>
+            {displayName}
+          </Text>
+          <Text style={[styles.headerTown, { color: theme.textMuted }]}>
+            {town}
+          </Text>
+        </View>
+      </View>
+
+      {/* Section title + subtitle */}
       <Text style={[styles.sectionTitle, { color: theme.text }]}>
         {profileSectionTitle}
       </Text>
@@ -41,6 +87,7 @@ export default function ProfileCard({
         {profileSectionSubtitle}
       </Text>
 
+      {/* Profile details */}
       {hasProfileDetails ? (
         <>
           {user.bio ? (
@@ -94,6 +141,7 @@ export default function ProfileCard({
         </Text>
       )}
 
+      {/* Edit profile button */}
       <Pressable
         style={[styles.editButton, { backgroundColor: theme.accent }]}
         onPress={onEditProfile}
@@ -120,11 +168,49 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+
+  // header row with avatar + name/town
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 10,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.cardDark,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  avatarInitial: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.textLight,
+  },
+  headerTextCol: {
+    flex: 1,
+  },
+  headerName: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  headerTown: {
+    fontSize: 13,
+  },
+
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: colors.textLight,
     marginBottom: 4,
+    marginTop: 8,
   },
   sectionSubtitle: {
     fontSize: 12,

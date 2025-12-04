@@ -54,12 +54,12 @@ router.post("/register", async (req, res) => {
       password,
       name,
       role,
-      avatarUrl,
       town,
       bio,
       lookingFor,
       instagram,
       website,
+      avatarKey,
     } = req.body || {};
 
     // Basic validation
@@ -97,12 +97,12 @@ router.post("/register", async (req, res) => {
       passwordHash,
       name,
       role: finalRole,
-      avatarUrl,
       town,
       bio,
       lookingFor,
       instagram,
       website,
+      avatarKey,
     });
 
     // Create token
@@ -117,13 +117,13 @@ router.post("/register", async (req, res) => {
         name: user.name,
         role: user.role,
         createdAt: user.createdAt,
-        avatarUrl: user.avatarUrl,
         town: user.town,
         bio: user.bio,
         lookingFor: user.lookingFor,
         instagram: user.instagram,
         // website is mostly meaningful for business users, but harmless to include
         website: user.website,
+        avatarKey: user.avatarKey,
       },
     });
   } catch (error) {
@@ -172,13 +172,12 @@ router.post("/login", async (req, res) => {
       name: user.name,
       role: user.role || "local",
       createdAt: user.createdAt,
-
-      avatarUrl: user.avatarUrl,
       town: user.town,
       bio: user.bio,
       lookingFor: user.lookingFor,
       instagram: user.instagram,
       website: user.website,
+      avatarKey: user.avatarKey,
     };
 
     res.json({
@@ -196,23 +195,31 @@ router.post("/login", async (req, res) => {
 // Let the app restore sessions from a stored token
 router.get("/me", authMiddleware, async (req, res) => {
   try {
-    // authMiddleware puts { userId, role } on req.user
     const userId = req.user.userId;
 
-    const user = await User.findById(userId).select("-passwordHash -__v"); // exclude passwordHash and version field
-
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    // Send user in the same shape as register/login (without a new token)
-    res.json({
-      user,
-    });
+    const safeUser = {
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role || "local",
+      createdAt: user.createdAt,
+      town: user.town,
+      bio: user.bio,
+      lookingFor: user.lookingFor,
+      instagram: user.instagram,
+      website: user.website,
+      avatarKey: user.avatarKey, 
+    };
+
+    res.json({ user: safeUser });
   } catch (error) {
     console.error("Error in /auth/me:", error.message);
     res.status(500).json({ message: "Server error while fetching user." });
   }
 });
-
 export default router;

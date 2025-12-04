@@ -12,10 +12,12 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
+import Logo from "../../assets/logo.png";
 
 function LoginScreen() {
   const { login, isAuthLoading } = useAuth();
@@ -56,6 +58,9 @@ function LoginScreen() {
       {/* dismiss keyboard when tapping outside inputs */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
+          <View style={styles.logoContainer}>
+            <Image source={Logo} style={styles.logo} resizeMode="contain" />
+          </View>
           <Text style={[styles.title, { color: theme.text }]}>
             Welcome To Summit Scene Hub!
           </Text>
@@ -210,5 +215,16 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: "center",
     fontSize: 14,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 28,
+    padding: 18,
+  },
+
+  logo: {
+    width: 160,
+    height: 180,
+    opacity: 0.95,
   },
 });
