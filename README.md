@@ -2,7 +2,7 @@
 
 You can run both the backend and mobile client locally if desired.
 
-### 🔧 1. Clone the repository
+### 1. Clone the repository
 
 `git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git`
 
@@ -187,7 +187,6 @@ SummitSceneMobileApp/
 
 ### SummitScene is a full-stack mobile application with three main layers and two user roles:
 
-
 **Local users** – log in to browse events, use the map, read and create community posts (highway conditions, ride shares, event buddies).
 
 **Business users** – have all local capabilities plus the ability to create and manage events.
@@ -275,7 +274,7 @@ SummitSceneMobileApp/
 5. If the user creates a new post, the app sends `POST /api/community` with the body, type, and town plus the user’s JWT.
 6. `authMiddleware` checks the token, attaches the `userId`, and the controller saves a new `CommunityPost` linked to that user.
 
-## 🧰 Tech Stack
+## Tech Stack
 
 ### Frontend (Mobile Client)
 
@@ -316,7 +315,7 @@ SummitSceneMobileApp/
     - `CommunityPost` (type, town, body, user, replies, likes, timestamps)
   - Uses `populate()` to attach user information to posts when needed.
 
-## 🧪 Testing
+## Testing
 
 The backend is tested using **Mocha**, **Chai**, and **Supertest**.
 
@@ -365,11 +364,11 @@ In the `server` folder run:
 - **npm** scripts for running the backend server, tests, and development tools.
 - A **devlog** (linked below) documents weekly progress, debugging steps, and key design decisions.
 
-## 🚀 Deployment
+## Deployment
 
 SummitScene is fully deployed with a **live backend** on Render and a **mobile client** published with Expo. This allows the application to be tested on any device without requiring local server setup.
 
-### 📡 Backend Deployment (Node.js + Express)
+### Backend Deployment (Node.js + Express)
 
 The backend API is deployed as a Render Web Service:
 
@@ -392,10 +391,32 @@ The backend connects directly to **MongoDB Atlas**, allowing real-time data stor
 
 ---
 
-### 📱 Mobile App Deployment (Expo)
+### Mobile App Deployment (Expo)
 
 The mobile client is built with **React Native (Expo)** and communicates with the Render backend through an environment variable:
 
 const API_BASE_URL =
 process.env.EXPO_PUBLIC_API_BASE_URL ||
 "https://summit-scene-backend.onrender.com";
+
+## Developer Logs
+
+This project includes two detailed development logs documenting the full evolution of SummitScene from foundation → features → polish.
+
+### Phase 1 — Building the App
+
+**Sprints 1–13: Architecture, Features, UI, Backend, and Full Integration**  
+[View DevLog Part 1 (Building The App)](./devlogs/DEVLOG-Part1-BuildingTheApp.md)
+
+### Phase 2 — Upgrades & Polishing
+
+**Sprints 9–13 & Final UI/UX/Theming Improvements**  
+[View DevLog Part 2 (Upgrades & Polishing)](./devlogs/DEVLOG-Part2-UpgradesAndPolishing.md)
+
+Each DevLog includes:
+
+- Detailed sprint goals
+- Challenges and solutions
+- Backend + frontend changes
+- Photos, screenshots, and commits
+- Technical learnings

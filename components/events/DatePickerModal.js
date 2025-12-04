@@ -1,8 +1,6 @@
 // components/events/DatePickerModal.js
 // Reusable date picker modal for selecting event dates
 
-// components/events/DatePickerModal.js
-
 import React, { useState } from "react";
 import {
   Modal,
@@ -24,10 +22,11 @@ export default function DatePickerModal({
 }) {
   const { theme } = useTheme();
 
-  if (!visible) return null;
-
   const baseDate = initialDate || new Date();
   const [selectedDate, setSelectedDate] = useState(baseDate);
+
+  // ❗ hooks are above this line – now safe
+  if (!visible) return null;
 
   const handleChange = (_event, date) => {
     if (date) {
@@ -43,6 +42,12 @@ export default function DatePickerModal({
     onCancel && onCancel();
   };
 
+  const bg = theme.card || "#fff";
+  const textMain = theme.text || "#222";
+  const textMuted = theme.textMuted || "#777";
+  const accent = theme.accent || "#2f7cff";
+  const onAccent = theme.onAccent || "#fff";
+
   return (
     <Modal
       visible={visible}
@@ -51,15 +56,8 @@ export default function DatePickerModal({
       onRequestClose={handleCancel}
     >
       <View style={styles.backdrop}>
-        <View
-          style={[
-            styles.modalContainer,
-            { backgroundColor: theme.card || "#fff" },
-          ]}
-        >
-          <Text style={[styles.title, { color: theme.text || "#222" }]}>
-            {title}
-          </Text>
+        <View style={[styles.modalContainer, { backgroundColor: bg }]}>
+          <Text style={[styles.title, { color: textMain }]}>{title}</Text>
 
           <View style={styles.pickerWrapper}>
             <DateTimePicker
@@ -72,29 +70,16 @@ export default function DatePickerModal({
 
           <View style={styles.buttonRow}>
             <Pressable style={styles.cancelButton} onPress={handleCancel}>
-              <Text
-                style={[
-                  styles.cancelText,
-                  { color: theme.textMuted || "#777" },
-                ]}
-              >
+              <Text style={[styles.cancelText, { color: textMuted }]}>
                 Cancel
               </Text>
             </Pressable>
 
             <Pressable
-              style={[
-                styles.confirmButton,
-                { backgroundColor: theme.accent || "#2f7cff" },
-              ]}
+              style={[styles.confirmButton, { backgroundColor: accent }]}
               onPress={handleConfirm}
             >
-              <Text
-                style={[
-                  styles.confirmText,
-                  { color: theme.onAccent || "#fff" },
-                ]}
-              >
+              <Text style={[styles.confirmText, { color: onAccent }]}>
                 Confirm
               </Text>
             </Pressable>

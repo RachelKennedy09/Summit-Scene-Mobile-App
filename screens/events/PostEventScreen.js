@@ -90,7 +90,6 @@ export default function PostEventScreen() {
 
     return `${displayHours}:${minutes} ${suffix}`;
   };
-
   const handleSubmit = async () => {
     if (!title || !date) {
       Alert.alert("Missing info", "Please add at least a title and a date.");

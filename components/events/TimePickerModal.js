@@ -9,7 +9,7 @@ import {
   Modal,
 } from "react-native";
 
-import { useTheme } from "../../context/ThemeContext"; // <-- note the path
+import { useTheme } from "../../context/ThemeContext";
 
 function TimePickerModal({
   visible,
@@ -20,8 +20,7 @@ function TimePickerModal({
 }) {
   const { theme } = useTheme();
 
-  if (!visible) return null;
-
+  // ---- derive initial time pieces ----
   const baseDate = initialTime || new Date();
   const initialHours24 = baseDate.getHours();
   const initialMinutes = baseDate.getMinutes();
@@ -36,10 +35,13 @@ function TimePickerModal({
   const [minute, setMinute] = useState(initialMinute);
   const [ampm, setAmpm] = useState(initialAmPm);
 
-  const textColor = theme.text || theme.textMain;
-  const textMuted = theme.textMuted;
-  const accent = theme.accent;
-  const onAccent = theme.textOnAccent || theme.background;
+  // ❗ Hooks are all above this line now – safe
+  if (!visible) return null;
+
+  const textColor = theme.text || theme.textMain || "#111";
+  const textMuted = theme.textMuted || "#777";
+  const accent = theme.accent || "#2f7cff";
+  const onAccent = theme.textOnAccent || theme.background || "#fff";
 
   const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
   const MINUTES = [
@@ -63,7 +65,7 @@ function TimePickerModal({
     let h24 = hour % 12;
     if (ampm === "PM") h24 += 12;
     base.setHours(h24, parseInt(minute, 10), 0, 0);
-    onConfirm(base);
+    onConfirm && onConfirm(base);
   }
 
   const optionBase = {
@@ -86,8 +88,8 @@ function TimePickerModal({
           style={[
             styles.pickerModalContent,
             {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
+              backgroundColor: theme.card || "#fff",
+              borderColor: theme.border || "rgba(0,0,0,0.08)",
               borderWidth: 1,
             },
           ]}
@@ -227,6 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 12,
+    textAlign: "center",
   },
   timePickerRow: {
     flexDirection: "row",
