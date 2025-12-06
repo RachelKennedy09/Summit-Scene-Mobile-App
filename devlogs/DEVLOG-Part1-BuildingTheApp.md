@@ -2,14 +2,11 @@
 
 (November 13-25)
 
-#### It Includes:
+## It Includes:
 
 - Sprint 1 → Sprint 8
-
 - Feature building
-
 - Architecture progression
-
 - Maps, Community, Events, Auth, Role systems, etc.
 
 ---
@@ -32,11 +29,11 @@
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Confusion between the app folder and the backend server folder</b>
+**Issue: Confusion between the app folder and the backend server folder**
 
 I originally mixed backend and frontend files together, which caused confusion about which commands belonged to which part of the stack.
 
-<b>Fix:</b>
+**Fix:**
 
 I restructured the project so the React Native app and Node/Express backend live in separate folders:
 
@@ -46,11 +43,11 @@ I restructured the project so the React Native app and Node/Express backend live
 
 ---
 
-<b> Issue: Started with Expo Router + TSX too early</b>
+** Issue: Started with Expo Router + TSX too early**
 
 I jumped into Expo Router and TypeScript without being fully comfortable with them.
 
-<b>Fix:</b>
+**Fix:**
 
 I rolled back to a simpler setup using React Native + JavaScript and standard navigation. This made the project easier to build and debug and removed unnecessary complexity for Sprint 1.
 
@@ -78,15 +75,15 @@ I rolled back to a simpler setup using React Native + JavaScript and standard na
 
 ### Photos of Sprint 1 Progress
 
-#### Trello Sprint Baord
+## Trello Sprint Baord
 
 ![alt text](devlogimages/Sprint1.png)
 
-#### Github Commits
+## Github Commits
 
 ![alt text](devlogimages/CommitNov13.png)
 
-#### Screens (Hub, Map, Add Event, Community, Account)
+## Screens (Hub, Map, Add Event, Community, Account)
 
 ![alt text](devlogimages/WebHubScreen.png)
 
@@ -123,11 +120,11 @@ I rolled back to a simpler setup using React Native + JavaScript and standard na
 
 ### Challenges + How I Solved Them
 
-<b>Issue: MongoDB “bad auth” authentication error</b>
+**Issue: MongoDB “bad auth” authentication error**
 
 I initially couldn’t connect to the database because of a credential mismatch and IP access restrictions.
 
-<b>Fix:</b>
+**Fix:**
 
 - Updated .env with correct connection string
 - Ensured database user permissions were correct
@@ -138,11 +135,11 @@ I initially couldn’t connect to the database because of a credential mismatch 
 
 ---
 
-<b>Issue: HubScreen.js ballooned to 400+ lines</b>
+**Issue: HubScreen.js ballooned to 400+ lines**
 
 The Hub feed was doing too much inside a single file (fetching, filtering, rendering, and UI layout).
 
-<b>Fix:</b>
+**Fix:**
 Refactored into smaller components:
 
 - EventCard.js
@@ -153,11 +150,11 @@ This improved readability, maintainability, and overall organization.
 
 ---
 
-<b>Issue: EventDetails was mistakenly added as a Tab</b>
+**Issue: EventDetails was mistakenly added as a Tab**
 
 The details page temporarily appeared as a bottom-tab icon, which broke UX.
 
-<b>Fix:</b>
+**Fix:**
 
 Moved EventDetailScreen into a Stack Navigator instead of the tab bar.
 Tabs now handle main navigation; details are pushed on top.
@@ -165,11 +162,11 @@ Navigation behavior is now correct and professional.
 
 ---
 
-<b>Issue: Pull-to-refresh spinner appeared black in Expo Go</b>
+**Issue: Pull-to-refresh spinner appeared black in Expo Go**
 
 The native spinner ignored color props in Expo Go, causing visibility issues on dark UI.
 
-<b>Fix:</b>
+**Fix:**
 
 Native spinner ignored color props → created my own custom white spinner overlay for a consistent experience and added a small minimum delay for smoother UX.
 
@@ -195,52 +192,55 @@ This sprint marked the moment the app officially became a full-stack project.
 
 ---
 
-### What I Learned This Week
+## What I Learned This Week
 
 - How to connect Express to a MongoDB Atlas database securely
-
 - How to test endpoints in Thunder Client and verify CRUD functionality
-
 - A much deeper understanding of structuring:
-
-  - App.js
-  - TabNavigator
-  - RootNavigator
+  - `App.js`
+  - `TabNavigator`
+  - `RootNavigator`
   - and how stacks + tabs work together
-
 - Better error handling around network requests and fallback mock data
-
 - How to improve UI performance with loading states + pull-to-refresh
 
 ---
 
-#### Photos of Progress - Sprint 2
+## Photos of Progress - Sprint 2
 
-##### Trello Sprint
+### Trello Sprint
 
 ![alt text](devlogimages/Sprint2.png)
 
-##### MongoDB Connected Successfully
+### MongoDB Connected Successfully
 
-"Connected to Mongo as of Nov 14th"
+Connected to Mongo as of Nov 14th
 
 ![alt text](devlogimages/MONGODBConnectionSuccess.png)
 
-##### Github Commits
+### GitHub Commits
 
 ![alt text](devlogimages/CommitsNov14.png)
 
-##### CRUD Thunderclient
+### CRUD Thunderclient
 
-POST
+**POST**
+
 ![alt text](devlogimages/TCPostEventSucess.png)
-GET ALL
+
+**GET ALL**
+
 ![alt text](devlogimages/TCGetAllEventsSucess.png)
-GET BY ID
+**GET BY ID**
+
 ![alt text](devlogimages/TCGetEventByIdSuccess.png)
-UPDATE
+
+**UPDATE**
+
 ![alt text](devlogimages/TCUpdateEventSuccess.png)
-DELETE
+
+**DELETE**
+
 ![alt text](devlogimages/TCDeleteEventSucess.png)
 
 ---
@@ -249,11 +249,11 @@ DELETE
 
 (November 16th-17th)
 
-### Sprint Goals
+## Sprint Goals
 
 1. Build full backend authentication (JWT + bcrypt)
 2. Create User model (name, email, password, role, timestamps)
-3. Implement /auth/register, /auth/login, /auth/me
+3. Implement `/auth/register`, `/auth/login`, `/auth/me`
 4. Add middleware for protected routes
 5. Connect frontend Login + Register screens
 6. Add persistent sessions using secure token storage
@@ -266,11 +266,11 @@ DELETE
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Accidentally pushed .env to GitHub</b>
+**Issue: Accidentally pushed .env to GitHub**
 
 This exposed the MongoDB URI and JWT secret.
 
-<b>Fix:</b>
+**Fix:**
 
 - immediately removed .env from Git history
 
@@ -282,22 +282,22 @@ This exposed the MongoDB URI and JWT secret.
 
 ---
 
-<b>Issue: “Network request failed” after adding AuthStack + AppStack </b>
+**Issue: “Network request failed” after adding AuthStack + AppStack **
 
 The app stopped communicating with the server.
 
-<b>Fix:</b>
+**Fix:**
 
 Found the issue was just a small typo in the API URL.
 Corrected it — everything worked instantly.
 
 ---
 
-<b>Issue: Backend wasn’t receiving JSON properly</b>
+**Issue: Backend wasn’t receiving JSON properly**
 
 Requests were not formatted correctly.
 
-<b>Fix:</b>
+**Fix:**
 
 - Added server-side debug logs
 
@@ -309,11 +309,11 @@ Requests were not formatted correctly.
 
 ---
 
-<b>Issue: Token validation inconsistency </b>
+**Issue: Token validation inconsistency **
 
 Some requests weren’t sending the token correctly.
 
-<b>Fix:</b>
+**Fix:**
 
 - Standardized the Authorization header
 
@@ -373,7 +373,7 @@ This sprint transformed SummitScene into a secure, authenticated full-stack mobi
 
 - Much deeper understanding of how auth middleware works in Express
 
-#### Photos of Progress - Sprint 3
+## Photos of Progress - Sprint 3
 
 Github Commits - Nov 16
 
@@ -381,11 +381,11 @@ Finished LoginScreen, RegisterScreen, AuthContext, User model, and initial auth 
 
 ![alt text](devlogimages/CommitNov16.png)
 
-#### Thunder Client: /auth/login
+## Thunder Client: /auth/login
 
 ![alt text](devlogimages/TCloginusersuccess.png)
 
-#### Thunder Client: /auth/register
+## Thunder Client: /auth/register
 
 ![alt text](devlogimages/TCregistersusersuccess.png)
 
@@ -416,21 +416,21 @@ AuthStack + AppStack, token persistence, Account screen
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Login/Register fields not typing on Web (Pressable conflict)</b>
+**Issue: Login/Register fields not typing on Web (Pressable conflict)**
 
 On the web version, all text inputs inside <Pressable> stopped responding and I couldn’t type at all.
 
-<b>Fix:</b>
+**Fix:**
 
 Since this sprint focused on mobile-first functionality, I deferred Web debugging to the end of the Capstone. Expo Go mobile continues to be the priority.
 
 ---
 
-<b>Issue: Date Picker showed wrong date (one day ahead)</b>
+**Issue: Date Picker showed wrong date (one day ahead)**
 
 React Native’s DateTimePicker was returning UTC-converted dates, causing the displayed date to shift ahead by one day.
 
-<b>Fix:</b>
+**Fix:**
 
 Switched to manual formatting:
 
@@ -441,11 +441,11 @@ Switched to manual formatting:
 
 ---
 
-<b>Issue: iOS “pill” compact picker UI was confusing</b>
+**Issue: iOS “pill” compact picker UI was confusing**
 
 The default iOS picker uses a compact “pill” display, requiring two taps (pill → full calendar). The UI felt clunky and unclear.
 
-<b>Fix:</b>
+**Fix:**
 
 I explicitly set
 
@@ -458,22 +458,22 @@ I explicitly set
 
 ---
 
-<b>Issue: Default Picker dropdowns looked inconsistent </b>
+**Issue: Default Picker dropdowns looked inconsistent **
 
 The default Picker component UI didn’t match the rest of the app’s design.
 
-<b>Fix:</b>
+**Fix:**
 
 Replaced Pickers with custom modal dropdowns for Town and Category.
 These now match the rest of the app and provide a smooth, branded feel.
 
 ---
 
-<b>Issue: Understanding the full Post Event flow (frontend → backend → DB)</b>
+**Issue: Understanding the full Post Event flow (frontend → backend → DB)**
 
 This was my first time wiring a complete feature from UI → API → database.
 
-<b>Fix:</b>
+**Fix:**
 
 I broke down the flow step-by-step:
 
@@ -522,7 +522,7 @@ I broke down the flow step-by-step:
 
 ### Photos of Progress - Sprint 4
 
-#### November 18th - Event Posting Success
+## November 18th - Event Posting Success
 
 Console-log of event posted
 
@@ -537,7 +537,7 @@ Github Commit (Nov 18)
 
 ---
 
-#### November 19th - Hooking HubScreen to Real Events
+## November 19th - Hooking HubScreen to Real Events
 
 Trello Card completed:
 
@@ -571,13 +571,13 @@ Github commit (Nov 19)
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Business token returned “Invalid or expired token” when posting events </b>
+**Issue: Business token returned “Invalid or expired token” when posting events **
 
 Thunder Client refused the POST request, even with valid credentials.
 
 ![alt text](devlogimages/TCDeleteEventSucess.png)
 
-<b>Fix:</b>
+**Fix:**
 
 Restarted server & refreshed token. Retrieved a new JWT from /auth/login, then placed it correctly in Thunderclienta Authorization: Bearer <token> header.
 
@@ -585,11 +585,11 @@ Restarted server & refreshed token. Retrieved a new JWT from /auth/login, then p
 
 ---
 
-<b>Issue: Missing role in JWT caused navigation crashes</b>
+**Issue: Missing role in JWT caused navigation crashes**
 
 Older accounts had tokens without role, which broke navigation logic.
 
-<b>Fix:</b>
+**Fix:**
 
 - Updated createToken() to embed { userId, role }
 - added fallback for old accounts
@@ -597,11 +597,11 @@ Older accounts had tokens without role, which broke navigation logic.
 
 ---
 
-<b>Issue: Business-only “Post” tab wasn’t appearing </b>
+**Issue: Business-only “Post” tab wasn’t appearing **
 
 Tabs did not update based on the user’s role.
 
-<b>Fix:</b>
+**Fix:**
 
 Added: const isBusiness = user?.role === "business"
 
@@ -610,11 +610,11 @@ Verified via /auth/me that role was flowing correctly.
 
 ---
 
-<b>Issue: Older events that I had created before business vs local logic were not update</b>
+**Issue: Older events that I had created before business vs local logic were not update**
 
 These events didn’t contain business-owner fields, so they didn’t appear correctly.
 
-<b>Fix:</b>
+**Fix:**
 
 Deleted old events and recreated new ones under the updated logic.
 Everything displayed perfectly afterward.
@@ -646,7 +646,7 @@ Everything displayed perfectly afterward.
 
 ### Photos of Progress - Sprint 5
 
-#### November 20th - role Creation + Business Logic
+## November 20th - role Creation + Business Logic
 
 Successful POST /auth/register with role field
 
@@ -664,7 +664,7 @@ successful business role in MONGODB
 
 ![alt text](devlogimages/MONGODBsuccessbusinessroleuser.png)
 
-#### App Screens — New Business Flow
+## App Screens — New Business Flow
 
 New “View My Events” button in Account screen
 
@@ -707,11 +707,11 @@ Sprint 5 done
 
 ### Challenges + How I Solved Them
 
-<b>Issue: DateTimePicker caused Expo to crash instantly</b>
+**Issue: DateTimePicker caused Expo to crash instantly**
 
 Tapping the picker caused an immediate crash on some devices.
 
-<b>Fix:</b>
+**Fix:**
 
 Used platform-safe picker config:
 
@@ -721,19 +721,19 @@ Used platform-safe picker config:
 
 ---
 
-<b>Issue: Posts wouldn’t refresh after submitting</b>
+**Issue: Posts wouldn’t refresh after submitting**
 
-<b>Fix:</b>
+**Fix:**
 
 Implemented useFocusEffect + fetchPosts() to auto-refresh every time the screen becomes active.
 
 ---
 
-<b>Issue: VS Code error — model filename casing conflict.</b>
+**Issue: VS Code error — model filename casing conflict.**
 
 Node and VS Code were treating CommunityPost.js and communityPost.js as separate files.
 
-<b>Fix:</b>
+**Fix:**
 
 - Standardized the file to CommunityPost.js
 - Updated imports to ../models/CommunityPost.js (with .js extension for ESM)
@@ -743,11 +743,11 @@ This fixed the duplicate module issue.
 
 ---
 
-<b>Issue: Edit/Delete buttons not showing for my posts</b>
+**Issue: Edit/Delete buttons not showing for my posts**
 
 Owner check failed because IDs were sometimes strings, sometimes populated objects.
 
-<b>Fix:</b>
+**Fix:**
 
 Standardized comparison logic:
 
@@ -785,7 +785,7 @@ This sprint turned Community into a genuinely interactive feature, not just a st
 
 ### Photos of Progress - Sprint 6
 
-#### MongoDB — Community Post Created Successfully
+## MongoDB — Community Post Created Successfully
 
 ![alt text](devlogimages/MONGODBEventBuddyPostSuccess.png)
 
@@ -831,21 +831,21 @@ Git Commit — Nov 24
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Map library wasn’t rendering initially</b>
+**Issue: Map library wasn’t rendering initially**
 
 MapView appeared blank or didn’t mount properly.
 
-<b>Fix:</b>
+**Fix:**
 
 Restarted Expo entirely (full stop + start), ensured the <MapView> was wrapped properly inside a fixed-height parent container with flex: 1 and overflow: hidden.
 
 ---
 
-<b>Issue: Date string comparison didn’t match event dates</b>
+**Issue: Date string comparison didn’t match event dates**
 
 Filtering events by date failed because string formats differed.
 
-<b>Fix:</b>
+**Fix:**
 
 Built a clean helper function that:
 
@@ -905,41 +905,41 @@ Git Commit — Nov 25
 
 ### Challenges + How I Solved Them
 
-<b>Issue: RootNavigator living inside App.js </b>
+**Issue: RootNavigator living inside App.js **
 
 This made the file too large and mixed concerns.
 
-<b>Fix:</b>
+**Fix:**
 
 Separated navigation into proper files for cleaner architecture.
 
 ---
 
-<b>Issue: Typo in AuthContext (“AuthToken” vs “authToken”)</b>
+**Issue: Typo in AuthContext (“AuthToken” vs “authToken”)**
 
 This caused minor confusion and inconsistent variable naming.
 
-<b>Fix:</b>
+**Fix:**
 
 Corrected the typo and standardized naming across the project.
 
 ---
 
-<b>Issue: Post New Community Event route mismatch</b>
+**Issue: Post New Community Event route mismatch**
 
 Navigation attempted to send users to a non-existent route.
 
-<b>Fix:</b>
+**Fix:**
 
 Corrected route strings to match actual screen names in Community StackNavigator.
 
 ---
 
-<b>Issue: Backend controllers had inconsistent error handling</b>
+**Issue: Backend controllers had inconsistent error handling**
 
 Some used console.log, some had unclear messages, some returned incorrect HTTP codes.
 
-<b>Fix:</b>
+**Fix:**
 
 Standardized everything to:
 
@@ -953,13 +953,13 @@ Standardized everything to:
 
 ---
 
-<b>Issue: Email case sensitivity could cause duplicate accounts</b>
+**Issue: Email case sensitivity could cause duplicate accounts**
 
 “RACHEL@email.com
 ” and “rachel@email.com
 ” were treated as separate users.
 
-<b>Fix:</b>
+**Fix:**
 
 Normalized email to lowercase in both register and login routes.
 
@@ -979,7 +979,7 @@ Normalized email to lowercase in both register and login routes.
 - How to design clean REST API endpoints that are easy for mobile apps to consume.
 - How to build consistent API responses that make debugging easier across the entire app.
 
-#### Photos of Progress - Sprint 8
+## Photos of Progress - Sprint 8
 
 Trello Cards Completed (Nov 25)
 
@@ -1001,5 +1001,3 @@ Backend Cleanup Commit — Nov 26
 Sprint 8 Completed
 
 ![alt text](devlogimages/Sprint8Done.png)
-
-

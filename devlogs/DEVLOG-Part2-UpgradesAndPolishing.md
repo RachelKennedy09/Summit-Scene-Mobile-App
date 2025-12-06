@@ -1,8 +1,8 @@
 # Upgrades and Polishing DevLog Phase 2
 
-(November 27-)
+*(November 27-)*
 
-#### It Includes:
+## It Includes:
 
 - File cleanup
 
@@ -18,11 +18,11 @@
 
 - Pre-submission polishing
 
-## 📅 Sprint #9 UI Polish, Navigation Cleanup & Final Refinements
+## Sprint #9 UI Polish, Navigation Cleanup & Final Refinements
 
 (November 27)
 
-#### Sprint Goals
+## Sprint Goals
 
 ### HubScreen Polish
 
@@ -81,7 +81,7 @@
 - How to add identity, replies, and context to community systems
 - How small polish items can feel like huge upgrades for the end user
 
-#### Photos of Progress - Sprint 9
+## Photos of Progress - Sprint 9
 
 Trello Cards - Hubscreen and Event Polish
 
@@ -126,11 +126,11 @@ GitCommit Nov 27th Sprint 9 Completion
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Enum validation blocked real towns (e.g. "lake louise").</b>
+**Issue: Enum validation blocked real towns (e.g. "lake louise").**
 
 When registering, the backend refused certain valid towns because the town enum was too strict.
 
-<b>Fix:</b>
+**Fix:**
 
 Relaxed the validation:
 
@@ -142,11 +142,11 @@ Now registration supports real places like Lake Louise without errors.
 
 ---
 
-<b>Issue: Profile information cluttered the Community cards and became overwhelming. </b>
+**Issue: Profile information cluttered the Community cards and became overwhelming. **
 
 Showing town, email, lookingFor, Instagram, and business website inside each post made the cards feel busy and messy.
 
-<b>Fix:</b>
+**Fix:**
 
 Implemented a clean, dedicated “View Profile” modal:
 
@@ -158,9 +158,9 @@ This keeps the feed clean and focused.
 
 ---
 
-<b>Issue: Business and Local users needed different profile contexts.</b> Locals use profiles for Community, while businesses use profiles for Event Hosting — but wording was identical, causing confusion.
+**Issue: Business and Local users needed different profile contexts.** Locals use profiles for Community, while businesses use profiles for Event Hosting — but wording was identical, causing confusion.
 
-<b>Fix:</b>
+**Fix:**
 
 Added role-based UI copy:
 
@@ -172,11 +172,11 @@ This makes the experience personalized and professional.
 
 ---
 
-<b>SIDE Issue: Deleted user on MongoDB and user was still able to make an event post(business)</b>
+**SIDE Issue: Deleted user on MongoDB and user was still able to make an event post(business)**
 
 If a user was removed from MongoDB, they could still technically send a POST request using an old token.
 
-<b>Fix:</b>
+**Fix:**
 
 Added an additional backend validation layer:
 
@@ -236,11 +236,11 @@ Git commit
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Replies were showing “SummitScene member” instead of the user’s real profile</b>
+**Issue: Replies were showing “SummitScene member” instead of the user’s real profile**
 
 Backend reply schema wasn’t fully populated, and the frontend wasn’t pulling full user details.
 
-<b>Fix:</b>
+**Fix:**
 
 Added backend .populate("replies.user", "name role avatarUrl town lookingFor instagram bio website")
 
@@ -256,11 +256,11 @@ Added backend .populate("replies.user", "name role avatarUrl town lookingFor ins
 
 ---
 
-<b>Issue: Likes were not implemented for Community posts </b>
+**Issue: Likes were not implemented for Community posts **
 
 The model had no like logic, and no controller existed to toggle likes.
 
-<b>Fix: </b>
+**Fix: **
 
 - Added likes: [ObjectId] array to CommunityPost model
 
@@ -274,11 +274,11 @@ The model had no like logic, and no controller existed to toggle likes.
 
 ---
 
-<b>Issue: Reply timestamps were hard to read (text showing in black) </b>
+**Issue: Reply timestamps were hard to read (text showing in black) **
 
 No color styling existed for the reply meta text.
 
-<b>Fix:</b>
+**Fix:**
 
 Added new replyMeta style using colors.textMuted, making timestamps readable and consistent across the UI.
 
@@ -324,11 +324,11 @@ Trello Sprint done
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Date picker numbers invisible on dark mode </b>
+**Issue: Date picker numbers invisible on dark mode **
 
 On Android, the calendar day numbers stayed black even when switching into dark theme, making them unreadable.
 
-<b>Fix:</b>
+**Fix:**
 
 - Wrapped the DateTimePicker inside a themed white card background
 - Applied themeVariant={theme.isDark ? "dark" : "light"} as a fallback for iOS
@@ -336,11 +336,11 @@ On Android, the calendar day numbers stayed black even when switching into dark 
 
 ---
 
-<b>Issue: Some components were not re-rendering when theme changed</b>
+**Issue: Some components were not re-rendering when theme changed**
 
 A few screens cached their styles and didn’t refresh when changing themes.
 
-<b>Fix:</b>
+**Fix:**
 
 - Switched all style definitions to use useTheme() instead of static StyleSheets
 
@@ -350,11 +350,11 @@ A few screens cached their styles and didn’t refresh when changing themes.
 
 ---
 
-<b>Issue: Accent colors were inconsistent across themes</b>
+**Issue: Accent colors were inconsistent across themes**
 
 Some components used hardcoded colors—causing mismatches when switching theme palettes.
 
-<b>Fix:</b>
+**Fix:**
 
 - Standardized all colors into a unified token system:
 
@@ -416,11 +416,11 @@ Git Commit - Sprint 12
 
 ### Challenges + How I Solved Them
 
-<b>Issue: CommunityScreen was ~1500 lines and becoming unmanageable</b>
+**Issue: CommunityScreen was ~1500 lines and becoming unmanageable**
 
 The file mixed UI, backend logic, modals, and profile rendering all in one place.
 
-<b>Fix:</b>
+**Fix:**
 
 - Moved all backend requests to a new communityApi.js service
 - Extracted profile UI into MemberProfileModal.js
@@ -432,11 +432,11 @@ The file mixed UI, backend logic, modals, and profile rendering all in one place
 
 ---
 
-<b>Issue: HubScreen was nearly 1000 lines and mixing filters + rendering</b>
+**Issue: HubScreen was nearly 1000 lines and mixing filters + rendering**
 
 Filter UI, constants, and list rendering all lived in one giant file.
 
-<b>Fix:</b>
+**Fix:**
 
 - Extracted entire filter/header area into a reusable HubFilters component
 - Centralized TOWNS, CATEGORIES, and DATE_FILTERS constants
@@ -449,11 +449,11 @@ Filter UI, constants, and list rendering all lived in one giant file.
 
 ---
 
-<b>Issue: AccountScreen hard-coded colors + “styles.something” bug </b>
+**Issue: AccountScreen hard-coded colors + “styles.something” bug **
 
 Using raw colors._ broke theme support. The file also referenced styles._ incorrectly, causing UI errors.
 
-<b>Fix:</b>
+**Fix:**
 
 - Converted all color usage to useTheme() token values
 - Replaced every hard-coded color with theme tokens (text, muted, card, accent, etc.)
@@ -462,12 +462,12 @@ Using raw colors._ broke theme support. The file also referenced styles._ incorr
 
 ---
 
-<b>Issue: MapScreen duplicated much of the Hub filter logic
-</b>
+**Issue: MapScreen duplicated much of the Hub filter logic
+**
 
 Town/Category/Date filtering was repeated across two different screens.
 
-<b>Fix:</b>
+**Fix:**
 
 - Extracted a dedicated MapFilters component
 - Reused the exact same filtering logic as Hub
@@ -480,11 +480,11 @@ Town/Category/Date filtering was repeated across two different screens.
 
 ---
 
-<b>Issue: Event screens (Detail, Edit, Post) all implemented their own pickers and modals</b>
+**Issue: Event screens (Detail, Edit, Post) all implemented their own pickers and modals**
 
 This caused massive duplication and inconsistent UX.
 
-<b>Fix: A shared “Event UI Cleanup” pass</b>
+**Fix: A shared “Event UI Cleanup” pass**
 
 - **EventDetailScreen**
 
@@ -549,11 +549,11 @@ This makes adding new event UI behaviors incredibly easy going forward.
 
 ### Challenges + How I Solved Them
 
-<b>Issue:</b>
+**Issue:**
 
 Several newly created events were not appearing on the map. Only 2–3 markers were showing, even though the backend had many events.
 
-<b>Fix:</b>
+**Fix:**
 
 After investigating with debug logs, I confirmed events were loading correctly — the issue was marker overlapping. Multiple events in the same town (Banff/Canmore) shared the exact same coordinates.
 
@@ -561,21 +561,21 @@ After investigating with debug logs, I confirmed events were loading correctly �
 
 ---
 
-<b>Issue:</b>
+**Issue:**
 
 Map logic was still stacking markers because the offset distance was too small for the current zoom level, so the “fan” was not visually noticeable.
 
-<b>Fix:</b>
+**Fix:**
 
 Increased offset from 0.003 to a more visible 0.02 so markers clearly spread out for demo purposes. This instantly made all events appear on the map.
 
 ---
 
-<b>Issue: </b>
+**Issue: **
 
 Hard to verify which events were included in filtering. No visibility into the number of events being passed to the map.
 
-<b>Fix:</b>
+**Fix:**
 
 Added temporary debug logs inside eventsForMap to print:
 
@@ -625,7 +625,7 @@ Added temporary debug logs inside eventsForMap to print:
 
 ### Challenges + How I Solved Them
 
-<b>Issue: Avatar would not save (backend rejecting updates)</b>
+**Issue: Avatar would not save (backend rejecting updates)**
 
 Users could pick an avatar, but saving always failed with:
 
@@ -634,7 +634,7 @@ Users could pick an avatar, but saving always failed with:
 This came from an old version of the backend /api/users/me route that required at least one validated field before updating.
 Since the update logic was still running older code on Render, avatar saves silently failed.
 
-<b>Fix:</b>
+**Fix:**
 
 - Updated the /api/users/me route to always accept avatarKey, even when other profile fields are unchanged.
 - Removed the old “No valid fields provided” guard.
@@ -644,7 +644,7 @@ Since the update logic was still running older code on Render, avatar saves sile
 
 ## After deployment, avatarKey updates began working instantly.
 
-<b>Issue: Avatar not showing on Community posts & replies</b>
+**Issue: Avatar not showing on Community posts & replies**
 
 Even after picking an avatar, Community posts still showed only initials.
 
@@ -652,7 +652,7 @@ Root cause:
 
 The backend never successfully stored avatarKey, so post.user.avatarKey was always null.
 
-<b>Fix:</b>
+**Fix:**
 
 Once the backend update route was corrected, the existing frontend logic immediately started working:
 
@@ -671,11 +671,11 @@ Posts and replies now show the correct avatar bubble and image.
 
 ---
 
-<b>Issue: AuthContext not merging avatarKey after updates</b>
+**Issue: AuthContext not merging avatarKey after updates**
 
 When saving an avatar, the backend responded correctly, but the user state needed to refresh.
 
-<b>Fix:</b>
+**Fix:**
 
 Used the returned data.user from /api/users/me to immediately update context:
 
@@ -700,3 +700,34 @@ This ensures avatar changes appear immediately without logging out.
 - Populating reference fields (post.user, reply.user) is essential for rich UI features like avatars.
 - Good system design means the same data (avatarKey) works everywhere with minimal code.
 - Adding expressive logs like 🔥 LIVE USERS /me v2 handler hit makes debugging backend routes so much easier.
+
+---
+
+### Adding Backend Tests (Mocha/Chai/Supertest)
+
+This week I implemented a backend test suite to verify the stability of the API and ensure my authentication, authorization, and community/event flows work correctly.
+
+**Challenges:**
+
+- Needed to export the Express app without interfering with the server's normal operation
+- Had to adjust import styles (`chai` does not support default imports in ESM)
+- Discovered that some routes required JWT authorization, so tests had to include `.set("Authorization", "Bearer <token>")`
+- My `/api/community` endpoint returned validation errors until I matched the correct payload format
+
+**Fixes:**
+
+- Updated `index.js` to `export default app`
+- Used named Chai exports (`import { expect } from "chai"`)
+- Adjusted test payloads to match my controller validation rules
+- Confirmed route protection works (local users cannot post events)
+
+**Result:**
+All tests are now passing.  
+This shows that authentication, event fetching, authorization middleware, and community posting behave consistently and reliably.
+
+Server Terminal Mocha/Chai test success
+![alt text](devlogimages/TERMINALtestsuccess.png)
+
+Github commit ( Pre deployment on Render)
+![alt text](devlogimages/GitCommitTests.png)
+
