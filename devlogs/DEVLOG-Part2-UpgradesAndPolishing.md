@@ -1,6 +1,6 @@
 # Upgrades and Polishing DevLog Phase 2
 
-*(November 27-)*
+_(November 27-Dececmber 6)_
 
 ## It Includes:
 
@@ -730,4 +730,3 @@ Server Terminal Mocha/Chai test success
 
 Github commit ( Pre deployment on Render)
 ![alt text](devlogimages/GitCommitTests.png)
-
