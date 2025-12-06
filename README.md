@@ -1,4 +1,4 @@
-SummitScene — Mobile Events, Community, & Map App
+# SummitScene — Mobile Events, Community, & Map App
 
 A full-stack React Native mobile application for Banff, Canmore, and Lake Louise.
 
@@ -7,19 +7,13 @@ It features an event hub, live map, community posts, user profiles, and role-bas
 
 This project includes:
 
-React Native + Expo mobile client
-
-Node.js + Express REST API
-
-MongoDB Atlas database
-
-JWT authentication
-
-Business-only event posting
-
-Full community system (posts, replies, likes)
-
-Theming, avatars, and clean UI
+- React Native + Expo mobile client
+- Node.js + Express REST API
+- MongoDB Atlas database
+- JWT authentication
+- Business-only event posting
+- Full community system (posts, replies, likes)
+- Theming, avatars, and clean UI
 
 ## Running the Project Locally
 
@@ -27,25 +21,31 @@ You can run both the backend and mobile client locally if desired.
 
 ### 1. Clone the repository
 
-`git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git`
-
-`cd SummitSceneMobileApp`
+```bash
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
+cd SummitSceneMobileApp
+```
 
 ### 2. Set up the Backend (Node + Express)
 
-`cd server`
+```bash
+cd server
+npm install
+```
 
-`npm install`
+Create a `.env` file inside `server/` (see .env.example):
 
-Create a `.env` file inside `server/`: (See .env.example)
-
-`MONGODB_URI=your_mongo_uri
+```env
+MONGODB_URI=your_mongo_uri
 JWT_SECRET=your_jwt_secret
-NODE_ENV=development`
+NODE_ENV=development
+```
 
-Start the server
+Start the server:
 
-`npm start`
+```bash
+npm start
+```
 
 You should see:
 
@@ -56,29 +56,34 @@ SummitScene API listening on port 4000
 
 Open a second terminal:
 
-`cd ..
+```bash
+cd ..
 npm install
-expo start`
+expo start
+```
 
 Scan the QR code with your phone or run on an emulator.
 
 By default the app uses:
 
-**API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL
-|| "https://summit-scene-backend.onrender.com"**
+```javascript
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
+```
 
 To use your local backend, run Expo with:
 
-`EXPO_PUBLIC_API_BASE_URL="http://YOUR_LOCAL_IP:4000" expo start`
+```bash
+EXPO_PUBLIC_API_BASE_URL="http://YOUR_LOCAL_IP:4000" expo start
+```
 
 ### 4. Production Deployment
 
 SummitScene is fully deployed:
 
-Backend (Render):
-https://summit-scene-backend.onrender.com
-
-Mobile App (Expo):
+- **Backend (Render):** https://summit-scene-backend.onrender.com
+- **Mobile App (Expo):** [Add Expo link here]
 
 ## Architecture
 
@@ -118,6 +123,7 @@ Mobile App (Expo):
 
 ### Folder Structure
 
+```
 SummitSceneMobileApp/
 ├── App.js
 ├── app.json
@@ -165,6 +171,7 @@ SummitSceneMobileApp/
 ├── middleware/
 ├── config/
 └── test/
+```
 
 ### User Roles & App Features
 
@@ -191,54 +198,62 @@ SummitSceneMobileApp/
 - Edit events they own
 
 - Delete events they own
-
 - Manage their event listings under My Events
-
 - Role-based permissions are enforced in both UI and backend.
 
-1. **Mobile Client (React Native + Expo)**
+## Tech Stack
+
+### 1. Mobile Client (React Native + Expo)
+
+- Built with React Native & Expo
+- React Navigation for screen navigation
+- AsyncStorage for token persistence
+- Context API for state management (Auth, Theme)
+
+### 2. Backend (Node.js + Express)
 
 #### API Route Structure
 
-Route Group Description
-/api/auth Register, login, get current user
-/api/events Event CRUD + My Events
-/api/community Posts, replies, likes
-/api/users Update profile, upgrade to business
+| Route Group      | Description                         |
+| ---------------- | ----------------------------------- |
+| `/api/auth`      | Register, login, get current user   |
+| `/api/events`    | Event CRUD + My Events              |
+| `/api/community` | Posts, replies, likes               |
+| `/api/users`     | Update profile, upgrade to business |
 
 #### Authentication
 
 - JWT-based
-
-- authMiddleware validates token & attaches req.user
-
-- isBusiness restricts event creation/editing
+- `authMiddleware` validates token & attaches `req.user`
+- `isBusiness` restricts event creation/editing
 
 #### Controllers
 
 Handled through structured controller files:
 
-- eventController.js
-
-- communityController.js
+- `eventController.js`
+- `communityController.js`
 
 #### Models (Mongoose)
 
-- User
+- `User`
+- `Event`
+- `CommunityPost`
 
-- Event
+### 3. Database (MongoDB + Mongoose)
 
-- CommunityPost
+Hosted in MongoDB Atlas.
 
-1. **Database (MongoDB + Mongoose)**
-   - Hosted in MongoDB.
-   - Main collections:
-     - `User` – stores user accounts (name, email, password hash, role "local" or "business", town, avatar, etc.).
-     - `Event` – stores local events (title, category, town, date, time, description, createdBy).
-     - `CommunityPost` – stores community posts and replies (type, town, body, user, likes, replies).
-   - Uses Mongoose models and schemas for validation and relationships:
-     - Community posts can `populate("user", "name email role town")` so the frontend can show who posted.
-     - Events reference the User that created them (business accounts).
+**Main Collections:**
+
+- `User` – stores user accounts (name, email, password hash, role "local" or "business", town, avatar, etc.)
+- `Event` – stores local events (title, category, town, date, time, description, createdBy)
+- `CommunityPost` – stores community posts and replies (type, town, body, user, likes, replies)
+
+**Relationships:**
+
+- Community posts use `populate("user", "name email role town")` so the frontend can show who posted
+- Events reference the User that created them (business accounts)
 
 **Data Flow Example: Creating an Event**
 
@@ -265,22 +280,23 @@ Backend tests use Mocha, Chai, and Supertest.
 #### Covered Areas
 
 - Authentication (register/login)
-
 - Event retrieval
-
 - Business-only protections
-
 - Community post creation + validation
 
-Run Tests
-`cd server
-npm test`
+**Run Tests:**
+
+```bash
+cd server
+npm test
+```
 
 ### Deployment
 
-- **Backend**: Deployed to **Render** (Node/Express service)
-  - Environment variables configured in Render dashboard (no secrets committed to GitHub).
-  - Exposes a public base URL used by the mobile client.
+**Backend (Render):**
+
+- Environment variables configured in Render dashboard (no secrets committed to GitHub).
+- Exposes a public base URL used by the mobile client.
 - **Mobile App**: Published via **Expo**
   - Expo project link is included in this README.
   - The app is configured to talk to the deployed Render API rather than a local IP.
@@ -288,9 +304,12 @@ npm test`
   - Install Expo Go, open the app link, and use SummitScene against the live backend.
 
 **Live API Base URL:**
-`https://summit-scene-backend.onrender.com`
 
-#### Configuration Details:
+```
+https://summit-scene-backend.onrender.com
+```
+
+#### Configuration Details
 
 - **Hosting Provider:** Render (Node Web Service)
 - **Root Directory:** `server/` (monorepo structure)
@@ -300,7 +319,7 @@ npm test`
   - `MONGODB_URI` – MongoDB Atlas connection string
   - `JWT_SECRET` – Secret used to sign JWT authentication tokens
   - `NODE_ENV=production`
-- **Automatic deployments** are triggered on every push to the GitHub `main` branch.
+- **Automatic deployments** are triggered on every push to the GitHub `main` branch
 
 The backend connects directly to **MongoDB Atlas**, allowing real-time data storage across events, users, and community posts.
 
@@ -310,9 +329,11 @@ The backend connects directly to **MongoDB Atlas**, allowing real-time data stor
 
 The mobile client is built with **React Native (Expo)** and communicates with the Render backend through an environment variable:
 
+```javascript
 const API_BASE_URL =
-process.env.EXPO_PUBLIC_API_BASE_URL ||
-"https://summit-scene-backend.onrender.com";
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
+```
 
 ## Developer Logs
 
@@ -320,15 +341,17 @@ This project includes two detailed development logs documenting the full evoluti
 
 ### Phase 1 — Building the App
 
-**Sprints 1–13: Architecture, Features, UI, Backend, and Full Integration**  
+**Sprints 1–13: Architecture, Features, UI, Backend, and Full Integration**
+
 [View DevLog Part 1 (Building The App)](./devlogs/DEVLOG-Part1-BuildingTheApp.md)
 
 ### Phase 2 — Upgrades & Polishing
 
-**Sprints 9–15 & Final UI/UX/Theming Improvements**  
+**Sprints 9–15 & Final UI/UX/Theming Improvements**
+
 [View DevLog Part 2 (Upgrades & Polishing)](./devlogs/DEVLOG-Part2-UpgradesAndPolishing.md)
 
-Each DevLog includes:
+**Each DevLog includes:**
 
 - Detailed sprint goals
 - Challenges and solutions
@@ -341,7 +364,7 @@ Each DevLog includes:
 SummitScene is a full-stack, production-ready mobile app demonstrating:
 
 - Real authentication
- 
+
 - Role-based permissions
 
 - CRUD features
