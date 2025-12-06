@@ -41,6 +41,10 @@ const CATEGORIES = [
 const FORM_CATEGORIES = CATEGORIES.filter((cat) => cat !== "All");
 
 // ---- helpers for time parsing/formatting ----
+// Professor note: the backend stores times as strings like "7:00 PM".
+// These helpers convert between that string format and JS Date objects
+// so we can reuse the same TimePickerModal component here.
+
 function parseTimeStringToDate(timeStr) {
   if (!timeStr) return new Date();
   const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -113,6 +117,8 @@ export default function EditEventScreen({ route, navigation }) {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   // ---- DATE HANDLING ----
+  // I normalize dates to "YYYY-MM-DD" string
+  // to match what the backend expects and what Hub/Map filters use.
   const applyDateFromDateObj = (jsDate) => {
     const year = jsDate.getFullYear();
     const month = String(jsDate.getMonth() + 1).padStart(2, "0");
@@ -134,6 +140,8 @@ export default function EditEventScreen({ route, navigation }) {
     setLoading(true);
 
     try {
+      // Only send editable fields.
+      // The backend keeps the event owner and IDs the same.
       const payload = {
         title,
         description,
@@ -167,6 +175,15 @@ export default function EditEventScreen({ route, navigation }) {
       setLoading(false);
     }
   };
+
+  // Build button styles separately to avoid any conditional-style quirks
+  const submitButtonStyles = [
+    styles.button,
+    { backgroundColor: theme.accent },
+  ];
+  if (loading) {
+    submitButtonStyles.push(styles.buttonDisabled);
+  }
 
   return (
     <SafeAreaView
@@ -331,11 +348,7 @@ export default function EditEventScreen({ route, navigation }) {
 
         {/* Save button */}
         <Pressable
-          style={[
-            styles.button,
-            { backgroundColor: theme.accent },
-            loading && styles.buttonDisabled,
-          ]}
+          style={submitButtonStyles}
           onPress={handleSubmit}
           disabled={loading}
         >

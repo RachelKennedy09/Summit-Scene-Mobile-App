@@ -1,10 +1,21 @@
-// Mongoose model for application users
-// Stores login credentials (email, passwordHash, role) and basic profile info
+// server/models/User.js
+// User model for SummitScene
+//  - A registered user in the SummitScene ecosystem
+//  - Handles login credentials, roles (local vs business), and profile fields
+//
+// WHERE IT IS USED:
+//  - Auth system (register/login/token payload)
+//  - Community posts (name snapshots, replies, likes)
+//  - Event creation (business role only)
+//  - Account screen (profile updates)
 
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    // -------------------------------------------
+    // AUTH / LOGIN FIELDS
+    // -------------------------------------------
     // Unique email for each user
     email: {
       type: String,
@@ -15,20 +26,22 @@ const userSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
     },
 
-    // Hashed password (stored securely — never plain text)
+    // Hashed password (never store plain text)
     passwordHash: {
       type: String,
       required: true,
     },
 
-    // Display name shown in the Account screen
+    // Display name shown throughout the app
     name: {
       type: String,
       required: true,
       trim: true,
     },
 
-    // Role defines permissions: "local" users or "business" owners
+    // Role affects permissions:
+    //  - local: standard user
+    //  - business: can create/update/delete events
     role: {
       type: String,
       enum: ["local", "business"],
@@ -36,40 +49,62 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    //  Profile Fields
+    // -------------------------------------------
+    // PROFILE FIELDS VISIBLE ON ACCOUNT SCREEN
+    // -------------------------------------------
 
     town: {
       type: String,
       trim: true,
       maxlength: 60,
     },
+
+    // Short personal description ("I love markets and open mic nights")
     bio: {
       type: String,
-      maxlength: 300, // keep it short + friendly
+      maxlength: 300,
     },
+
+    // What experiences the user is looking for
     lookingFor: {
       type: String,
-      maxlength: 200, // “looking for hiking buddies, markets, open mics…”
+      maxlength: 200,
     },
+
+    // Instagram handle (optional)
     instagram: {
-      type: String, // e.g. "@rachel_in_the_rockies"
+      type: String,
     },
+
+    // Website for business users
     website: {
-      type: String, // Business only for their business website
+      type: String,
     },
-    avatarKey: { type: String, default: null },
+
+    // Avatar key used to render one of the 16 preset avatars
+    avatarKey: {
+      type: String,
+      default: null,
+    },
   },
   {
-    // Automatically creates createdAt / updatedAt
+    // Automatically create createdAt / updatedAt timestamps
     timestamps: true,
 
-    // Include virtuals when converting to JSON
+    // Include virtuals when returning JSON to the client
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-//  shows email without sensitive info
+// -------------------------------------------
+// VIRTUALS
+// -------------------------------------------
+// safeProfile:
+//   A lightweight profile object without sensitive info.
+//   Useful for embedding inside other documents (posts, events)
+//   or returning as part of auth endpoints.
+//
 userSchema.virtual("safeProfile").get(function () {
   return {
     id: this._id,
@@ -77,12 +112,14 @@ userSchema.virtual("safeProfile").get(function () {
     email: this.email,
     role: this.role,
     avatarKey: this.avatarKey,
-
     town: this.town,
   };
 });
 
-// Create the "users" collection in MongoDB
+// -------------------------------------------
+// MODEL EXPORT
+// -------------------------------------------
+// Creates/uses the "users" collection in MongoDB.
 const User = mongoose.model("User", userSchema);
 
 export default User;

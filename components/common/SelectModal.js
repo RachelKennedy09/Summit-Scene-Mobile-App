@@ -1,4 +1,8 @@
 // components/SelectModal.js
+// Generic "picker" modal used anywhere we need:
+//   • A simple list of string options
+//   • Single selection
+
 import React from "react";
 import { View, Text, Modal, Pressable, StyleSheet } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
@@ -13,7 +17,14 @@ export default function SelectModal({
 }) {
   const { theme } = useTheme();
 
+  // If not visible, don't render anything
   if (!visible) return null;
+
+  const textMain = theme.textMain || theme.text || "#111";
+  const textMuted = theme.textMuted || "#777";
+  const accent = theme.accent || "#2f7cff";
+  const accentSoft = theme.accentSoft || "rgba(47, 124, 255, 0.15)";
+  const cardBg = theme.card || "#fff";
 
   return (
     <Modal
@@ -23,11 +34,11 @@ export default function SelectModal({
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-          <Text style={[styles.modalTitle, { color: theme.text }]}>
-            {title}
-          </Text>
+        <View style={[styles.modalContent, { backgroundColor: cardBg }]}>
+          {/* Title */}
+          <Text style={[styles.modalTitle, { color: textMain }]}>{title}</Text>
 
+          {/* Option list */}
           {options.map((opt) => {
             const isSelected = opt === selectedValue;
             return (
@@ -35,9 +46,7 @@ export default function SelectModal({
                 key={opt}
                 style={[
                   styles.optionRow,
-                  isSelected && {
-                    backgroundColor: theme.accentSoft || theme.accent,
-                  },
+                  isSelected && { backgroundColor: accentSoft },
                 ]}
                 onPress={() => onSelect(opt)}
               >
@@ -45,7 +54,7 @@ export default function SelectModal({
                   style={[
                     styles.optionText,
                     {
-                      color: theme.text,
+                      color: textMain,
                       fontWeight: isSelected ? "700" : "400",
                     },
                   ]}
@@ -53,16 +62,15 @@ export default function SelectModal({
                   {opt}
                 </Text>
                 {isSelected && (
-                  <Text style={[styles.check, { color: theme.accent }]}>✓</Text>
+                  <Text style={[styles.check, { color: accent }]}>✓</Text>
                 )}
               </Pressable>
             );
           })}
 
+          {/* Cancel link-style button */}
           <Pressable style={styles.cancelButton} onPress={onClose}>
-            <Text style={[styles.cancelText, { color: theme.accent }]}>
-              Cancel
-            </Text>
+            <Text style={[styles.cancelText, { color: accent }]}>Cancel</Text>
           </Pressable>
         </View>
       </View>

@@ -1,15 +1,27 @@
 // components/events/EventHostSection.js
-// Shows the "Hosted by" business card + modal profile for the event host
+// Shows the "Hosted by" business card + modal profile for the event host.
+// This uses avatarKey from the User document to render one of our local avatar PNGs.
 
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Image, Pressable, Modal } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
+
+import { AVATARS } from "../../assets/avatars/avatarConfig";
+
+// Helper: map avatarKey -> local avatar image (see avatarConfig.js)
+function getAvatarSource(avatarKey) {
+  if (!avatarKey) return null;
+  return AVATARS[avatarKey] || null;
+}
 
 export default function EventHostSection({ host }) {
   const { theme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   if (!host) return null;
+
+  // For this screen, host.avatarKey comes from getEventHost(event) in EventDetailScreen
+  const avatarSource = host.avatarKey ? getAvatarSource(host.avatarKey) : null;
 
   return (
     <>
@@ -29,11 +41,8 @@ export default function EventHostSection({ host }) {
 
         <View style={styles.hostRow}>
           <View style={[styles.hostAvatar, { backgroundColor: theme.card }]}>
-            {host.avatarUrl ? (
-              <Image
-                source={{ uri: host.avatarUrl }}
-                style={styles.hostAvatarImage}
-              />
+            {avatarSource ? (
+              <Image source={avatarSource} style={styles.hostAvatarImage} />
             ) : (
               <Text style={[styles.hostAvatarInitial, { color: theme.text }]}>
                 {host.name.charAt(0).toUpperCase()}
@@ -106,9 +115,9 @@ export default function EventHostSection({ host }) {
                     { backgroundColor: theme.card },
                   ]}
                 >
-                  {host.avatarUrl ? (
+                  {avatarSource ? (
                     <Image
-                      source={{ uri: host.avatarUrl }}
+                      source={avatarSource}
                       style={styles.profileAvatarImage}
                     />
                   ) : (

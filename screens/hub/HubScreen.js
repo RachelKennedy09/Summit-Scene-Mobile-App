@@ -1,4 +1,9 @@
 // screens/HubScreen.js
+// Main Hub feed for SummitScene.
+// - Fetches all events from the API
+// - Applies town/caegory/date filters (shared with the Map tab)
+// - Shows events in a FlatList with pull-to-refresh
+// - Navigates to EventDetail when an event card is tapped.
 
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import {
@@ -24,7 +29,7 @@ import { colors } from "../../theme/colors";
 // Simple list of towns for the selector modal
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
 
-// list of categories for selector modal
+// List of categories for selector modal
 const CATEGORIES = [
   "All",
   "Market",
@@ -52,17 +57,22 @@ export default function HubScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation();
 
+  // Friendly greeting in the Hub header
   const displayName = user?.name || user?.email || "there";
 
+  // Filter state (synced with Map tab filters)
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedTown, setSelectedTown] = useState("All");
   const [selectedDateFilter, setSelectedDateFilter] = useState("All");
 
+  // Events + loading state
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Fetch events from the API.
+  // Reused pattern with MapScreen: sort by date ascending for a consistent feed.
   const loadEvents = useCallback(async (isRefresh = false) => {
     try {
       if (!isRefresh) {
@@ -91,6 +101,7 @@ export default function HubScreen() {
     }
   }, []);
 
+  // Initial load on mount
   useEffect(() => {
     loadEvents(false);
   }, [loadEvents]);
@@ -99,6 +110,8 @@ export default function HubScreen() {
     loadEvents(true);
   };
 
+  // Apply town/category/date filters to the events list.
+  // Logic mirrors the MapScreen so both tabs stay consistent.
   const eventsToShow = useMemo(() => {
     const now = new Date();
     const todayStart = new Date(
@@ -156,6 +169,7 @@ export default function HubScreen() {
     });
   }, [events, selectedCategory, selectedTown, selectedDateFilter]);
 
+  // Text for the "no events" state, depending on which filters are active.
   const emptyMessage = useMemo(() => {
     if (
       selectedCategory === "All" &&
@@ -180,6 +194,7 @@ export default function HubScreen() {
     return `No ${selectedCategory} events found in ${selectedTown}.`;
   }, [selectedCategory, selectedTown, selectedDateFilter]);
 
+  // Human-readable summary of the filtered results.
   const resultSummary = useMemo(() => {
     const count = eventsToShow.length;
 
@@ -205,6 +220,7 @@ export default function HubScreen() {
     return `Showing ${count} events in ${townLabel} for ${categoryLabel}${dateLabel}.`;
   }, [eventsToShow.length, selectedTown, selectedCategory, selectedDateFilter]);
 
+  // Inital loading state (before there are any events)
   if (loading && !refreshing && events.length === 0) {
     return (
       <SafeAreaView
@@ -220,6 +236,7 @@ export default function HubScreen() {
     );
   }
 
+  // Full-screen error state if first load fails.
   if (error && events.length === 0) {
     return (
       <SafeAreaView
@@ -237,6 +254,7 @@ export default function HubScreen() {
     );
   }
 
+  // Renders each event as a tappable card taht leads to EventDetail.
   const renderEvent = ({ item }) => (
     <EventCard
       event={item}
@@ -262,6 +280,7 @@ export default function HubScreen() {
               ? styles.emptyContainer
               : styles.listContent
           }
+          // Pull-to-refresh ties into loadEvents, with a custom overlay spinner below.
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -272,6 +291,7 @@ export default function HubScreen() {
               progressBackgroundColor="transparent"
             />
           }
+          // HubFilters renders the filter chips + greeting + result summary at the top of the list.
           ListHeaderComponent={
             <HubFilters
               displayName={displayName}
@@ -332,7 +352,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
     textAlign: "center",
     fontSize: 14,
-    // color comes from theme
   },
   center: {
     flex: 1,
@@ -342,8 +361,9 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 8,
     fontSize: 14,
-    // color comes from theme
   },
+  // Semi-transparent overlay used while refreshing, so the user sees a spinner
+  // on top of the existing events instead of a blank screen.
   refreshOverlay: {
     position: "absolute",
     top: 0,

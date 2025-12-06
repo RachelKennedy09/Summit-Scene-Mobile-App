@@ -1,3 +1,7 @@
+// screens/community/CommunityPostScreen.js
+// Create a new community post (Highway, Ride Share, or Event Buddy).
+// This screen uses the logged-in account as the author.
+
 import React, { useState, useMemo } from "react";
 import {
   View,
@@ -15,6 +19,8 @@ import { useAuth } from "../../context/AuthContext";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTheme } from "../../context/ThemeContext";
 
+// Board + town options are defined as config arrays,
+// so it’s easy to add more types/towns later without changing the JSX.
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
   { label: "Ride Share", value: "rideshare" },
@@ -26,6 +32,10 @@ const TOWNS = [
   { label: "Canmore", value: "Canmore" },
   { label: "Lake Louise", value: "Lake Louise" },
 ];
+
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
 
 export default function CommunityPostScreen({ navigation }) {
   const { token } = useAuth();
@@ -40,9 +50,8 @@ export default function CommunityPostScreen({ navigation }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL =
-    process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
-
+  // useMemo changes the helper text based on the board type
+  // without recalculating on every keystroke in the form.
   const detailsPlaceholder = useMemo(() => {
     if (type === "highwayconditions") {
       return "Road, pass, or parking lot conditions. Add time, direction, and any hazards.";
@@ -57,13 +66,24 @@ export default function CommunityPostScreen({ navigation }) {
   }, [type]);
 
   async function handleSubmit() {
-    // basic validation (no name check anymore)
+    // Basic validation
     if (!title.trim() || !body.trim()) {
       Alert.alert("Missing info", "Please add a title and some details.");
       return;
     }
+
     if (!targetDate) {
       Alert.alert("Missing info", "Please select a date for this post.");
+      return;
+    }
+
+    // I guard posting behind a valid JWT.
+    // The backend also checks auth, but this gives faster feedback in the UI.
+    if (!token) {
+      Alert.alert(
+        "Login required",
+        "Please log in before creating a community post."
+      );
       return;
     }
 
@@ -77,7 +97,6 @@ export default function CommunityPostScreen({ navigation }) {
         title: title.trim(),
         body: body.trim(),
         targetDate: targetDate.toISOString(),
-        // no name here – backend uses account name from req.user
       };
 
       const res = await fetch(`${API_BASE_URL}/api/community`, {
@@ -100,6 +119,8 @@ export default function CommunityPostScreen({ navigation }) {
         "Post shared!",
         "Your community post has been created. It will show under your account name, and other members can reply."
       );
+
+      // Reset local form state and go back to the Community board
       setTitle("");
       setBody("");
       setTargetDate(new Date());
@@ -116,6 +137,8 @@ export default function CommunityPostScreen({ navigation }) {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
+      {/*  KeyboardAvoidingView keeps fields visible when
+          the soft keyboard opens on smaller devices. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -145,9 +168,7 @@ export default function CommunityPostScreen({ navigation }) {
                   style={[
                     styles.pill,
                     {
-                      borderColor: isActive
-                        ? theme.accent
-                        : theme.border,
+                      borderColor: isActive ? theme.accent : theme.border,
                       backgroundColor: isActive
                         ? theme.accentSoft || theme.card
                         : theme.card,
@@ -182,9 +203,7 @@ export default function CommunityPostScreen({ navigation }) {
                   style={[
                     styles.pill,
                     {
-                      borderColor: isActive
-                        ? theme.accent
-                        : theme.border,
+                      borderColor: isActive ? theme.accent : theme.border,
                       backgroundColor: isActive
                         ? theme.accentSoft || theme.card
                         : theme.card,
@@ -233,7 +252,6 @@ export default function CommunityPostScreen({ navigation }) {
                 setShowDatePicker(false);
 
                 if (event.type === "dismissed") return;
-
                 if (selectedDate) {
                   setTargetDate(selectedDate);
                 }
@@ -286,10 +304,7 @@ export default function CommunityPostScreen({ navigation }) {
 
           {error && (
             <Text
-              style={[
-                styles.errorText,
-                { color: theme.error || "#ff4d4f" },
-              ]}
+              style={[styles.errorText, { color: theme.error || "#ff4d4f" }]}
             >
               {error}
             </Text>

@@ -17,11 +17,18 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 
+// Use the same API base that the rest of the app uses,
+// so Expo can swap between local + deployed backends via env vars.
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
+
 export default function EditCommunityPostScreen({ route, navigation }) {
   const { post } = route.params; // post passed in from CommunityScreen
   const { token } = useAuth();
   const { theme } = useTheme();
 
+  // Pre-fill the form with the existing post data
   const [title, setTitle] = useState(post.title || "");
   const [body, setBody] = useState(post.body || "");
   const [targetDate, setTargetDate] = useState(
@@ -30,9 +37,6 @@ export default function EditCommunityPostScreen({ route, navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-
-  const API_BASE_URL =
-    process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
 
   async function handleSave() {
     if (!title.trim() || !body.trim()) {
@@ -45,13 +49,21 @@ export default function EditCommunityPostScreen({ route, navigation }) {
       return;
     }
 
+    if (!token) {
+      Alert.alert("Not logged in", "Please log in before editing a post.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError(null);
 
+      // Only send fields that are allowed to change.
+      // Board/type + town remain locked to keep the board structure clean.
       const payload = {
         title: title.trim(),
         body: body.trim(),
+        // Store as ISO string so backend can safely parse dates
         targetDate: targetDate.toISOString(),
       };
 
@@ -65,13 +77,20 @@ export default function EditCommunityPostScreen({ route, navigation }) {
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
         throw new Error(data.error || "Failed to update post");
       }
 
       await res.json();
 
       Alert.alert("Post updated", "Your community post has been updated.");
+      // CommunityScreen uses useFocusEffect to refetch,
+      // so going back is enough to show the updated version.
       navigation.goBack(); // CommunityScreen will refetch on focus
     } catch (err) {
       console.error("Error updating community post:", err);
@@ -96,7 +115,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
           Update the details of your post. Board and town stay the same.
         </Text>
 
-        {/* Show board + town as readonly */}
+        {/* Readonly context: which board + town this post belongs t */}
         <View style={styles.readonlyRow}>
           <Text style={[styles.readonlyLabel, { color: theme.textMuted }]}>
             Board:
@@ -119,7 +138,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
           </Text>
         </View>
 
-        {/* Date */}
+        {/* Date (target/meetup date) */}
         <Text style={[styles.label, { color: theme.textMuted }]}>Date</Text>
         <Pressable
           onPress={() => setShowDatePicker(true)}
@@ -144,7 +163,8 @@ export default function EditCommunityPostScreen({ route, navigation }) {
             onChange={(event, selectedDate) => {
               setShowDatePicker(false);
 
-              if (event.type === "dismissed") return;
+              // On Android, event.type === "dismissed" if the user cancels
+              if (event?.type === "dismissed") return;
               if (selectedDate) setTargetDate(selectedDate);
             }}
           />
@@ -188,12 +208,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
         />
 
         {error && (
-          <Text
-            style={[
-              styles.errorText,
-              { color: theme.error || "#ff4d4f" },
-            ]}
-          >
+          <Text style={[styles.errorText, { color: theme.error || "#ff4d4f" }]}>
             {error}
           </Text>
         )}
@@ -209,12 +224,7 @@ export default function EditCommunityPostScreen({ route, navigation }) {
             submitting && { opacity: 0.6 },
           ]}
         >
-          <Text
-            style={[
-              styles.submitButtonText,
-              { color: theme.background },
-            ]}
-          >
+          <Text style={[styles.submitButtonText, { color: theme.background }]}>
             {submitting ? "Saving..." : "Save Changes"}
           </Text>
         </Pressable>

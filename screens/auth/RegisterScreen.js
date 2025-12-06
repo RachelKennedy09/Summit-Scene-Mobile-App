@@ -1,6 +1,8 @@
 // screens/RegisterScreen.js
-//  Registration screen UI
-//  Lets new users create an account that we store via the /register API
+// Registration screen UI
+// Lets new users create an account via the /register API
+// I collect core auth fields (email/password)
+// plus optional profile fields that power the Community + Event host UI.
 
 import React, { useState } from "react";
 import {
@@ -19,23 +21,28 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
+
 import AvatarPicker from "../../components/AvatarPicker";
+import LocalFields from "../../components/register/LocalFields";
+import BusinessFields from "../../components/register/BusinessFields";
 
 function RegisterScreen() {
   const { register, isAuthLoading } = useAuth();
   const navigation = useNavigation();
   const { theme } = useTheme();
+
   const [avatarKey, setAvatarKey] = useState(null);
-  const [name, setName] = useState(""); // optional display name
+  const [name, setName] = useState(""); // display name (required so posts can show a name)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // account type/role
-  // local = here to find events
-  // business = posting/managing events
+  // local = here to find events and use community boards
+  // business = posting/managing events as a host
   const [role, setRole] = useState("local");
 
+  // profile / business fields
   const [town, setTown] = useState("");
   const [bio, setBio] = useState("");
   const [lookingFor, setLookingFor] = useState("");
@@ -44,13 +51,19 @@ function RegisterScreen() {
 
   async function handleRegister() {
     if (!name || !email || !password) {
-      Alert.alert("Missing info", "Please enter at least email and password.");
+      Alert.alert(
+        "Missing info",
+        "Please enter your name, email, and password."
+      );
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // avatarKey is a stable string (like "w3_dark_blackpony")
+      // that can be stored in MongoDB. The front-end uses avatarConfig to map it
+      // back to a local PNG.
       await register({
         name,
         email,
@@ -63,8 +76,8 @@ function RegisterScreen() {
         website,
         avatarKey,
       });
-      // after successful registration, user is logged in automatically
-      // navigation will switch based on user later
+      // After successful registration, the AuthContext logs the user in
+      // and the RootNavigator switches screens based on auth state.
     } catch (error) {
       console.error("Error in /register:", error);
       Alert.alert(
@@ -162,6 +175,9 @@ function RegisterScreen() {
               </View>
 
               {/* Account type selection */}
+              {/* Role drives access in the UI.
+                  Local accounts see community boards + Hub.
+                  Business accounts unlock Post/My Events host tools. */}
               <Text style={[styles.sectionLabel, { color: theme.text }]}>
                 What type of account is this?
               </Text>
@@ -220,186 +236,44 @@ function RegisterScreen() {
                 </Pressable>
               </View>
 
-              {/* LOCAL FIELDS */}
+              {/* LOCAL FIELDS (extracted component) */}
               {isLocal && (
-                <>
-                  <Text style={[styles.sectionLabel, { color: theme.text }]}>
-                    Tell visitors and locals a bit about you
-                  </Text>
-
-                  {/* TOWN / PLACE OF RESIDENCE */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Where do you live?
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="Banff, Canmore, Lake Louise... Visiting?"
-                    placeholderTextColor={theme.textMuted}
-                    value={town}
-                    onChangeText={setTown}
-                  />
-
-                  {/* SHORT BIO */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Short bio
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      { height: 80, textAlignVertical: "top" },
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="Tell locals who you are and what you love..."
-                    placeholderTextColor={theme.textMuted}
-                    multiline
-                    numberOfLines={3}
-                    value={bio}
-                    onChangeText={setBio}
-                  />
-
-                  {/* LOOKING FOR */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    What are you looking for?
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      { height: 60, textAlignVertical: "top" },
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="Markets, yoga buddies, music nights, hiking friends..."
-                    placeholderTextColor={theme.textMuted}
-                    multiline
-                    numberOfLines={2}
-                    value={lookingFor}
-                    onChangeText={setLookingFor}
-                  />
-
-                  {/* SOCIAL LINKS */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Instagram (optional)
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="@yourhandle"
-                    placeholderTextColor={theme.textMuted}
-                    value={instagram}
-                    onChangeText={setInstagram}
-                  />
-                </>
+                <LocalFields
+                  town={town}
+                  bio={bio}
+                  lookingFor={lookingFor}
+                  instagram={instagram}
+                  onChangeTown={setTown}
+                  onChangeBio={setBio}
+                  onChangeLookingFor={setLookingFor}
+                  onChangeInstagram={setInstagram}
+                  theme={theme}
+                />
               )}
 
-              {/* BUSINESS FIELDS */}
+              {/* BUSINESS FIELDS (extracted component) */}
               {isBusiness && (
-                <>
-                  <Text style={[styles.sectionLabel, { color: theme.text }]}>
-                    Tell visitors and locals about your business
-                  </Text>
-
-                  {/* BUSINESS LOCATION */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Where is your business located?
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="Banff, Canmore, Lake Louise..."
-                    placeholderTextColor={theme.textMuted}
-                    value={town}
-                    onChangeText={setTown}
-                  />
-
-                  {/* BUSINESS TYPE */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    What type of business is this?
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      { height: 60, textAlignVertical: "top" },
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="Cafe, yoga studio, live music venue, shop..."
-                    placeholderTextColor={theme.textMuted}
-                    multiline
-                    numberOfLines={2}
-                    value={lookingFor} // reused field, just different meaning for business
-                    onChangeText={setLookingFor}
-                  />
-
-                  {/* WEBSITE */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Website
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="https://your-business.com"
-                    placeholderTextColor={theme.textMuted}
-                    value={website}
-                    onChangeText={setWebsite}
-                  />
-
-                  {/* SOCIAL LINKS (OPTIONAL) */}
-                  <Text style={[styles.label, { color: theme.text }]}>
-                    Instagram (optional)
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: theme.card,
-                        borderColor: theme.border,
-                        color: theme.text,
-                      },
-                    ]}
-                    placeholder="@yourbusiness"
-                    placeholderTextColor={theme.textMuted}
-                    value={instagram}
-                    onChangeText={setInstagram}
-                  />
-                </>
+                <BusinessFields
+                  town={town}
+                  businessType={lookingFor}
+                  website={website}
+                  instagram={instagram}
+                  onChangeTown={setTown}
+                  onChangeBusinessType={setLookingFor}
+                  onChangeWebsite={setWebsite}
+                  onChangeInstagram={setInstagram}
+                  theme={theme}
+                />
               )}
+
+              {/* Avatar picker */}
               <Text
-                style={{ marginTop: 16, marginBottom: 8, fontWeight: "600" }}
+                style={{
+                  marginTop: 16,
+                  marginBottom: 8,
+                  fontWeight: "600",
+                  color: theme.text,
+                }}
               >
                 Choose an avatar
               </Text>
@@ -461,9 +335,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 80,
     paddingBottom: 40,
-  },
-  inner: {
-    // optional
   },
   title: {
     fontSize: 28,

@@ -1,4 +1,5 @@
-// Lets users enter email/password to request a JWT from the backend
+// screens/auth/LoginScreen.js (or similar path)
+// Lets users enter email/password and requests a JWT from the backend via AuthContext
 
 import React, { useState } from "react";
 import {
@@ -20,18 +21,20 @@ import { useTheme } from "../../context/ThemeContext";
 import Logo from "../../assets/logo.png";
 
 function LoginScreen() {
-  const { login, isAuthLoading } = useAuth();
+  const { login, isAuthLoading } = useAuth(); // login() talks to backend, isAuthLoading = global auth state
   const navigation = useNavigation();
   const { theme } = useTheme();
 
-  // STATE: keep track of form fields and loading state
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // ----- FORM STATE -----
+  const [email, setEmail] = useState(""); // user email
+  const [password, setPassword] = useState(""); // user password
+  const [isSubmitting, setIsSubmitting] = useState(false); // local loading flag for this screen
 
-  // HANDLER: runs when user taps "Log in"
+  // ----- HANDLERS -----
+
+  // Runs when user taps "Log In"
   async function handleLogin() {
-    // guard so it doesnt send empty requests
+    // Prevent sending empty requests
     if (!email || !password) {
       Alert.alert("Missing info", "Please enter both email and password.");
       return;
@@ -40,7 +43,10 @@ function LoginScreen() {
     setIsSubmitting(true);
 
     try {
+      // Hand off to AuthContext to call /login on backend
       await login({ email, password });
+      // If successful, AuthContext will update user + token
+      // Navigation is handled by RootNavigator based on auth state
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert("Login failed", error.message || "Please try again.");
@@ -50,17 +56,20 @@ function LoginScreen() {
   }
 
   return (
-    // KeyboardAvoidingView stops the keyboard from covering inputs
+    // KeyboardAvoidingView keeps inputs visible when keyboard is open
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* dismiss keyboard when tapping outside inputs */}
+      {/* Dismiss keyboard when tapping outside inputs */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
+          {/* App logo */}
           <View style={styles.logoContainer}>
             <Image source={Logo} style={styles.logo} resizeMode="contain" />
           </View>
+
+          {/* Headline + intro text */}
           <Text style={[styles.title, { color: theme.text }]}>
             Welcome To Summit Scene Hub!
           </Text>
@@ -69,7 +78,7 @@ function LoginScreen() {
             Louise.
           </Text>
 
-          {/* Email Field */}
+          {/* EMAIL FIELD */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.text }]}>Email</Text>
             <TextInput
@@ -91,7 +100,7 @@ function LoginScreen() {
             />
           </View>
 
-          {/* Password Field */}
+          {/* PASSWORD FIELD */}
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.text }]}>Password</Text>
             <TextInput
@@ -111,7 +120,7 @@ function LoginScreen() {
             />
           </View>
 
-          {/* Login Button */}
+          {/* LOGIN BUTTON */}
           <Pressable
             style={[
               styles.button,
@@ -127,7 +136,7 @@ function LoginScreen() {
               style={[
                 styles.buttonText,
                 {
-                  // text on accent background
+                  // use theme.background so text is readable on accent
                   color: theme.background,
                 },
               ]}
@@ -136,7 +145,7 @@ function LoginScreen() {
             </Text>
           </Pressable>
 
-          {/* Nav link to RegisterScreen */}
+          {/* LINK → REGISTER SCREEN */}
           <Pressable onPress={() => navigation.navigate("Register")}>
             <Text
               style={[
@@ -146,7 +155,7 @@ function LoginScreen() {
                 },
               ]}
             >
-              Don’t have an account? Sign up
+              Don't have an account? Sign up
             </Text>
           </Pressable>
         </View>
@@ -161,56 +170,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   inner: {
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 80,
   },
-
   title: {
     fontSize: 28,
     fontWeight: "700",
     marginBottom: 8,
   },
-
   subtitle: {
     fontSize: 14,
     marginBottom: 24,
   },
-
   inputGroup: {
     marginBottom: 16,
   },
-
   label: {
     marginBottom: 6,
     fontSize: 14,
   },
-
   input: {
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderWidth: 1,
   },
-
   button: {
     marginTop: 8,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
-
   buttonDisabled: {
     opacity: 0.7,
   },
-
   buttonText: {
     fontWeight: "700",
     fontSize: 16,
   },
-
   linkText: {
     marginTop: 16,
     textAlign: "center",
@@ -221,7 +220,6 @@ const styles = StyleSheet.create({
     marginBottom: 28,
     padding: 18,
   },
-
   logo: {
     width: 160,
     height: 180,

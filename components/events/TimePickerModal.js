@@ -1,4 +1,8 @@
 // components/TimePickerModal.js
+// Reusable “pick a time” modal for start / end time on events.
+// - Uses 12-hour format with AM/PM
+// - Returns a real Date object via onConfirm so callers can save it.
+
 import React, { useState } from "react";
 import {
   View,
@@ -12,37 +16,46 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 
 function TimePickerModal({
-  visible,
-  initialTime,
-  onConfirm,
-  onCancel,
+  visible, // boolean: show/hide the modal
+  initialTime, // Date or null: pre-fill the picker, defaults to now
+  onConfirm, // function(Date): called with chosen time
+  onCancel, // function: called when user cancels
   title = "Select time",
 }) {
   const { theme } = useTheme();
 
-  // ---- derive initial time pieces ----
+  // ---------- Derive the starting hour/minute/AMPM from initialTime ----------
+
+  // If no initialTime is passed in, use "now" as the base
   const baseDate = initialTime || new Date();
   const initialHours24 = baseDate.getHours();
   const initialMinutes = baseDate.getMinutes();
 
+  // Convert 24h -> 12h with AM/PM
   const initialAmPm = initialHours24 >= 12 ? "PM" : "AM";
   const initialHour12 = ((initialHours24 + 11) % 12) + 1;
+
+  // Round minutes to nearest 5, clamp to 55, pad with leading 0
   const roundTo5 = Math.round(initialMinutes / 5) * 5;
   const clampedMinutes = Math.min(55, roundTo5);
   const initialMinute = String(clampedMinutes).padStart(2, "0");
 
-  const [hour, setHour] = useState(initialHour12);
-  const [minute, setMinute] = useState(initialMinute);
-  const [ampm, setAmpm] = useState(initialAmPm);
+  // ---------- Local state for the current selection ----------
 
-  // ❗ Hooks are all above this line now – safe
+  const [hour, setHour] = useState(initialHour12); // 1–12
+  const [minute, setMinute] = useState(initialMinute); // "00", "05", ...
+  const [ampm, setAmpm] = useState(initialAmPm); // "AM" | "PM"
+
   if (!visible) return null;
 
+  // ---------- Theming helpers ----------
+  // These fall back safely if a theme is missing a property.
   const textColor = theme.text || theme.textMain || "#111";
   const textMuted = theme.textMuted || "#777";
   const accent = theme.accent || "#2f7cff";
   const onAccent = theme.textOnAccent || theme.background || "#fff";
 
+  // Options for each column
   const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
   const MINUTES = [
     "00",
@@ -60,14 +73,24 @@ function TimePickerModal({
   ];
   const AMPM = ["AM", "PM"];
 
+  // ---------- Build the final Date and send it back ----------
   function handleConfirm() {
+    // Start from the same baseDate (to keep the same day)
     const base = new Date(baseDate.getTime());
-    let h24 = hour % 12;
+
+    // Convert selected 12h + AM/PM back to 24h
+    let h24 = hour % 12; // 12 -> 0
     if (ampm === "PM") h24 += 12;
+
+    // Apply hours + minutes, clear seconds/millis
     base.setHours(h24, parseInt(minute, 10), 0, 0);
-    onConfirm && onConfirm(base);
+
+    if (onConfirm) {
+      onConfirm(base);
+    }
   }
 
+  // Shared style base for each pill option
   const optionBase = {
     paddingVertical: 6,
     paddingHorizontal: 10,
@@ -97,7 +120,7 @@ function TimePickerModal({
           <Text style={[styles.modalTitle, { color: textColor }]}>{title}</Text>
 
           <View style={styles.timePickerRow}>
-            {/* Hours */}
+            {/* Hours column */}
             <View style={styles.timeColumn}>
               <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
                 Hour
@@ -128,7 +151,7 @@ function TimePickerModal({
               </ScrollView>
             </View>
 
-            {/* Minutes */}
+            {/* Minutes column */}
             <View style={styles.timeColumn}>
               <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
                 Min
@@ -159,7 +182,7 @@ function TimePickerModal({
               </ScrollView>
             </View>
 
-            {/* AM / PM */}
+            {/* AM / PM column */}
             <View style={styles.timeColumn}>
               <Text style={[styles.timeColumnLabel, { color: textMuted }]}>
                 AM / PM
@@ -191,6 +214,7 @@ function TimePickerModal({
             </View>
           </View>
 
+          {/* Footer buttons */}
           <View style={styles.pickerButtonsRow}>
             <Pressable style={styles.pickerSecondaryButton} onPress={onCancel}>
               <Text style={[styles.pickerSecondaryText, { color: textMuted }]}>

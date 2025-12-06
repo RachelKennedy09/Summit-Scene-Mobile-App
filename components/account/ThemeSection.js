@@ -1,37 +1,43 @@
 // components/account/ThemeSection.js
+// Allows users to customize the look of the app through two UI features:
+//
+// 1. App Theme Selector (Feminine / Masculine / Christmas)
+//    - Changes the entire color palette using ThemeContext
+//
+// 2. Appearance Mode (Light / Dark)
+//    - A quick toggle inside the selected theme
+//    - Does NOT switch themes; only changes between the light/dark version
+//      of the chosen theme.
+//
+// This section appears inside the Account Screen.
+
 import React from "react";
 import { View, Text, Pressable, Switch, StyleSheet } from "react-native";
-import { colors } from "../../theme/colors";
+import { colors } from "../../theme/colors"; // fallback values
 
 export default function ThemeSection({
-  theme,
-  themeName,
-  setThemeName,
-  isDark,
-  toggleLightDark,
+  theme, // current theme colors from ThemeContext
+  themeName, // current theme ID ("feminine", "masculine", "christmas")
+  setThemeName, // update the chosen theme
+  isDark, // boolean: is appearance set to dark mode?
+  toggleLightDark, // toggle: Light <-> Dark mode within this theme
 }) {
+  // The choices available for app themes
   const themes = [
-    { id: "light", label: "Light" },
-    { id: "dark", label: "Dark" },
     { id: "feminine", label: "Feminine" },
     { id: "masculine", label: "Masculine" },
-    { id: "rainbow", label: "Rainbow" },
+    { id: "rainbow", label: "Christmas" }, // renaming the label for the UI
   ];
 
   return (
     <>
-      {/* App Theme Pills */}
-      <Text
-        style={[
-          styles.appThemeTitle,
-          {
-            color: theme.text,
-          },
-        ]}
-      >
+      {/* Section Title: App Theme */}
+      <Text style={[styles.appThemeTitle, { color: theme.text }]}>
         App Theme
       </Text>
 
+      {/*  Theme Selection Pills
+          - Highlights active theme with accent/border */}
       <View style={styles.pillRow}>
         {themes.map((item) => {
           const isActive = themeName === item.id;
@@ -43,13 +49,16 @@ export default function ThemeSection({
                 styles.themePill,
                 {
                   borderColor: isActive ? theme.accent : theme.border,
-                  backgroundColor: isActive ? theme.accent : theme.card,
+                  backgroundColor: isActive
+                    ? theme.accentSoft || theme.card
+                    : theme.card,
                 },
               ]}
             >
               <Text
                 style={{
-                  color: isActive ? theme.onAccent || "#000" : theme.text,
+                  color: isActive ? theme.textOnAccent || "#000" : theme.text,
+                  fontWeight: isActive ? "600" : "400",
                 }}
               >
                 {item.label}
@@ -59,7 +68,9 @@ export default function ThemeSection({
         })}
       </View>
 
-      {/* Appearance: Light / Dark toggle */}
+      {/* Light / Dark Mode Toggle 
+          - Does NOT change themeName
+          - Only toggles "appearance" of theme*/}
       <View
         style={[
           styles.themeCard,
@@ -75,18 +86,32 @@ export default function ThemeSection({
               Appearance
             </Text>
             <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>
-              Switch quickly between light and dark mode.
+              Switch quickly between light and dark for this theme.
             </Text>
           </View>
-          <Switch
-            value={isDark}
-            onValueChange={toggleLightDark}
-            trackColor={{
-              false: theme.border,
-              true: theme.accent,
-            }}
-            thumbColor={isDark ? theme.accent : "#f4f3f4"}
-          />
+
+          {/* Right-side toggle */}
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                color: theme.textMuted,
+                marginBottom: 4,
+                fontSize: 12,
+              }}
+            >
+              {isDark ? "Dark" : "Light"}
+            </Text>
+
+            <Switch
+              value={isDark}
+              onValueChange={toggleLightDark}
+              trackColor={{
+                false: theme.border,
+                true: theme.accentSoft || theme.accent,
+              }}
+              thumbColor={isDark ? theme.accent : "#f4f3f4"}
+            />
+          </View>
         </View>
       </View>
     </>

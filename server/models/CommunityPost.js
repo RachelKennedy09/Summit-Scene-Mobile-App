@@ -1,31 +1,54 @@
 // server/models/CommunityPost.js
-// Defines the CommunityPost collection structure in MongoDB
-// Used for the Community tab (highway conditions, rideshares, event buddies)
+// Defines the CommunityPost collection structure in MongoDB.
+// Used for the Community tab:
+//  - Highway Conditions
+//  - Ride Shares
+//  - Event Buddies
 
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+// -------------------------------------------
+// REPLY SUBDOCUMENT SCHEMA
+// -------------------------------------------
+// Each reply is embedded inside a CommunityPost document.
+// This keeps the conversation thread together with its post.
+
 const communityReplySchema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User" }, // who replied
-    name: { type: String, trim: true }, // snapshot of name when they replied
+    // Reference to the user who wrote the reply
+    user: { type: Schema.Types.ObjectId, ref: "User" },
+
+    // Snapshot of the user's display name at the time of reply
+    name: { type: String, trim: true },
+
+    // Actual text content of the reply
     body: { type: String, required: true, trim: true },
   },
-  { timestamps: true }
+  { timestamps: true } // adds createdAt / updatedAt for each reply
 );
 
-const communityPostSchema = new mongoose.Schema(
+// -------------------------------------------
+// MAIN COMMUNITY POST SCHEMA
+// -------------------------------------------
+// Represents a single community post in the SummitScene app.
+// Examples:
+//  - A ride share request from Banff to Calgary
+//  - An "Event Buddy" post for a concert
+//  - Highway condition updates between Banff and Lake Louise
+
+const communityPostSchema = new Schema(
   {
     // Reference to the user who created the post
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
     // Post type controls which community section it appears in
-
+    // (Roads, Ride Share, Event Buddy)
     type: {
       type: String,
       enum: ["highwayconditions", "rideshare", "eventbuddy"],
@@ -60,42 +83,48 @@ const communityPostSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // The date this post is about (e.g., travel date, event date)
-    // Stored as a real Date object
+    // The date this post is about (e.g., travel date, event date).
+    // Stored as a real Date object to allow filtering/sorting.
     targetDate: {
       type: Date,
       required: true,
     },
 
-    // replies array
+    // Replies embedded directly under the post
     replies: [communityReplySchema],
 
-    // likes on the post
+    // Array of user IDs who liked this post
     likes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],
   },
   {
-    // Automatically adds createdAt / updatedAt
+    // Automatically adds createdAt / updatedAt fields on the post
     timestamps: true,
 
-    // Include virtuals when sending to client
+    // Include virtuals when converting documents to JSON / plain objects
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-// Simple virtual for debugging / logging
+// -------------------------------------------
+// VIRTUALS
+// -------------------------------------------
+// Simple summary field for logging/debugging.
+// Example: "rideshare in Banff on 2025-12-06"
 communityPostSchema.virtual("summary").get(function () {
-  return `${
-    this.type
-  } in ${this.town} on ${this.targetDate?.toISOString().slice(0, 10)}`;
+  const dateStr = this.targetDate?.toISOString().slice(0, 10);
+  return `${this.type} in ${this.town} on ${dateStr}`;
 });
 
-// This creates/uses the "communityposts" collection in MongoDB
+// -------------------------------------------
+// MODEL EXPORT
+// -------------------------------------------
+// This creates/uses the "communityposts" collection in MongoDB.
 const CommunityPost = mongoose.model("CommunityPost", communityPostSchema);
 
 export default CommunityPost;

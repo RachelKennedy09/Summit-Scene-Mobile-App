@@ -51,7 +51,6 @@ export default function EditProfileScreen({ navigation }) {
   // Pre-fill fields from current user
   const [name, setName] = useState(user.name || "");
   const [town, setTown] = useState(user.town || "");
-  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || "");
   const [bio, setBio] = useState(user.bio || "");
   const [lookingFor, setLookingFor] = useState(user.lookingFor || "");
   const [instagram, setInstagram] = useState(user.instagram || "");
@@ -63,7 +62,6 @@ export default function EditProfileScreen({ navigation }) {
       const updates = {
         name,
         town,
-        avatarUrl,
         bio,
         lookingFor,
         instagram,
@@ -79,6 +77,7 @@ export default function EditProfileScreen({ navigation }) {
       Alert.alert("Profile updated", "Your changes have been saved.");
       navigation.goBack();
     } catch (error) {
+      console.error("updateProfile error:", error);
       Alert.alert(
         "Update failed",
         error.message || "Could not save your profile."
@@ -153,26 +152,6 @@ export default function EditProfileScreen({ navigation }) {
                 : "Banff, Canmore, Lake Louise... or visiting?"
             }
             placeholderTextColor={theme.textMuted}
-          />
-
-          {/* Avatar URL */}
-          <Text style={[styles.label, { color: theme.text }]}>
-            {isBusiness ? "Photo of your business (URL)" : "Profile photo URL"}
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-                color: theme.text,
-              },
-            ]}
-            value={avatarUrl}
-            onChangeText={setAvatarUrl}
-            placeholder="https://example.com/your-photo.jpg"
-            placeholderTextColor={theme.textMuted}
-            autoCapitalize="none"
           />
 
           {/* Looking for / business type */}
@@ -268,7 +247,8 @@ export default function EditProfileScreen({ navigation }) {
               />
             </>
           )}
-          {/* AVATAR key */}
+
+          {/* Avatar Picker */}
           <Text
             style={[
               styles.label,
@@ -277,6 +257,12 @@ export default function EditProfileScreen({ navigation }) {
           >
             Avatar
           </Text>
+          <Text style={[styles.helperText, { color: theme.textMuted }]}>
+            Choose the avatar that shows on your Community posts and event
+            hosting card.
+          </Text>
+
+          <AvatarPicker value={avatarKey} onChange={setAvatarKey} />
 
           {/* Buttons */}
           <View style={styles.buttonRow}>

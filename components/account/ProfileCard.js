@@ -1,15 +1,21 @@
 // components/account/ProfileCard.js
+// Shows a snapshot of the logged-in user's profile inside the Account screen.
+// - For locals: shows their "Community profile" (used on posts/replies).
+// - For businesses: shows their "Event posting profile" (used on events).
+
+
 import React from "react";
 import { View, Text, Pressable, StyleSheet, Image } from "react-native";
-import { colors } from "../../theme/colors";
+import { colors } from "../../theme/colors"; // fallback palette
 import { AVATARS } from "../../assets/avatars/avatarConfig";
 
 export default function ProfileCard({
-  theme,
-  user,
-  isBusiness,
-  onEditProfile,
+  theme,         // current theme from ThemeContext (passed down from AccountScreen)
+  user,          // logged-in user object
+  isBusiness,    // boolean: user.role === "business"
+  onEditProfile, // function called when the user taps "Edit profile"
 }) {
+  // Role-based heading + helper
   const profileSectionTitle = isBusiness
     ? "Event posting profile"
     : "Community profile";
@@ -18,6 +24,7 @@ export default function ProfileCard({
     ? "This is how your profile appears on Hub and Map when you post events."
     : "This is how your profile appears on Community posts and replies.";
 
+  // If none of these are present, we show a friendly "empty state" message
   const hasProfileDetails = Boolean(
     user.bio ||
       user.lookingFor ||
@@ -25,7 +32,12 @@ export default function ProfileCard({
       (isBusiness && user.website)
   );
 
-  // --- Avatar logic: prefer avatarKey -> avatarUrl -> initials ---
+
+  // Avatar logic:
+  // 1) If user.avatarKey is set and matches our AVATARS map → use that image.
+  // 2) Else if user.avatarUrl is set → use remote URL.
+  // 3) Else → show an initial (first letter of the name).
+
   const avatarSource =
     user?.avatarKey && AVATARS[user.avatarKey]
       ? AVATARS[user.avatarKey]
@@ -47,7 +59,7 @@ export default function ProfileCard({
         },
       ]}
     >
-      {/* Header row with avatar + name/town */}
+      {/* Header row: Avatar + name + town */}
       <View style={styles.headerRow}>
         <View
           style={[
@@ -79,7 +91,7 @@ export default function ProfileCard({
         </View>
       </View>
 
-      {/* Section title + subtitle */}
+      {/* Section labels: Role-based title + description */}
       <Text style={[styles.sectionTitle, { color: theme.text }]}>
         {profileSectionTitle}
       </Text>
@@ -87,7 +99,7 @@ export default function ProfileCard({
         {profileSectionSubtitle}
       </Text>
 
-      {/* Profile details */}
+      {/* Profile details (bio, lookingFor / business type, Instagram, website) */}
       {hasProfileDetails ? (
         <>
           {user.bio ? (
@@ -135,13 +147,16 @@ export default function ProfileCard({
           ) : null}
         </>
       ) : (
+        // Friendly empty state if they haven't filled out their profile yet
         <Text style={[styles.value, { color: theme.textMuted }]}>
-          This is where your {isBusiness ? "event posting" : "community"}{" "}
-          profile details will show. Tap “Edit profile” to add more information.
+          This is where your{" "}
+          {isBusiness ? "event posting" : "community"} profile details will
+          show. Tap “Edit profile” to add more information.
         </Text>
       )}
 
-      {/* Edit profile button */}
+      {/* Edit Profile Button
+          Navigates to EditProfileScreen through the callback */}
       <Pressable
         style={[styles.editButton, { backgroundColor: theme.accent }]}
         onPress={onEditProfile}
@@ -168,8 +183,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-
-  // header row with avatar + name/town
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -204,7 +217,6 @@ const styles = StyleSheet.create({
   headerTown: {
     fontSize: 13,
   },
-
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",

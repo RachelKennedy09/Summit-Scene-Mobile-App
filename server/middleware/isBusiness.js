@@ -1,25 +1,32 @@
 // server/middleware/isBusiness.js
-// Ensure only "business" users can access certain routes
-// Used for event creation, editing, and deleting (business-only features)
+// Authorization middleware for SummitScene
+//  - Ensures the logged-in user has role "business"
+//  - Protects routes like:
+//       • POST /api/events
+//       • PUT /api/events/:id
+//       • DELETE /api/events/:id
+//
+// REQUIREMENTS:
+//  - Must run *after* authMiddleware
+//  - Expects req.user to contain { userId, role, name, email }
 
 export default function isBusiness(req, res, next) {
-  // authMiddleware already ran, so req.user should exist
-  const user = req.user;
+  const user = req.user; // populated by authMiddleware
 
-  // If somehow auth middleware didn't attach user
+  // If authentication unexpectedly failed earlier
   if (!user) {
     return res
       .status(401)
       .json({ message: "Not authenticated. Please log in." });
   }
 
-  // The role comes from the JWT payload: { userId, role }
+  // Authorization check
   if (user.role !== "business") {
     return res.status(403).json({
       message: "Business account required to perform this action.",
     });
   }
 
-  // Passed checks -> continue to the controller
-  next();
+  // Success → User is a business account
+  return next();
 }

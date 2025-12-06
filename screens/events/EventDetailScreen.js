@@ -1,5 +1,9 @@
 // screens/EventDetailScreen.js
-// Show full details for a single event
+// Show full details for a single event.
+// - Displays title, category, town, date/time, location, and description
+// - Shows business "host" info (EventHostSection) when available
+// - Gives the event owner edit/delete actions (EventOwnerSection)
+// - Includes "Open in Maps" deep link for the event location
 
 import React from "react";
 import {
@@ -20,11 +24,11 @@ import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 import { useTheme } from "../../context/ThemeContext";
 
-// host + owner sections
 import EventHostSection from "../../components/events/EventHostSection";
 import EventOwnerSection from "../../components/events/EventOwnerSection";
 
 // Helper: derive business host info from event.createdBy (or fallback to event.user)
+// Block is only showed when the host is a business account.
 function getEventHost(event) {
   if (!event) return null;
 
@@ -40,7 +44,7 @@ function getEventHost(event) {
 
   const name = userObj.name || "Event host";
   const town = userObj.town || event.town || "Rockies local";
-  const avatarUrl = userObj.avatarUrl || null;
+  const avatarKey = userObj.avatarKey || null;
   const website = userObj.website || "";
   const instagram = userObj.instagram || "";
   const bio = userObj.bio || "";
@@ -49,7 +53,7 @@ function getEventHost(event) {
   return {
     name,
     town,
-    avatarUrl,
+    avatarKey,
     website,
     instagram,
     bio,
@@ -59,6 +63,7 @@ function getEventHost(event) {
 }
 
 // Helper: safely check if the logged-in user owns this event
+// This is used to decide whether to show the Edit/Delete owner block.
 function isEventOwner(event, user) {
   if (!event || !user) return false;
 
@@ -80,6 +85,7 @@ export default function EventDetailScreen({ route }) {
 
   const { event } = route.params || {};
 
+  // Defensive fallback if the screen is opened without an event
   if (!event) {
     return (
       <SafeAreaView
@@ -98,9 +104,11 @@ export default function EventDetailScreen({ route }) {
   const isOwner = isEventOwner(event, user);
 
   const handleEdit = () => {
+    // navigate to shared EditEvent form, passing the current event
     navigation.navigate("EditEvent", { event });
   };
 
+  // Delete flow: confirm, call API, then refresh parent list via onUpdated callback if provided
   const handleDelete = () => {
     Alert.alert("Delete this event?", "This action cannot be undone.", [
       { text: "Cancel", style: "cancel" },
@@ -109,6 +117,11 @@ export default function EventDetailScreen({ route }) {
         style: "destructive",
         onPress: async () => {
           try {
+            if (!token) {
+              Alert.alert("Not logged in", "Please log in again.");
+              return;
+            }
+
             await deleteEvent(event._id, token);
 
             if (route.params?.onUpdated) {
@@ -134,7 +147,7 @@ export default function EventDetailScreen({ route }) {
   const hasStartTime = Boolean(event.time);
   const hasEndTime = Boolean(event.endTime);
 
-  // Friendlier date label
+  // Friendlier date label (e.g. "Saturday, December 6")
   let dateLabel = "Date TBA";
   if (hasDate) {
     const parsed = new Date(event.date);
@@ -145,19 +158,22 @@ export default function EventDetailScreen({ route }) {
         day: "numeric",
       });
     } else {
+      // Fallback to raw string if parsing fails
       dateLabel = event.date;
     }
   }
 
+  // Time label based on which fields are present
   let timeLabel = "Time TBA";
   if (hasStartTime && hasEndTime) {
-    timeLabel = `${event.time} – ${event.endTime}`;
+    timeLabel = `${event.time} - ${event.endTime}`;
   } else if (hasStartTime) {
     timeLabel = event.time;
   } else if (hasEndTime) {
     timeLabel = `Until ${event.endTime}`;
   }
 
+  // Open native maps app (Apple Maps / Android geo / web) using location/town/title as a query
   const handleOpenMaps = () => {
     const query = encodeURIComponent(location || town || title);
     if (!query) return;
@@ -189,7 +205,7 @@ export default function EventDetailScreen({ route }) {
             { backgroundColor: theme.card, borderColor: theme.border },
           ]}
         >
-          {/* Hero image */}
+          {/* Hero image (optional)*/}
           {event.imageUrl ? (
             <Image source={{ uri: event.imageUrl }} style={styles.heroImage} />
           ) : null}
@@ -296,16 +312,13 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-
   container: {
     flex: 1,
   },
-
   scrollContent: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
-
   card: {
     borderRadius: 20,
     overflow: "hidden",
@@ -316,77 +329,63 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 4,
   },
-
   heroImage: {
     width: "100%",
     height: 220,
   },
-
   content: {
     padding: 16,
   },
-
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 6,
   },
-
   categoryPill: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
   },
-
   categoryText: {
     fontSize: 11,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
-
   townText: {
     fontSize: 13,
     fontWeight: "500",
   },
-
   title: {
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 10,
   },
-
   metaRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 16,
     marginBottom: 12,
   },
-
   metaItem: {
     flex: 1,
   },
-
   metaLabel: {
     fontSize: 12,
     marginBottom: 2,
   },
-
   metaValue: {
     fontSize: 14,
     fontWeight: "500",
   },
-
   locationBlock: {
     marginBottom: 16,
   },
-
   locationText: {
     fontSize: 14,
     marginBottom: 8,
   },
-
   mapButton: {
     alignSelf: "flex-start",
     paddingHorizontal: 12,
@@ -394,35 +393,29 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
   },
-
   mapButtonText: {
     fontSize: 13,
     fontWeight: "600",
   },
-
   section: {
     marginBottom: 16,
   },
-
   sectionHeading: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 6,
     marginTop: 8,
   },
-
   description: {
     fontSize: 14,
     lineHeight: 20,
   },
-
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
   },
-
   errorText: {
     fontSize: 14,
   },

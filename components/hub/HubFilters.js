@@ -1,4 +1,7 @@
 // components/hub/HubFilters.js
+// Small, reusable filter header for the Hub screen.
+// Lets users choose Town, Category, and Date range using pills + modals.
+
 import React, { useState } from "react";
 import { View, Text, Pressable, Modal, StyleSheet } from "react-native";
 
@@ -6,24 +9,27 @@ import { useTheme } from "../../context/ThemeContext";
 import { colors } from "../../theme/colors";
 
 export default function HubFilters({
-  displayName,
-  selectedTown,
-  selectedCategory,
-  selectedDateFilter,
-  resultSummary,
-  error,
-  towns,
-  categories,
-  dateFilters,
-  onSelectTown,
-  onSelectCategory,
-  onSelectDateFilter,
+  displayName, // ex: "Rachel" (for greeting)
+  selectedTown, // current town filter
+  selectedCategory, // current category filter
+  selectedDateFilter, // current date filter label, e.g. "This Week"
+  resultSummary, // summary text like "Showing 8 events in Banff this week"
+  error, // optional error message (string)
+  towns, // array of town options: ["All", "Banff", "Canmore", ...]
+  categories, // array of category options: ["All", "Music", "Markets", ...]
+  dateFilters, // array of date filter labels: ["Any date", "This week", ...]
+  onSelectTown, // callback when user chooses a town
+  onSelectCategory, // callback when user chooses a category
+  onSelectDateFilter, // callback when user chooses a date range
 }) {
   const { theme } = useTheme();
 
+  // LOCAL UI STATE: which picker modal is open
   const [isTownModalVisible, setIsTownModalVisible] = useState(false);
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [isDateModalVisible, setIsDateModalVisible] = useState(false);
+
+  // --- HANDLERS: close modal + send selection back to parent ---
 
   const handleTownPress = (town) => {
     onSelectTown(town);
@@ -42,6 +48,7 @@ export default function HubFilters({
 
   return (
     <>
+      {/* Greeting + helper text + error + top filter pills */}
       <View style={styles.headerContainer}>
         <Text style={[styles.heading, { color: theme.textMain }]}>
           Hello {displayName}!
@@ -54,13 +61,16 @@ export default function HubFilters({
           Choose a town and category to start exploring events near you.
         </Text>
 
+        {/* Error message (if the parent passes one down) */}
         {error ? (
-          <Text style={[styles.errorText, { color: colors.error }]}>
+          <Text
+            style={[styles.errorText, { color: theme.error || colors.error }]}
+          >
             {error}
           </Text>
         ) : null}
 
-        {/* Pills row */}
+        {/* Pills row: Town, Category, Date */}
         <View style={styles.pillRow}>
           {/* Town Pill */}
           <Pressable
@@ -122,6 +132,7 @@ export default function HubFilters({
           </Pressable>
         </View>
 
+        {/* Thin line + result summary text */}
         <View
           style={[styles.sectionDivider, { backgroundColor: theme.border }]}
         />
@@ -131,7 +142,7 @@ export default function HubFilters({
         </Text>
       </View>
 
-      {/* Town Selector Modal */}
+      {/* --- Town Selector Modal --- */}
       <Modal
         visible={isTownModalVisible}
         transparent
@@ -202,7 +213,7 @@ export default function HubFilters({
         </View>
       </Modal>
 
-      {/* Category Selector Modal */}
+      {/* --- Category Selector Modal --- */}
       <Modal
         visible={isCategoryModalVisible}
         transparent
@@ -273,7 +284,7 @@ export default function HubFilters({
         </View>
       </Modal>
 
-      {/* Date Selector Modal */}
+      {/* --- Date Selector Modal --- */}
       <Modal
         visible={isDateModalVisible}
         transparent
@@ -354,16 +365,13 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: colors.textLight,
     marginBottom: 12,
   },
   errorText: {
-    color: colors.error,
     marginBottom: 8,
     fontSize: 13,
   },
@@ -375,14 +383,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: colors.secondary,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   pillLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 2,
@@ -390,17 +394,14 @@ const styles = StyleSheet.create({
   pillValue: {
     fontSize: 15,
     fontWeight: "500",
-    color: colors.textLight,
   },
   sectionDivider: {
     height: 1,
-    backgroundColor: colors.border,
     marginTop: 8,
     marginBottom: 6,
   },
   filterSummaryText: {
     fontSize: 13,
-    color: colors.textMuted,
   },
   modalOverlay: {
     flex: 1,
@@ -411,17 +412,14 @@ const styles = StyleSheet.create({
   modalCard: {
     width: "85%",
     maxHeight: "70%",
-    backgroundColor: colors.secondary,
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 12,
   },
   townOption: {
@@ -432,20 +430,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 999,
     marginBottom: 8,
-    backgroundColor: colors.cardDark,
     borderWidth: 1,
-    borderColor: "transparent",
   },
   townOptionText: {
     fontSize: 15,
-    color: colors.textLight,
   },
   townOptionTextSelected: {
     fontWeight: "700",
   },
   townCheckMark: {
     fontSize: 16,
-    color: colors.accent,
   },
   modalCloseButton: {
     marginTop: 8,
@@ -455,6 +449,5 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     fontSize: 14,
-    color: colors.textMuted,
   },
 });

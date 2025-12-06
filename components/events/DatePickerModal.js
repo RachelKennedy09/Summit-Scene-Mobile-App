@@ -1,5 +1,9 @@
 // components/events/DatePickerModal.js
-// Reusable date picker modal for selecting event dates
+// Reusable date-selecting modal used by:
+//   • PostEventScreen
+//   • EditEventScreen
+// Allows selecting a date with a themed modal overlay + buttons.
+// Fully theme-aware and supports dark/light + your custom themes.
 
 import React, { useState } from "react";
 import {
@@ -22,38 +26,32 @@ export default function DatePickerModal({
 }) {
   const { theme } = useTheme();
 
+  // Base date for initialization
   const baseDate = initialDate || new Date();
   const [selectedDate, setSelectedDate] = useState(baseDate);
 
+  // If the modal is not visible, render nothing
   if (!visible) return null;
 
+  // Update state when picker changes
   const handleChange = (_event, date) => {
-    if (date) {
-      setSelectedDate(date);
-    }
+    if (date) setSelectedDate(date);
   };
 
-  const handleConfirm = () => {
-    onConfirm && onConfirm(selectedDate);
-  };
+  const handleConfirm = () => onConfirm && onConfirm(selectedDate);
+  const handleCancel = () => onCancel && onCancel();
 
-  const handleCancel = () => {
-    onCancel && onCancel();
-  };
-
-  // ---- Theme safety / contrast helpers ----
+  // ---- Theme safety helpers -----
   const bg = theme.card || "#fff";
-  const textMain = theme.text || "#222";
+  const textMain = theme.textMain || theme.text || "#222";
   const textMuted = theme.textMuted || "#777";
   const accent = theme.accent || "#2f7cff";
-  const onAccent = theme.onAccent || "#fff";
+  const onAccent = theme.textOnAccent || "#fff";
 
-  // If you ever add theme.isDark / mode, you can hook into it here:
   const isDarkTheme =
-    theme.isDark === true || theme.mode === "dark" || theme.name === "dark";
+    theme.isDark || theme.mode === "dark" || theme.name === "dark";
 
-  // For the picker itself we *force* a visible text color
-  const pickerTextColor = isDarkTheme ? "#ffffff" : "#111111";
+  const pickerTextColor = isDarkTheme ? "#fff" : "#111";
   const pickerThemeVariant = isDarkTheme ? "dark" : "light";
 
   return (
@@ -65,15 +63,15 @@ export default function DatePickerModal({
     >
       <View style={styles.backdrop}>
         <View style={[styles.modalContainer, { backgroundColor: bg }]}>
+          {/* Title */}
           <Text style={[styles.title, { color: textMain }]}>{title}</Text>
 
+          {/* Date Picker section */}
           <View
             style={[
               styles.pickerWrapper,
               {
                 backgroundColor: isDarkTheme ? "#111" : "#f2f2f2",
-                borderRadius: 12,
-                paddingVertical: 4,
                 paddingHorizontal: Platform.OS === "ios" ? 0 : 8,
               },
             ]}
@@ -88,16 +86,17 @@ export default function DatePickerModal({
             />
           </View>
 
-          <View className="button-row" style={styles.buttonRow}>
-            <Pressable style={styles.cancelButton} onPress={handleCancel}>
+          {/* Action buttons */}
+          <View style={styles.buttonRow}>
+            <Pressable onPress={handleCancel} style={styles.cancelButton}>
               <Text style={[styles.cancelText, { color: textMuted }]}>
                 Cancel
               </Text>
             </Pressable>
 
             <Pressable
-              style={[styles.confirmButton, { backgroundColor: accent }]}
               onPress={handleConfirm}
+              style={[styles.confirmButton, { backgroundColor: accent }]}
             >
               <Text style={[styles.confirmText, { color: onAccent }]}>
                 Confirm
@@ -131,6 +130,8 @@ const styles = StyleSheet.create({
   },
   pickerWrapper: {
     alignItems: "center",
+    borderRadius: 12,
+    paddingVertical: 4,
     marginBottom: 16,
   },
   buttonRow: {

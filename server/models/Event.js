@@ -1,23 +1,35 @@
-// Event model for SummitScene events (Banff, Canmore, Lake Louise, etc.)
+// server/models/Event.js
+// Event model for SummitScene
+//  - A single event created by a business user
+//  - Used on the Hub, Map, My Events, and Event Detail screens
+//
+// KEY FEATURES:
+//  - Supports category filtering
+//  - Uses a string date ("YYYY-MM-DD") to avoid timezone issues
+//  - Stores creator reference (business user)
+//  - Includes optional fields: time, endTime, location, imageUrl
 
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema(
   {
-    // Short title for the event card
+    // -------------------------------------------
+    // BASIC EVENT DETAILS
+    // -------------------------------------------
+    // Short title displayed on event cards
     title: {
       type: String,
       required: [true, "Event title is required"],
       trim: true,
     },
 
-    // Longer description shown on the EventDetail screen
+    // Longer description shown on Event Detail screen
     description: {
       type: String,
       trim: true,
     },
 
-    // Which mountain town this event belongs to
+    // Which mountain town this event belongs to (used for filtering)
     town: {
       type: String,
       required: [true, "Town is required"],
@@ -25,7 +37,7 @@ const eventSchema = new mongoose.Schema(
       enum: ["Banff", "Canmore", "Lake Louise"],
     },
 
-    // Category for filtering (chips on Hub/Map screens)
+    // Event category used for filtering chips
     category: {
       type: String,
       trim: true,
@@ -44,38 +56,48 @@ const eventSchema = new mongoose.Schema(
       default: "Other",
     },
 
-    // Event date in YYYY-MM-DD format (string on purpose to avoid timezone issues)
+    // -------------------------------------------
+    // DATE & TIME
+    // -------------------------------------------
+    // Event date stored as a string to avoid timezone shifting.
+    // Ex: "2025-12-06"
     date: {
       type: String,
       required: [true, "Event date is required"],
-      // Basic format check for YYYY-MM-DD
       match: [/^\d{4}-\d{2}-\d{2}$/, "Date must be in format YYYY-MM-DD"],
     },
 
-    // Optional time string shown on cards/details, e.g. "7:00 PM"
+    // Optional start time (e.g., "7:00 PM")
     time: {
       type: String,
       trim: true,
     },
-    // Optional end time string, e.g. "9:00 PM"
+
+    // Optional end time (e.g., "9:00 PM")
     endTime: {
       type: String,
       trim: true,
     },
 
-    // Venue or meeting location, e.g. "High Rollers Banff"
+    // -------------------------------------------
+    // LOCATION & IMAGES
+    // -------------------------------------------
+    // Venue or meeting place (used in card + detail view)
     location: {
       type: String,
       trim: true,
     },
 
-    // Optional poster image URL (used for hero image on EventDetail)
+    // Optional image poster for event card / detail hero
     imageUrl: {
       type: String,
       trim: true,
     },
 
-    // Which user created this event (business owner)
+    // -------------------------------------------
+    // CREATOR INFO
+    // -------------------------------------------
+    // Business user who created this event
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -83,21 +105,28 @@ const eventSchema = new mongoose.Schema(
     },
   },
   {
-    // Automatically adds createdAt / updatedAt
+    // Automatically add createdAt / updatedAt timestamps
     timestamps: true,
 
-    // Include virtual fields when converting to JSON / objects
+    // Include virtuals when converting to JSON / plain objects
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-//  quick label for debugging / logs
+// -------------------------------------------
+// VIRTUALS
+// -------------------------------------------
+// Quick string used for debugging logs.
+// Example: "Open Mic Night (Banff) on 2025-12-10"
 eventSchema.virtual("summary").get(function () {
   return `${this.title} (${this.town}) on ${this.date}`;
 });
 
-// Create the "events" collection in MongoDB
+// -------------------------------------------
+// MODEL EXPORT
+// -------------------------------------------
+// Creates/uses the "events" collection in MongoDB.
 const Event = mongoose.model("Event", eventSchema);
 
 export default Event;

@@ -1,5 +1,12 @@
 // components/events/EventOwnerSection.js
-// Owner-only controls for an event (badge + edit/delete buttons)
+// This section appears ONLY when the logged-in user is the creator of the event.
+// It shows:
+//   • A badge saying "This is your event"
+//   • Buttons: Edit Event + Delete Event
+//
+// Parent screens (EventDetailScreen) pass in:
+//   onEdit()    → navigates to EditEventScreen
+//   onDelete()  → confirms + deletes from backend
 
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
@@ -9,52 +16,65 @@ export default function EventOwnerSection({ onEdit, onDelete }) {
   const { theme } = useTheme();
 
   return (
-    <View style={[styles.ownerSection, { backgroundColor: theme.card }]}>
+    <View
+      style={[
+        styles.ownerSection,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.border,
+          borderWidth: 1,
+        },
+      ]}
+    >
+      {/* Owner badge */}
       <Text
         style={[
           styles.ownerBadge,
           {
             backgroundColor: theme.accent,
-            color: theme.onAccent || theme.background,
+            color: theme.textOnAccent || theme.background,
           },
         ]}
       >
         This is your event
       </Text>
 
+      {/* Edit + Delete buttons */}
       <View style={styles.ownerButtonsRow}>
+        {/* Edit */}
         <Pressable
+          onPress={onEdit}
           style={[
             styles.ownerButton,
-            styles.editButton,
-            { backgroundColor: theme.accent },
+            {
+              backgroundColor: theme.accent,
+            },
           ]}
-          onPress={onEdit}
         >
           <Text
             style={[
               styles.ownerButtonText,
-              { color: theme.onAccent || theme.background },
+              { color: theme.textOnAccent || theme.background },
             ]}
           >
             Edit Event
           </Text>
         </Pressable>
 
+        {/* Delete */}
         <Pressable
+          onPress={onDelete}
           style={[
             styles.ownerButton,
-            styles.deleteButton,
             {
               backgroundColor: theme.danger || "#ff4d4f",
             },
           ]}
-          onPress={onDelete}
         >
           <Text
             style={[
               styles.ownerButtonText,
-              { color: theme.onDanger || theme.background },
+              { color: theme.textOnDanger || theme.background },
             ]}
           >
             Delete Event
@@ -79,9 +99,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 999,
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
 
   ownerButtonsRow: {
@@ -91,17 +111,14 @@ const styles = StyleSheet.create({
 
   ownerButton: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  editButton: {},
-  deleteButton: {},
-
   ownerButtonText: {
-    fontWeight: "600",
+    fontWeight: "700",
     fontSize: 14,
   },
 });

@@ -1,4 +1,6 @@
 // screens/community/CommunityScreen.js
+// Community hub with 3 boards: Highway, Ride Share, and Event Buddy.
+// Shows posts, likes, replies, and member profile modal.
 
 import React, { useState, useMemo, useCallback } from "react";
 import {
@@ -28,26 +30,26 @@ import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
 import CommunityPostCard from "../../components/cards/CommunityPostCard";
 
-// post types (backend values and labels)
+// Board types are defined here once and reused
+// so both frontend and backend stay in sync via these values.
 const POST_TYPES = [
   { label: "Highway Conditions", value: "highwayconditions" },
   { label: "Ride Share", value: "rideshare" },
   { label: "Event Buddy", value: "eventbuddy" },
 ];
 
-// navigation route to community post screen, edit community post screen
 export default function CommunityScreen({ navigation }) {
-  //which board is currently active, eventbuddy default
+  // Which board is currently active (default Event Buddy)
   const [selectedType, setSelectedType] = useState("eventbuddy");
 
-  // posts from API
+  // Posts from API (all types, filtered client-side)
   const [posts, setPosts] = useState([]);
 
   // Error and loading states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Reply states
+  // Reply states (only one reply composer open at a time)
   const [replyForPostId, setReplyForPostId] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
@@ -55,18 +57,20 @@ export default function CommunityScreen({ navigation }) {
   // Profile modal
   const [profileUser, setProfileUser] = useState(null);
 
-  // logged in user object, JWT used for protected requests
+  // Logged in user object + JWT for protected requests
   const { user, token } = useAuth();
 
-  // current theme object
+  // Current theme object (light / dark / feminine / masculine / rainbow)
   const { theme } = useTheme();
 
-  // useMemo for performace
+  // useMemo prevents re-filtering on every render
+  // when only unrelated state changes (e.g. typing a reply).
   const filteredPosts = useMemo(
     () => posts.filter((post) => post.type === selectedType),
     [posts, selectedType]
   );
 
+  // Load posts for the currently selected board
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -82,7 +86,8 @@ export default function CommunityScreen({ navigation }) {
     }
   }, [selectedType, token]);
 
-  // gaurantees fresh posts when coming back to community tab
+  // useFocusEffect ensures posts are refreshed
+  // whenever the user comes back to the Community tab.
   useFocusEffect(
     useCallback(() => {
       fetchPosts();
@@ -113,6 +118,11 @@ export default function CommunityScreen({ navigation }) {
   async function handleReplySubmit(postId) {
     if (!replyText.trim()) {
       Alert.alert("Reply required", "Please write something before sending.");
+      return;
+    }
+
+    if (!token) {
+      Alert.alert("Login required", "Please log in to reply to posts.");
       return;
     }
 
@@ -171,7 +181,7 @@ export default function CommunityScreen({ navigation }) {
         </Pressable>
       </View>
 
-      {/* Type selector pills */}
+      {/* Board selector pills */}
       <View style={styles.typeRow}>
         {POST_TYPES.map((type) => {
           const isActive = type.value === selectedType;
@@ -263,7 +273,7 @@ export default function CommunityScreen({ navigation }) {
           </View>
         )}
 
-        {/* MAIN POSTS LIST */}
+        {/* Main posts list */}
         {!loading &&
           !error &&
           filteredPosts.map((post) => {
@@ -300,7 +310,7 @@ export default function CommunityScreen({ navigation }) {
             );
           })}
 
-        {/* EMPTY STATE */}
+        {/* Empty state per board */}
         {!loading && !error && filteredPosts.length === 0 && (
           <View
             style={[
@@ -318,6 +328,7 @@ export default function CommunityScreen({ navigation }) {
         )}
       </ScrollView>
 
+      {/* Member profile modal (shared with Community + replies) */}
       <MemberProfileModal
         visible={!!profileUser}
         user={profileUser}
@@ -328,7 +339,6 @@ export default function CommunityScreen({ navigation }) {
   );
 }
 
-// ---- Styles (screen-level only) ----
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -336,26 +346,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
   },
-
   heading: {
     fontSize: 24,
     fontWeight: "700",
     color: colors.textLight,
     marginBottom: 4,
   },
-
   subheading: {
     fontSize: 14,
     color: colors.textMuted,
     marginBottom: 16,
   },
-
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
-
   newPostButton: {
     marginLeft: 8,
     paddingHorizontal: 10,
@@ -363,19 +369,16 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.accent,
   },
-
   newPostButtonText: {
     color: colors.textLight,
     fontSize: 12,
     fontWeight: "600",
   },
-
   typeRow: {
     flexDirection: "row",
     gap: 8,
     marginBottom: 8,
   },
-
   typePill: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -384,33 +387,19 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.primary,
   },
-
-  typePillActive: {
-    backgroundColor: colors.secondary,
-    borderColor: colors.accent,
-  },
-
   typePillText: {
     color: colors.textMuted,
     fontSize: 13,
   },
-
-  typePillTextActive: {
-    color: colors.textLight,
-    fontWeight: "600",
-  },
-
   summaryText: {
     fontSize: 13,
     color: colors.textMuted,
     marginBottom: 8,
   },
-
   sectionsContainer: {
     paddingBottom: 32,
     gap: 16,
   },
-
   emptyState: {
     marginTop: 24,
     padding: 16,
@@ -419,129 +408,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-
   emptyTitle: {
     fontSize: 16,
     fontWeight: "600",
     color: colors.textLight,
     marginBottom: 4,
   },
-
   emptyText: {
     fontSize: 14,
     color: colors.textMuted,
   },
-
   loadingRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
     marginTop: 16,
   },
-
   loadingText: {
     color: colors.textLight,
     fontSize: 13,
-  },
-
-  profileModalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-
-  profileModalCard: {
-    backgroundColor: colors.secondary,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  profileModalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-
-  profileModalTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.textLight,
-  },
-
-  profileModalClose: {
-    fontSize: 14,
-    color: colors.accent,
-    fontWeight: "600",
-  },
-
-  profileTopRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-
-  profileAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.cardDark,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-
-  profileAvatarImage: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-  },
-
-  profileAvatarInitial: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.textLight,
-  },
-
-  profileName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.textLight,
-  },
-
-  profileTown: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
-  profileRole: {
-    fontSize: 12,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
-  profileSection: {
-    marginTop: 10,
-  },
-
-  profileSectionLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-
-  profileSectionText: {
-    fontSize: 13,
-    color: colors.textLight,
-  },
-
-  profileLinkText: {
-    fontSize: 13,
-    color: colors.accent,
   },
 });

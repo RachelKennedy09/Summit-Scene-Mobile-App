@@ -1,13 +1,30 @@
 // server/controllers/eventController.js
 // Controller functions for SummitScene events
-// Handles CRUD operations for Event model
+//  - Listing upcoming events (for Hub + Map)
+//  - Creating new events (business users only)
+//  - Fetching a single event
+//  - Updating and deleting events (owner-only)
+//  - Fetching "My Events" for the logged-in business user
+//
+// USED BY ROUTES:
+//  - GET    /api/events
+//  - GET    /api/events/mine
+//  - GET    /api/events/:id
+//  - POST   /api/events
+//  - PUT    /api/events/:id
+//  - DELETE /api/events/:id
 
 import Event from "../models/Event.js";
 import User from "../models/User.js";
 
+// -------------------------------------------
 // GET /api/events
-// Return upcoming events (today or later)
-// Also populates createdBy (business host profile) for frontend
+//   Return upcoming events (today or later).
+//   - Build today's date as "YYYY-MM-DD".
+//   - Query events where date >= today.
+//   - Sort ascending by date.
+//   - Populate createdBy with business host profile fields.
+// -------------------------------------------
 export async function getAllEvents(req, res) {
   try {
     // Build today's date in YYYY-MM-DD format
@@ -22,12 +39,12 @@ export async function getAllEvents(req, res) {
       .sort({ date: 1 })
       .populate(
         "createdBy",
-        "name email role avatarUrl town bio looking For instagram website"
+        "name email role avatarKey town bio lookingFor instagram website"
       );
 
     return res.json(events);
   } catch (error) {
-    console.error("Error fetching events:", error.message);
+    console.error("Error in GET /api/events:", error);
     return res.status(500).json({
       message: "Error fetching events.",
       error: error.message,
@@ -35,9 +52,19 @@ export async function getAllEvents(req, res) {
   }
 }
 
+// -------------------------------------------
 // POST /api/events
-// Create a new event: reads data from req.body, validates required fields,
-// saves to MongoDB, and returns the saved event.
+//   Create a new event.
+//   - Requires authMiddleware (req.user.userId).
+//   - Requires isBusiness middleware at route level.
+//   - This controller double-checks the user + role in DB.
+//
+// FLOW:
+//   1) Check userId from JWT.
+//   2) Look up the user and confirm they're a business.
+//   3) Validate required event fields.
+//   4) Create and save a new Event linked to createdBy.
+// -------------------------------------------
 export async function createEvent(req, res) {
   try {
     const userId = req.user?.userId; // from auth middleware
@@ -45,14 +72,12 @@ export async function createEvent(req, res) {
       return res.status(401).json({ message: "Unauthorized: no user ID." });
     }
 
-    // make sure this user still exists and is allowed to host events
+    // Make sure this user still exists and is allowed to host events
     const hostUser = await User.findById(userId);
     if (!hostUser) {
-      return res
-        .status(401)
-        .json({
-          message: "Your account no longer exists. Please log in again.",
-        });
+      return res.status(401).json({
+        message: "Your account no longer exists. Please log in again.",
+      });
     }
 
     if (hostUser.role !== "business") {
@@ -97,7 +122,7 @@ export async function createEvent(req, res) {
 
     return res.status(201).json(savedEvent);
   } catch (error) {
-    console.error("Error creating event:", error.message);
+    console.error("Error in POST /api/events:", error);
     return res.status(500).json({
       message: "Error creating event.",
       error: error.message,
@@ -105,16 +130,18 @@ export async function createEvent(req, res) {
   }
 }
 
+// -------------------------------------------
 // GET /api/events/:id
-// Get a single event by its MongoDB ID
-// Also populates createdBy with host profile info
+//   Fetch a single event by its MongoDB ID.
+//   - Populates createdBy so the frontend can show host info.
+// -------------------------------------------
 export async function getEventById(req, res) {
   try {
     const { id } = req.params;
 
     const event = await Event.findById(id).populate(
       "createdBy",
-      "name email role avatarUrl town bio lookingFor instagram website"
+      "name email role avatarKey town bio lookingFor instagram website"
     );
 
     if (!event) {
@@ -123,7 +150,7 @@ export async function getEventById(req, res) {
 
     return res.json(event);
   } catch (error) {
-    console.error("Error fetching single event:", error.message);
+    console.error("Error in GET /api/events/:id:", error);
     return res.status(500).json({
       message: "Error fetching event.",
       error: error.message,
@@ -131,8 +158,18 @@ export async function getEventById(req, res) {
   }
 }
 
+// -------------------------------------------
 // PUT /api/events/:id
-// Update an existing event (business + owner only)
+//   Update an existing event.
+//   - Must be logged in.
+//   - Must be the creator (business user who posted it).
+//
+//   1) Find event by ID.
+//   2) If not found -> 404.
+//   3) Check ownership (event.createdBy === userId).
+//   4) Apply allowed updates from body.
+//   5) Save and return updated event.
+// -------------------------------------------
 export async function updateEvent(req, res) {
   try {
     const userId = req.user?.userId;
@@ -178,7 +215,7 @@ export async function updateEvent(req, res) {
 
     return res.json(updated);
   } catch (error) {
-    console.error("Error updating event:", error.message);
+    console.error("Error in PUT /api/events/:id:", error);
     return res.status(500).json({
       message: "Error updating event.",
       error: error.message,
@@ -186,8 +223,12 @@ export async function updateEvent(req, res) {
   }
 }
 
+// -------------------------------------------
 // DELETE /api/events/:id
-// Delete an event (business + owner only)
+//   Delete an event completely.
+//   - Must be logged in.
+//   - Must be the business user that created it.
+// -------------------------------------------
 export async function deleteEvent(req, res) {
   try {
     const userId = req.user?.userId;
@@ -210,7 +251,7 @@ export async function deleteEvent(req, res) {
 
     return res.json({ message: "Event deleted successfully." });
   } catch (error) {
-    console.error("Error deleting event:", error.message);
+    console.error("Error in DELETE /api/events/:id:", error);
     return res.status(500).json({
       message: "Error deleting event.",
       error: error.message,
@@ -218,9 +259,12 @@ export async function deleteEvent(req, res) {
   }
 }
 
+// -------------------------------------------
 // GET /api/events/mine
-// Return only events created by the currently logged-in user
-// Also populates createdBy, so the frontend still has host info
+//   Fetch events created by the currently logged-in user.
+//   - Must be logged in.
+//   - Used for the "My Events" screen so businesses can manage their posts.
+// -------------------------------------------
 export async function getMyEvents(req, res) {
   try {
     const userId = req.user?.userId;
@@ -234,12 +278,12 @@ export async function getMyEvents(req, res) {
       .sort({ date: 1 })
       .populate(
         "createdBy",
-        "name email role avatarUrl town bio lookingFor instagram website"
+        "name email role avatarKey town bio lookingFor instagram website"
       );
 
     return res.json(events);
   } catch (error) {
-    console.error("Error fetching my events:", error.message);
+    console.error("Error in GET /api/events/mine:", error);
     return res.status(500).json({
       message: "Error fetching your events.",
       error: error.message,

@@ -1,4 +1,9 @@
 // components/map/MapFilters.js
+// Filter controls for the Map screen (Town, Category, Date).
+// - Renders three "pill" buttons for each filter
+// - Each pill opens a modal with options
+// - Parent screen owns the actual filter state and passes handlers
+
 import React, { useState } from "react";
 import { View, Text, Pressable, Modal, StyleSheet } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
@@ -50,10 +55,14 @@ export default function MapFilters({
       </Text>
 
       {error ? (
-        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+        <Text
+          style={[styles.errorText, { color: theme.error || colors.error }]}
+        >
+          {error}
+        </Text>
       ) : null}
 
-      {/* Pills row */}
+      {/* Filter pills row */}
       <View style={styles.pillRow}>
         {/* Town Pill */}
         <Pressable
@@ -115,23 +124,15 @@ export default function MapFilters({
         </Pressable>
       </View>
 
+      {/* Divider + summary text */}
       <View
-        style={[
-          styles.sectionDivider,
-          { backgroundColor: theme.border },
-        ]}
+        style={[styles.sectionDivider, { backgroundColor: theme.border }]}
       />
-
-      <Text
-        style={[
-          styles.filterSummaryText,
-          { color: theme.textMuted },
-        ]}
-      >
+      <Text style={[styles.filterSummaryText, { color: theme.textMuted }]}>
         {filterSummary}
       </Text>
 
-      {/* Town Selector Modal */}
+      {/* ---- Town Selector Modal ---- */}
       <Modal
         visible={isTownModalVisible}
         transparent
@@ -194,9 +195,7 @@ export default function MapFilters({
               style={styles.modalCloseButton}
               onPress={() => setIsTownModalVisible(false)}
             >
-              <Text
-                style={[styles.modalCloseText, { color: theme.textMuted }]}
-              >
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
                 Cancel
               </Text>
             </Pressable>
@@ -204,7 +203,7 @@ export default function MapFilters({
         </View>
       </Modal>
 
-      {/* Category Selector Modal */}
+      {/* ---- Category Selector Modal ---- */}
       <Modal
         visible={isCategoryModalVisible}
         transparent
@@ -267,9 +266,7 @@ export default function MapFilters({
               style={styles.modalCloseButton}
               onPress={() => setIsCategoryModalVisible(false)}
             >
-              <Text
-                style={[styles.modalCloseText, { color: theme.textMuted }]}
-              >
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
                 Cancel
               </Text>
             </Pressable>
@@ -277,7 +274,7 @@ export default function MapFilters({
         </View>
       </Modal>
 
-      {/* Date Selector Modal */}
+      {/* ---- Date Selector Modal ---- */}
       <Modal
         visible={isDateModalVisible}
         transparent
@@ -340,9 +337,7 @@ export default function MapFilters({
               style={styles.modalCloseButton}
               onPress={() => setIsDateModalVisible(false)}
             >
-              <Text
-                style={[styles.modalCloseText, { color: theme.textMuted }]}
-              >
+              <Text style={[styles.modalCloseText, { color: theme.textMuted }]}>
                 Cancel
               </Text>
             </Pressable>
@@ -357,21 +352,16 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 4,
   },
   subheading: {
     fontSize: 14,
-    color: colors.textMuted,
     marginBottom: 8,
   },
   errorText: {
-    color: colors.error,
     marginBottom: 6,
     fontSize: 13,
   },
-
-  // ---- Pills ----
   pillRow: {
     gap: 12,
     marginBottom: 12,
@@ -380,14 +370,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: colors.secondary,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   pillLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 2,
@@ -395,7 +382,6 @@ const styles = StyleSheet.create({
   pillValue: {
     fontSize: 15,
     fontWeight: "500",
-    color: colors.textLight,
   },
   sectionDivider: {
     height: 1,
@@ -405,31 +391,25 @@ const styles = StyleSheet.create({
   },
   filterSummaryText: {
     fontSize: 13,
-    color: colors.textMuted,
     marginBottom: 8,
   },
-
-  // ----- Modal styles (same as Hub/Map) -----
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalCard: {
     width: "85%",
     maxHeight: "70%",
-    backgroundColor: colors.secondary,
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.textLight,
     marginBottom: 12,
   },
   townOption: {
@@ -440,13 +420,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 999,
     marginBottom: 8,
-    backgroundColor: colors.cardDark,
     borderWidth: 1,
     borderColor: "transparent",
   },
   townOptionText: {
     fontSize: 15,
-    color: colors.textLight,
   },
   townOptionTextSelected: {
     fontWeight: "700",
@@ -463,6 +441,5 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     fontSize: 14,
-    color: colors.textMuted,
   },
 });

@@ -23,22 +23,27 @@ export default function TabNavigator() {
 
   // If no user or missing role -> treat as non-business
   const isBusiness = user?.role === "business";
+  const isLocal = user?.role === "local";
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+
+        // Use theme-provided tab bar colors (fall back to card/border)
         tabBarStyle: {
-          backgroundColor: theme.card,
+          backgroundColor: theme.tabBarBackground || theme.card,
           borderTopColor: theme.border,
         },
-        tabBarActiveTintColor: theme.accent,
-        tabBarInactiveTintColor: theme.textMuted,
+        tabBarActiveTintColor: theme.tabBarActive || theme.accent,
+        tabBarInactiveTintColor: theme.tabBarInactive || theme.textMuted,
         tabBarLabelStyle: {
           fontSize: 11,
         },
+
+        // Icon for each tab
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName = "ellipse"; // default fallback
 
           if (route.name === "Hub") {
             iconName = focused ? "home" : "home-outline";
@@ -70,8 +75,8 @@ export default function TabNavigator() {
         />
       )}
 
-      {/* Only Locals/Visitors see Community Tab */}
-      {user?.role === "local" && (
+      {/* Only locals/visitors see Community tab */}
+      {isLocal && (
         <Tab.Screen
           name="Community"
           component={CommunityScreen}
@@ -79,7 +84,7 @@ export default function TabNavigator() {
         />
       )}
 
-      {/* Everyone gets account */}
+      {/* Everyone gets Account */}
       <Tab.Screen
         name="Account"
         component={AccountScreen}

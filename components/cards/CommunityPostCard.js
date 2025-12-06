@@ -1,19 +1,18 @@
-// screens/community/CommunityPostCard.js
+// components/cards/CommunityPostCard.js
+// Card for a single Community post.
+// Shows author info, post body, likes, and a link to the author's profile.
+// Also renders the replies section via CommunityRepliesSection.
+
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  TextInput,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 
 import { colors } from "../../theme/colors";
-
 import { AVATARS } from "../../assets/avatars/avatarConfig";
+import CommunityRepliesSection from "./CommunityRepliesSection";
 
-// Helper to derive author identity info from post.user + post.name
+// ----- Helpers -----
+// Derive author identity info from post.user + top-level post fields.
+// Normalizes older posts that may not have full user objects.
 function getPostAuthor(post) {
   const userObj =
     typeof post.user === "object" && post.user !== null ? post.user : null;
@@ -22,7 +21,7 @@ function getPostAuthor(post) {
   const email = userObj?.email || "";
   const role = userObj?.role || "local"; // e.g. "local" or "business"
 
-  // refer avatarKey for your premade avatars
+  // avatarKey maps into our premade avatar set
   const avatarKey = userObj?.avatarKey || post.avatarKey || null;
 
   const town = userObj?.town || post.town || "";
@@ -43,10 +42,13 @@ function getPostAuthor(post) {
     website,
   };
 }
+
 function getAvatarSource(avatarKey) {
   if (!avatarKey) return null;
   return AVATARS[avatarKey] || null;
 }
+
+// ----- Main Card Component -----
 
 export default function CommunityPostCard({
   post,
@@ -68,7 +70,6 @@ export default function CommunityPostCard({
     email,
     role,
     avatarKey,
-
     town,
     lookingFor,
     instagram,
@@ -78,10 +79,10 @@ export default function CommunityPostCard({
 
   const createdDate = post.createdAt ? new Date(post.createdAt) : null;
 
-  //  Map avatarKey -> local image
+  // Map avatarKey -> local image asset
   const avatarSource = getAvatarSource(avatarKey);
 
-  // likes
+  // Likes
   const likesArray = Array.isArray(post.likes) ? post.likes : [];
   const likesCount = likesArray.length;
 
@@ -97,7 +98,7 @@ export default function CommunityPostCard({
       return false;
     });
 
-  // is this post owned by the logged-in user?
+  // Is this post owned by the logged-in user?
   const isOwner = (() => {
     if (!userId) return false;
 
@@ -118,7 +119,7 @@ export default function CommunityPostCard({
         },
       ]}
     >
-      {/* Identity row */}
+      {/* Identity row (avatar, name, timestamp, email, town, role) */}
       <View className="card-header" style={styles.cardHeaderRow}>
         <View style={styles.authorRow}>
           <View
@@ -135,10 +136,12 @@ export default function CommunityPostCard({
               </Text>
             )}
           </View>
+
           <View style={styles.authorTextCol}>
             <Text style={[styles.authorNameText, { color: theme.textMain }]}>
               {name}
             </Text>
+
             {createdDate && (
               <Text style={[styles.timestampText, { color: theme.textMuted }]}>
                 {createdDate.toLocaleDateString()} •{" "}
@@ -148,6 +151,7 @@ export default function CommunityPostCard({
                 })}
               </Text>
             )}
+
             {email ? (
               <Text
                 style={[styles.authorEmailText, { color: theme.textMuted }]}
@@ -224,7 +228,7 @@ export default function CommunityPostCard({
         </Text>
       </View>
 
-      {/* Owner-only buttons */}
+      {/* Owner-only edit/delete buttons */}
       {isOwner && (
         <View style={styles.ownerActionsRow}>
           <Pressable
@@ -266,152 +270,24 @@ export default function CommunityPostCard({
       {/* Divider before replies */}
       <View style={[styles.replyDivider, { backgroundColor: theme.border }]} />
 
-      {/* Replies */}
-      {Array.isArray(post.replies) && post.replies.length > 0 && (
-        <View style={styles.repliesContainer}>
-          {post.replies.map((reply) => {
-            const replyCreated = reply.createdAt
-              ? new Date(reply.createdAt)
-              : new Date();
-            const replyKey = reply._id ?? replyCreated.getTime().toString();
-
-            const replyUserObj =
-              typeof reply.user === "object" && reply.user !== null
-                ? reply.user
-                : null;
-
-            const replyName = replyUserObj?.name || reply.name || "Member";
-
-            // get avatar key + image for reply user
-            const replyAvatarKey =
-              replyUserObj?.avatarKey || reply.avatarKey || null;
-            const replyAvatarSource = getAvatarSource(replyAvatarKey);
-            const replyTown = replyUserObj?.town || "";
-            const replyRole = replyUserObj?.role || "local";
-
-            return (
-              <Pressable
-                key={replyKey}
-                style={styles.replyRow}
-                onPress={() => {
-                  if (replyUserObj && onOpenProfile) {
-                    onOpenProfile({
-                      name: replyName,
-                      role: replyRole,
-                      town: replyTown,
-                      avatarKey: replyAvatarKey,
-                      lookingFor: replyUserObj.lookingFor || "",
-                      instagram: replyUserObj.instagram || "",
-                      bio: replyUserObj.bio || "",
-                      website: replyUserObj.website || "",
-                    });
-                  }
-                }}
-              >
-                <View
-                  style={[
-                    styles.replyAvatar,
-                    {
-                      backgroundColor: theme.cardDark || colors.cardDark,
-                    },
-                  ]}
-                >
-                  {replyAvatarSource ? (
-                    <Image
-                      source={replyAvatarSource}
-                      style={styles.replyAvatarImage}
-                    />
-                  ) : (
-                    <Text
-                      style={[
-                        styles.replyAvatarInitial,
-                        { color: theme.textMain },
-                      ]}
-                    >
-                      {replyName.charAt(0).toUpperCase()}
-                    </Text>
-                  )}
-                </View>
-                <View style={styles.replyContent}>
-                  <Text style={[styles.replyMeta, { color: theme.textMuted }]}>
-                    <Text
-                      style={[styles.replyAuthor, { color: theme.textMain }]}
-                    >
-                      {replyName}
-                    </Text>{" "}
-                    •{" "}
-                    {replyCreated.toLocaleTimeString([], {
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
-                  </Text>
-                  {replyTown ? (
-                    <Text
-                      style={[styles.replyTownMeta, { color: theme.textMuted }]}
-                    >
-                      {replyTown}
-                    </Text>
-                  ) : null}
-                  <Text
-                    style={[styles.replyBodyText, { color: theme.textMuted }]}
-                  >
-                    {reply.body}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-      )}
-
-      {/* Reply toggle + input */}
-      <View style={styles.replyActionsRow}>
-        <Pressable style={styles.replyButton} onPress={onToggleReply}>
-          <Text style={[styles.replyButtonText, { color: theme.accent }]}>
-            {isReplyOpen ? "Cancel" : "Reply"}
-          </Text>
-        </Pressable>
-      </View>
-
-      {isReplyOpen && (
-        <View
-          style={[
-            styles.replyInputContainer,
-            {
-              backgroundColor: theme.background,
-              borderColor: theme.border,
-            },
-          ]}
-        >
-          <TextInput
-            style={[styles.replyInput, { color: theme.textMain }]}
-            value={replyText}
-            onChangeText={onChangeReplyText}
-            placeholder="Write a reply..."
-            placeholderTextColor={theme.textMuted}
-            multiline
-          />
-          <Pressable
-            style={[
-              styles.sendReplyButton,
-              { backgroundColor: theme.accent },
-              (!replyText.trim() || submittingReply) &&
-                styles.sendReplyButtonDisabled,
-            ]}
-            onPress={onSubmitReply}
-            disabled={!replyText.trim() || submittingReply}
-          >
-            <Text style={styles.sendReplyButtonText}>
-              {submittingReply ? "Sending..." : "Send"}
-            </Text>
-          </Pressable>
-        </View>
-      )}
+      {/* Replies + reply composer (separate component) */}
+      <CommunityRepliesSection
+        replies={post.replies}
+        theme={theme}
+        isReplyOpen={isReplyOpen}
+        replyText={replyText}
+        submittingReply={submittingReply}
+        onToggleReply={onToggleReply}
+        onChangeReplyText={onChangeReplyText}
+        onSubmitReply={onSubmitReply}
+        onOpenProfile={onOpenProfile}
+      />
     </View>
   );
 }
 
-// Styles moved over from CommunityScreen (card + replies + likes)
+// ----- Styles -----
+// Styles moved over from CommunityScreen (card + likes).
 const styles = StyleSheet.create({
   sectionCard: {
     backgroundColor: colors.secondary,
@@ -580,117 +456,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
     marginTop: 12,
     marginBottom: 8,
-  },
-
-  repliesContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-
-  replyRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-
-  replyAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: colors.cardDark,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-
-  replyAvatarImage: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-  },
-
-  replyAvatarInitial: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  replyContent: {
-    flex: 1,
-  },
-
-  replyMeta: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-
-  replyTownMeta: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginBottom: 2,
-  },
-
-  replyAuthor: {
-    fontWeight: "600",
-    color: colors.textLight,
-  },
-
-  replyBodyText: {
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-
-  replyActionsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginTop: 4,
-  },
-
-  replyButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-
-  replyButtonText: {
-    fontSize: 13,
-    color: colors.accent,
-    fontWeight: "600",
-  },
-
-  replyInputContainer: {
-    marginTop: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.primary,
-    padding: 8,
-    gap: 6,
-  },
-
-  replyInput: {
-    minHeight: 40,
-    maxHeight: 120,
-    color: colors.textLight,
-    fontSize: 13,
-  },
-
-  sendReplyButton: {
-    alignSelf: "flex-end",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: colors.accent,
-  },
-
-  sendReplyButtonDisabled: {
-    opacity: 0.6,
-  },
-
-  sendReplyButtonText: {
-    color: colors.textLight,
-    fontSize: 12,
-    fontWeight: "600",
   },
 
   likesRow: {

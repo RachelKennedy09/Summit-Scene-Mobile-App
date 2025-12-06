@@ -1,51 +1,66 @@
-// eventsApi.js
-// Small helper for talking to the SummitScene backend
+// services/eventsApi.js
+// Centralized helper functions for interacting with the Events API.
+//
+// Endpoints used:
+//   GET    /api/events                     → fetch all events
+//   GET    /api/events/:id                 → fetch one event
+//   POST   /api/events                     → create event  (business only)
+//   PUT    /api/events/:id                 → update event  (business only)
+//   DELETE /api/events/:id                 → delete event  (business only)
 
 const BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || "https://summit-scene-backend.onrender.com";
+  process.env.EXPO_PUBLIC_API_BASE_URL ||
+  "https://summit-scene-backend.onrender.com";
 
-/* --------------------------------------------------
-   FETCH ALL EVENTS
--------------------------------------------------- */
+// Build headers helper (optional token)
+function buildHeaders(token) {
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
+//    FETCH ALL EVENTS
+//    GET /api/events
+//    Returns: array of event objects
+
 export async function fetchEvents() {
   try {
-    const response = await fetch(`${BASE_URL}/api/events`);
+    const res = await fetch(`${BASE_URL}/api/events`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch events (${response.status})`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch events (${res.status})`);
     }
 
-    return await response.json(); // array
+    return await res.json();
   } catch (error) {
-    console.error("fetchEvents error:", error.message);
+    console.error("fetchEvents error:", error);
     throw error;
   }
 }
 
-/* --------------------------------------------------
-   CREATE EVENT  (Business only)
--------------------------------------------------- */
+//    CREATE EVENT (Business only)
+//    POST /api/events
+//    Body: eventData
+//    Returns: { ok, status, data } structure for easier screen-side handling
+
 export async function createEvent(eventData, token) {
   try {
-    const response = await fetch(`${BASE_URL}/api/events`, {
+    const res = await fetch(`${BASE_URL}/api/events`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: buildHeaders(token),
       body: JSON.stringify(eventData),
     });
 
-    const data = await response.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}));
 
-    // Instead of throwing immediately, return structured info
     return {
-      ok: response.ok,
-      status: response.status,
+      ok: res.ok,
+      status: res.status,
       data,
     };
   } catch (error) {
-    console.error("createEvent error:", error.message);
+    console.error("createEvent error:", error);
     return {
       ok: false,
       status: 0,
@@ -54,75 +69,73 @@ export async function createEvent(eventData, token) {
   }
 }
 
-/* --------------------------------------------------
-   DELETE EVENT (Business only)
--------------------------------------------------- */
+//    DELETE EVENT (Business only)
+//    DELETE /api/events/:eventId
+//    Returns: true if success
+
 export async function deleteEvent(eventId, token) {
   try {
-    const response = await fetch(`${BASE_URL}/api/events/${eventId}`, {
+    const res = await fetch(`${BASE_URL}/api/events/${eventId}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: buildHeaders(token),
     });
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      throw new Error(text || "Failed to delete event");
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `Failed to delete event (${res.status})`);
     }
 
     return true;
   } catch (error) {
-    console.error("deleteEvent error:", error.message);
+    console.error("deleteEvent error:", error);
     throw error;
   }
 }
 
-/* --------------------------------------------------
-   UPDATE EVENT  (Business only)
--------------------------------------------------- */
+//    UPDATE EVENT (Business only)
+//    PUT /api/events/:eventId
+//    Body: updated event data
+//    Returns: updated event object
+
 export async function updateEvent(eventId, eventData, token) {
   try {
-    const response = await fetch(`${BASE_URL}/api/events/${eventId}`, {
+    const res = await fetch(`${BASE_URL}/api/events/${eventId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
+      headers: buildHeaders(token),
       body: JSON.stringify(eventData),
     });
 
-    const data = await response.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}));
 
-    if (!response.ok) {
+    if (!res.ok) {
       console.error("updateEvent error response:", data);
       const message =
-        data?.message || `Error updating event (status ${response.status})`;
+        data.message || `Failed to update event (status ${res.status})`;
       throw new Error(message);
     }
 
     return data;
   } catch (error) {
-    console.error("updateEvent error:", error.message);
+    console.error("updateEvent error:", error);
     throw error;
   }
 }
 
-/* --------------------------------------------------
-   FETCH A SINGLE EVENT (useful later)
--------------------------------------------------- */
+//    FETCH SINGLE EVENT
+//    GET /api/events/:eventId
+//    Returns: single event object
+
 export async function fetchEventById(eventId) {
   try {
-    const response = await fetch(`${BASE_URL}/api/events/${eventId}`);
+    const res = await fetch(`${BASE_URL}/api/events/${eventId}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch event (${response.status})`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch event (${res.status})`);
     }
 
-    return await response.json();
+    return await res.json();
   } catch (error) {
-    console.error("fetchEventById error:", error.message);
+    console.error("fetchEventById error:", error);
     throw error;
   }
 }

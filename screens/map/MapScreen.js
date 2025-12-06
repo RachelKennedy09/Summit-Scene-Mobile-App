@@ -1,4 +1,9 @@
 // screens/MapScreen.js
+// Map view for SummitScene.
+// - Fetches all events from the API
+// - Applies the same town/category/date filters as the Hub
+// - Shows events as map markers, with a small "fan-out" offset per town
+// so overlapping markers are easier to see.
 
 import React, {
   useEffect,
@@ -13,14 +18,13 @@ import MapView, { Marker } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
-import { colors } from "../../theme/colors.js";
 import { useTheme } from "../../context/ThemeContext";
 import MapFilters from "../../components/map/MapFilters";
 
 // Simple list of towns for the selector modal
 const TOWNS = ["All", "Banff", "Canmore", "Lake Louise"];
 
-// list of categories for selector modal
+// List of categories for selector modal
 const CATEGORIES = [
   "All",
   "Market",
@@ -50,14 +54,6 @@ const TOWN_COORDS = {
   "Lake Louise": { latitude: 51.4254, longitude: -116.1773 },
 };
 
-// Normalized map (lowercase keys) for safer matching
-const NORMALIZED_TOWN_COORDS = Object.fromEntries(
-  Object.entries(TOWN_COORDS).map(([name, coords]) => [
-    name.toLowerCase(),
-    coords,
-  ])
-);
-
 // Map starting position (roughly between Banff & Canmore)
 const INITIAL_REGION = {
   latitude: 51.18,
@@ -79,10 +75,10 @@ function toDateOnlyString(value) {
   return d.toISOString().slice(0, 10);
 }
 
-// Tiny helper to "fan out" markers per town so they don't sit exactly on top of each other
+// Helper to "fan out" markers per town so they don't sit exactly on top of each other
+// I used a small grid of offsets around the town center, based on how many events are in that town.
 function getOffsetForTownIndex(index) {
-  // Bigger step so you can clearly see the difference at current zoom
-  const step = 0.02; // try 0.02 first, we can shrink later
+  const step = 0.02; // chosen for current zoom level so markers are clearly visible
 
   const patterns = [
     { lat: 0, lng: 0 }, // first marker center
@@ -104,7 +100,7 @@ export default function MapScreen() {
   const mapRef = useRef(null);
   const { theme } = useTheme();
 
-  // Filter state
+  // Filter state (shared wtih Hub): town, category, date range
   const [selectedTown, setSelectedTown] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedDateFilter, setSelectedDateFilter] = useState("All");
@@ -142,6 +138,8 @@ export default function MapScreen() {
   }, [loadEvents]);
 
   // Filter events for map markers (same logic as Hub date filters)
+  // I compute a date range ( Today / Next 3 / Next 7 / Next 30 ) and then
+  // I keep only events that match town + category + date.
   const eventsForMap = useMemo(() => {
     const now = new Date();
     const todayStart = new Date(
@@ -201,7 +199,7 @@ export default function MapScreen() {
     });
   }, [events, selectedTown, selectedCategory, selectedDateFilter]);
 
-  // Summary line text
+  // Human-readable summary line under the filters (e.g. "Showing 3 events in Banff ...")
   const filterSummary = useMemo(() => {
     const count = eventsForMap.length;
 
@@ -227,7 +225,7 @@ export default function MapScreen() {
     return `Showing ${count} events in ${townLabel} for ${categoryLabel}${dateLabel}.`;
   }, [eventsForMap.length, selectedTown, selectedCategory, selectedDateFilter]);
 
-  // Animate camera when selectedTown changes
+  // When the selected town changes, animate the camera to that town's region.
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -248,6 +246,7 @@ export default function MapScreen() {
     mapRef.current.animateToRegion(targetRegion, 800);
   }, [selectedTown]);
 
+  // Navigate to EventDetail when a marker is pressed.
   function handleMarkerPress(event) {
     navigation.navigate("EventDetail", {
       event,
@@ -259,7 +258,7 @@ export default function MapScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      {/* Filters header */}
+      {/* Filters header and summary (reused logic from Hub in a shared MapFilters component) */}
       <MapFilters
         selectedTown={selectedTown}
         selectedCategory={selectedCategory}
@@ -298,14 +297,14 @@ export default function MapScreen() {
             initialRegion={INITIAL_REGION}
           >
             {(() => {
-              // Keep a count per town so we know how much to offset each marker
+              // I keep a count per town so we know how much to offset each marker
               const townCounts = {};
 
               return eventsForMap.map((event) => {
                 const rawTown = event.town || "";
                 const coords = TOWN_COORDS[rawTown];
 
-                // If we really don't know the town, skip
+                // If there are no coordinates for this town, skip the marker
                 if (!coords) return null;
 
                 const townKey = rawTown;

@@ -1,4 +1,9 @@
 // components/account/AccountHeaderCard.js
+// Displays the logged-in user's top profile summary on the Account screen.
+// Shows:
+//   - Avatar (avatarKey → avatarUrl → initial fallback)
+//   - Name, role label, email, town, join date
+
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { colors } from "../../theme/colors";
@@ -13,6 +18,11 @@ export default function AccountHeaderCard({
   joinedText,
   avatarKey,
 }) {
+  // Avatar resolution:
+  // 1) If avatarKey exists in AVATARS → use pre-made local PNG
+  // 2) (Future-safe) If user.avatarUrl exists → remote image (not used here)
+  // 3) Else → fallback initial inside a colored circle
+
   const avatarSource =
     avatarKey && AVATARS[avatarKey] ? AVATARS[avatarKey] : null;
 
@@ -29,6 +39,7 @@ export default function AccountHeaderCard({
       ]}
     >
       <View style={styles.headerRow}>
+        {/* Avatar circle */}
         <View
           style={[
             styles.avatar,
@@ -49,19 +60,24 @@ export default function AccountHeaderCard({
           )}
         </View>
 
+        {/* Text info: display name, role, email, etc. */}
         <View style={styles.headerTextCol}>
           <Text style={[styles.greeting, { color: theme.text }]}>
             Hi, {displayName}
           </Text>
+
           <Text style={[styles.roleTag, { color: theme.textMuted }]}>
             {roleLabel}
           </Text>
+
           <Text style={[styles.metaText, { color: theme.textMuted }]}>
             Email: {email}
           </Text>
+
           <Text style={[styles.metaText, { color: theme.textMuted }]}>
             Town: {town}
           </Text>
+
           <Text style={[styles.metaText, { color: theme.textMuted }]}>
             Member since: {joinedText}
           </Text>

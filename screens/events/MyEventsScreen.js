@@ -1,6 +1,7 @@
 // screens/MyEventsScreen.js
 // Shows events created by the currently logged-in user
-// Let business users manage their own events in one place
+// Business users can manage(view / edit / delete) their own events in one place.
+// Also splits events into "Upcoming" vs "Past" based on today's date.
 
 import React, { useEffect, useState, useCallback } from "react";
 import {
@@ -17,7 +18,7 @@ import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 import { useTheme } from "../../context/ThemeContext";
 
-// Use same base as rest of app
+// Use same base URL as the rest of app (Expo env var with fallback)
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ||
   "https://summit-scene-backend.onrender.com";
@@ -32,7 +33,9 @@ export default function MyEventsScreen({ navigation }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  async function fetchMyEvents() {
+  // Fetch events owned by teh current business user.
+  // This is separate from the general Hub fetch because the endpoint is /events/mine.
+  const fetchMyEvents = useCallback(async () => {
     try {
       setError(null);
 
@@ -72,7 +75,7 @@ export default function MyEventsScreen({ navigation }) {
         throw new Error(message);
       }
 
-      // sort events by date (earlier first)
+      // Sort events by date (earlier first) so the list feels chronological
       const sorted = (data || []).slice().sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -85,19 +88,18 @@ export default function MyEventsScreen({ navigation }) {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [token, isBusiness]);
 
-  // Initial load
+  // Initial load (and re-run if token or business role changes).
   useEffect(() => {
     if (token) {
       fetchMyEvents();
     } else {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, isBusiness]);
+  }, [token, isBusiness, fetchMyEvents]);
 
-  // Pull-to-refresh handler
+  // Pull-to-refresh handler wraps fetchMyEvents and toggles a refreshing spinner.
   const onRefresh = useCallback(async () => {
     try {
       setIsRefreshing(true);
@@ -105,9 +107,10 @@ export default function MyEventsScreen({ navigation }) {
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [fetchMyEvents]);
 
   // ---- Split into upcoming + past based on today's date ----
+  // We compare string dates in "YYYY-MM-DD" format, which sort correctly lexicographically.
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -120,7 +123,7 @@ export default function MyEventsScreen({ navigation }) {
   const pastEvents = events.filter(
     (event) => event.date && event.date < todayStr
   );
-
+  // Build a user-friendly "date + time" label based on which fields are pressed
   function buildDateTimeLabel(item) {
     const hasDate = Boolean(item.date);
     const hasStartTime = Boolean(item.time);
@@ -144,6 +147,7 @@ export default function MyEventsScreen({ navigation }) {
   }
 
   function handleEdit(event) {
+    // Navigate tot he shared EditEvent screen, passing the event to pre-fill the form.
     navigation.navigate("EditEvent", { event });
   }
 
@@ -162,6 +166,7 @@ export default function MyEventsScreen({ navigation }) {
     );
   }
 
+  // Call the deleteEvent API helper, then refresh the list.
   async function confirmDelete(event) {
     try {
       if (!token) {
@@ -180,6 +185,7 @@ export default function MyEventsScreen({ navigation }) {
     }
   }
 
+  // Renders a single event row for My Events.
   function renderEventItem({ item }) {
     const dateTimeLabel = buildDateTimeLabel(item);
 
@@ -252,7 +258,7 @@ export default function MyEventsScreen({ navigation }) {
     );
   }
 
-  // ---- States ----
+  // ---- Screen States ----
 
   if (isLoading) {
     return (

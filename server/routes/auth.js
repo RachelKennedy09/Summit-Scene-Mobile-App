@@ -1,11 +1,14 @@
 // server/routes/auth.js
 // Auth routes for SummitScene
-// Let clients create accounts and receive JWT tokens for secure requests
+//  - Register new users (local + business)
+//  - Log users in and issue JWT tokens
+//  - Return the current logged-in user's info (session restore)
 
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
 import User from "../models/User.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -14,7 +17,12 @@ dotenv.config();
 
 const router = express.Router();
 
-// Helper to create a JWT token
+// ---------------------------
+// HELPER: JWT CREATION
+// ---------------------------
+
+// Create a signed JWT token for the client to store.
+// The token allows the app to prove who the user is on each request.
 function createToken(user) {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -30,23 +38,32 @@ function createToken(user) {
       role,
       name: user.name,
       email: user.email,
+      // NOTE: We keep the payload minimal. Extra fields can be added later if needed.
     },
     secret,
     { expiresIn: "1h" }
   );
 }
 
-/*
-  POST /api/auth/register
-  BODY: { email, password, name?, role? }
+/* -------------------------------------------
+   POST /api/auth/register
+   BODY:
+     {
+       email,
+       password,
+       name,
+       role?, town?, bio?, lookingFor?,
+       instagram?, website?, avatarKey?
+     }
 
-  FLOW:
-  1) Validate required fields
-  2) Check if user already exists
-  3) Hash password
-  4) Save user
-  5) Return token + minimal user info
-*/
+   - Create a new user account and return a JWT + basic profile.
+
+   1) Validate required fields
+   2) Normalize email and check if user already exists
+   3) Decide a safe final role (local | business)
+   4) Hash password and store user in DB
+   5) Return token + "safe" user info (no password)
+------------------------------------------- */
 router.post("/register", async (req, res) => {
   try {
     const {
@@ -62,7 +79,7 @@ router.post("/register", async (req, res) => {
       avatarKey,
     } = req.body || {};
 
-    // Basic validation
+    // Basic validation for required fields
     if (!email || !password || !name) {
       return res
         .status(400)
@@ -78,20 +95,20 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ message: "Email is already registered." });
     }
 
-    // Decide finalRole safely
+    // Decide finalRole safely (only allow known values)
     const allowedRoles = ["local", "business"];
     let finalRole = "local";
 
     if (role && allowedRoles.includes(role)) {
       finalRole = role;
     }
-    // If something weird is sent, fall back to "local"
+    // If something weird is sent, we fall back to "local"
 
-    // Hash password
+    // Hash password using bcrypt
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+    // Create user document in MongoDB
     const user = await User.create({
       email: normalizedEmail,
       passwordHash,
@@ -105,10 +122,10 @@ router.post("/register", async (req, res) => {
       avatarKey,
     });
 
-    // Create token
+    // Create JWT token for the new user
     const token = createToken(user);
 
-    // Send minimal info back (not passwordHash)
+    // Send minimal, safe user data back (no passwordHash)
     res.status(201).json({
       token,
       user: {
@@ -127,21 +144,21 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error in /register:", error.message);
+    console.error("Error in POST /api/auth/register:", error);
     res.status(500).json({ message: "Server error during registration." });
   }
 });
 
-/*
-  POST /api/auth/login
-  BODY: { email, password }
+/* -------------------------------------------
+   POST /api/auth/login
+   BODY: { email, password }
+   - Log an existing user in and return a JWT + profile.
 
-  FLOW:
-  1) Validate required fields
-  2) Find user by email
-  3) Compare passwords
-  4) Return token + user if valid
-*/
+   1) Validate email + password
+   2) Normalize email and find user
+   3) Compare plaintext password with stored hash
+   4) If match, return token + safe user
+------------------------------------------- */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -185,14 +202,18 @@ router.post("/login", async (req, res) => {
       user: safeUser,
     });
   } catch (error) {
-    console.error("Error in /login:", error.message);
+    console.error("Error in POST /api/auth/login:", error);
     res.status(500).json({ message: "Server error during login." });
   }
 });
 
-// GET /api/auth/me
-// Return the current logged-in user's info
-// Let the app restore sessions from a stored token
+/* -------------------------------------------
+   GET /api/auth/me
+   AUTH: Requires a valid JWT (authMiddleware)
+
+   - Return the currently logged-in user's profile.
+   - Used by the app to restore sessions from a stored token.
+------------------------------------------- */
 router.get("/me", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -213,13 +234,14 @@ router.get("/me", authMiddleware, async (req, res) => {
       lookingFor: user.lookingFor,
       instagram: user.instagram,
       website: user.website,
-      avatarKey: user.avatarKey, 
+      avatarKey: user.avatarKey,
     };
 
     res.json({ user: safeUser });
   } catch (error) {
-    console.error("Error in /auth/me:", error.message);
+    console.error("Error in GET /api/auth/me:", error);
     res.status(500).json({ message: "Server error while fetching user." });
   }
 });
+
 export default router;

@@ -1,17 +1,17 @@
 // AuthContext.js
-// Global auth state (user, token) + login/register/logout/upgrade functions
+// Global auth state (user, token) + login/register/logout/upgrade/updateProfile
 // Any screen can know if the user is logged in and call auth actions
 // Centralizes auth logic instead of duplicating it across screens
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// API base URL
+// API base URL (Expo public env OR fallback to Render backend)
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ||
   "https://summit-scene-backend.onrender.com";
 
-// Single place for our token key
+// Single place for token key
 const TOKEN_KEY = "authToken";
 
 // Create the context object
@@ -28,13 +28,12 @@ export function useAuth() {
 
 // Provider component that wraps the app
 export function AuthProvider({ children }) {
-  // STATE: who is logged in, their token, and loading flag
-  // user will hold {_id, email, name, role, createdAt } from backend
+  // user will hold {_id, email, name, role, town, avatarKey, ...} from backend
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null); // JWT from the backend
   const [isAuthLoading, setIsAuthLoading] = useState(true); // true while restoring session
 
-  // on app start, try to restore a saved session from AsyncStorage
+  // On app start, try to restore a saved session from AsyncStorage
   useEffect(() => {
     restoreSession();
   }, []);
@@ -45,13 +44,13 @@ export function AuthProvider({ children }) {
 
       const savedToken = await AsyncStorage.getItem(TOKEN_KEY);
       if (!savedToken) {
-        // No token saved - user is out
+        // No token saved - user is logged out
         setToken(null);
         setUser(null);
         return;
       }
 
-      // Try to fetch current user using /auth/me
+      // Check that the token is still valid and get the current user
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "GET",
         headers: {
@@ -60,7 +59,7 @@ export function AuthProvider({ children }) {
       });
 
       if (!response.ok) {
-        // Token is invalid or expired - clear it
+        // Token invalid or expired - clear it
         await AsyncStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);
@@ -68,12 +67,16 @@ export function AuthProvider({ children }) {
       }
 
       const data = await response.json();
-      // Handle both { user: {...} } and raw user object shapes
-      const userData = data.user || data;
+      const rawUser = data.user || data;
 
-      // If token is still good, restore state
+      // Keep avatarKey if backend returns it; otherwise fall back to null
+      const restoredUser = {
+        ...rawUser,
+        avatarKey: rawUser.avatarKey ?? null,
+      };
+
       setToken(savedToken);
-      setUser(userData);
+      setUser(restoredUser);
     } catch (error) {
       console.error("Error restoring auth session:", error);
       // On any error, treat as logged out
@@ -106,12 +109,19 @@ export function AuthProvider({ children }) {
         throw new Error(message);
       }
 
-      // Save token and user in state and Async storage
+      // Normalize user shape + avatarKey
+      const rawUser = data.user || {};
+      const mergedUser = {
+        ...rawUser,
+        avatarKey: rawUser.avatarKey ?? null,
+      };
+
+      // Save token and user in state and AsyncStorage
       setToken(data.token);
-      setUser(data.user);
+      setUser(mergedUser);
       await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
-      return data; // screen can react if needed
+      return { ...data, user: mergedUser }; // screen can react if needed
     } catch (error) {
       console.error("Error in login:", error);
       throw error; // let screen show an alert
@@ -120,6 +130,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // REGISTER: hit /api/auth/register then store auth + user
   async function register({
     name,
     email,
@@ -161,18 +172,17 @@ export function AuthProvider({ children }) {
         throw new Error(message);
       }
 
-      // 👇 Make sure avatarKey is present even if backend forgot it
+      // Ensure avatarKey is present even if backend forgot to return it
+      const rawUser = data.user || {};
       const mergedUser = {
-        ...data.user,
-        avatarKey: data.user?.avatarKey ?? avatarKey ?? null,
+        ...rawUser,
+        avatarKey: rawUser.avatarKey ?? avatarKey ?? null,
       };
 
       console.log("Merged user in AuthContext.register:", mergedUser);
 
-      // store auth in context
       setToken(data.token);
       setUser(mergedUser);
-
       await AsyncStorage.setItem(TOKEN_KEY, data.token);
 
       return { ...data, user: mergedUser };
@@ -224,7 +234,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // UPDATE PROFILE: edit name/avatar/town/bio/etc. (not email/password yet)
+  // UPDATE PROFILE: edit name / avatar / town / bio / etc. (not email/password yet)
   async function updateProfile(updates) {
     if (!token) {
       throw new Error("You must be logged in to update your profile.");
@@ -262,7 +272,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // LOGOUT
+  // LOGOUT: clear token + user + storage
   async function logout() {
     try {
       setIsAuthLoading(true);

@@ -144,29 +144,32 @@ export const themes = {
 
   rainbow: {
     key: "rainbow",
-    label: "Rainbow",
+    label: "Christmas",
     isDark: false,
 
-    background: "#e94452",
-    card: "#ce730c",
-    pill: "#f59e0b",
+    // Cozy Christmas daytime
+    background: "#FDF6EC",
+    card: "#FFFFFF",
+    pill: "#FEE2E2",
 
-    text: "#3806aa",
-    textMain: "#3806aa",
-    textMuted: "#7669af",
-    textOnAccent: "#c251bc",
+    text: "#1F2933",
+    textMain: "#1F2933",
+    textMuted: "#6B7280",
+    textOnAccent: "#FDFDFD",
 
-    accent: "#c5e610",
-    accentSoft: "rgba(197, 230, 16, 0.25)",
+    // Evergreen + berry accent
+    accent: "#047857",
+    accentSoft: "rgba(4, 120, 87, 0.18)",
 
-    border: "#280ca7",
+    border: "#FCA5A5",
 
-    tabBarBackground: "#e94452",
-    tabBarActive: "#c5e610",
-    tabBarInactive: "#280ca7",
-    tabActive: "#c5e610",
-    tabInactive: "#280ca7",
-    tabBackground: "#e94452",
+    // Tab bar – red + green
+    tabBarBackground: "#FDF6EC",
+    tabBarActive: "#B91C1C",
+    tabBarInactive: "#6B7280",
+    tabActive: "#047857",
+    tabInactive: "#B91C1C",
+    tabBackground: "#FDF6EC",
 
     error: colors.error,
     cta: colors.cta,

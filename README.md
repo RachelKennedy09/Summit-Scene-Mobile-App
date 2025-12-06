@@ -1,3 +1,26 @@
+SummitScene — Mobile Events, Community, & Map App
+
+A full-stack React Native mobile application for Banff, Canmore, and Lake Louise.
+
+SummitScene is a location-aware events and community app designed for mountain towns.
+It features an event hub, live map, community posts, user profiles, and role-based permissions for local vs business users.
+
+This project includes:
+
+React Native + Expo mobile client
+
+Node.js + Express REST API
+
+MongoDB Atlas database
+
+JWT authentication
+
+Business-only event posting
+
+Full community system (posts, replies, likes)
+
+Theming, avatars, and clean UI
+
 ## Running the Project Locally
 
 You can run both the backend and mobile client locally if desired.
@@ -16,15 +39,18 @@ You can run both the backend and mobile client locally if desired.
 
 Create a `.env` file inside `server/`: (See .env.example)
 
+`MONGODB_URI=your_mongo_uri
+JWT_SECRET=your_jwt_secret
+NODE_ENV=development`
+
 Start the server
 
 `npm start`
 
 You should see:
 
-"connected to MongoDB
-
-SummitScene API listening on port 4000"
+Connected to MongoDB: summitScene (cluster: xyz.mongodb.net)
+SummitScene API listening on port 4000
 
 ### 3. Run the Mobile App (Expo)
 
@@ -47,11 +73,12 @@ To use your local backend, run Expo with:
 
 ### 4. Production Deployment
 
-The backend is deployed on Render, and the mobile app is published on Expo, allowing anyone to test without local setup.
+SummitScene is fully deployed:
 
-(Links included below)
-
+Backend (Render):
 https://summit-scene-backend.onrender.com
+
+Mobile App (Expo):
 
 ## Architecture
 
@@ -91,162 +118,119 @@ https://summit-scene-backend.onrender.com
 
 ### Folder Structure
 
-```text
 SummitSceneMobileApp/
 ├── App.js
 ├── app.json
 ├── package.json
 ├── assets/
-│   ├── logo.png
-│   ├── splash.png
-│   ├── icon.png
-│   ├── adaptive-icon.png
-│   └── favicon.png
+│ ├── avatars/
+│ │ └── avatarConfig.js
+│ ├── logo.png
+│ ├── splash.png
+│ └── icon.png
 ├── screens/
-│   ├── auth/
-│   │   ├── LoginScreen.js
-│   │   └── RegisterScreen.js
-│   ├── hub/
-│   │   └── HubScreen.js
-│   ├── map/
-│   │   └── MapScreen.js
-│   ├── events/
-│   │   ├── PostEventScreen.js
-│   │   ├── EditEventScreen.js
-│   │   ├── EventDetailScreen.js
-│   │   └── MyEventsScreen.js
-│   ├── community/
-│   │   ├── CommunityScreen.js
-│   │   ├── CommunityPostScreen.js
-│   │   └── EditCommunityPostScreen.js
-│   └── account/
-│       ├── AccountScreen.js
-│       └── EditProfileScreen.js
-│
+│ ├── auth/
+│ ├── hub/
+│ ├── map/
+│ ├── events/
+│ ├── community/
+│ └── account/
 ├── components/
-│   ├── account/
-│   │   ├── AccountHeaderCard.js
-│   │   ├── ProfileCard.js
-│   │   ├── ThemeSection.js
-│   │   └── MemberProfileModal.js
-│   ├── cards/
-│   │   ├── EventCard.js
-│   │   └── CommunityPostCard.js
-│   ├── events/
-│   │   ├── EventHostSection.js
-│   │   ├── EventOwnerSection.js
-│   │   ├── DatePickerModal.js
-│   │   └── TimePickerModal.js
-│   ├── hub/
-│   │   └── HubFilters.js
-│   ├── map/
-│   │   └── MapFilters.js
-│   └── common/
-│       └── SelectModal.js
-│
+│ ├── account/
+│ ├── cards/
+│ ├── events/
+│ ├── hub/
+│ ├── map/
+│ ├── common/
+│ └── register/
 ├── navigation/
-│   ├── RootNavigator.js
-│   └── TabNavigator.js
-│
+│ ├── RootNavigator.js
+│ └── TabNavigator.js
 ├── context/
-│   ├── AuthContext.js
-│   └── ThemeContext.js
-│
+│ ├── AuthContext.js
+│ └── ThemeContext.js
 ├── services/
-│   ├── eventsApi.js
-│   ├── communityApi.js
-│   └── authApi.js
-│
+│ ├── eventsApi.js
+│ ├── communityApi.js
+│ └── authApi.js
 ├── theme/
-│   ├── colors.js
-│   └── themes.js
-│
+│ ├── colors.js
+│ └── themes.js
 └── server/
-    ├── package.json
-    ├── index.js
-    ├── routes/
-    │   ├── auth.js
-    │   ├── events.js
-    │   ├── community.js
-    │   └── users.js
-    ├── controllers/
-    │   ├── eventController.js
-    │   └── communityController.js
-    ├── models/
-    │   ├── User.js
-    │   ├── Event.js
-    │   └── CommunityPost.js
-    ├── middleware/
-    │   ├── auth.js
-    │   └── isBusiness.js
-    ├── test/
-    │   └── api.test.js
-    └── config/
-        └── db.js
-```
+├── index.js
+├── package.json
+├── routes/
+├── controllers/
+├── models/
+├── middleware/
+├── config/
+└── test/
 
-### SummitScene is a full-stack mobile application with three main layers and two user roles:
+### User Roles & App Features
 
-**Local users** – log in to browse events, use the map, read and create community posts (highway conditions, ride shares, event buddies).
+**Local users**
 
-**Business users** – have all local capabilities plus the ability to create and manage events.
+- Browse events (Hub + Map)
+
+- View event details
+
+- View business profiles (event hosts)
+
+- Create & manage community posts (Highway Conditions, Ride Share, Event Buddy)
+
+- Reply to posts
+
+- Like/unlike community posts
+
+- Edit profile & switch theme
+
+**Business users**
+
+- Create events
+
+- Edit events they own
+
+- Delete events they own
+
+- Manage their event listings under My Events
+
+- Role-based permissions are enforced in both UI and backend.
 
 1. **Mobile Client (React Native + Expo)**
 
-   - Built with React Native and Expo.
-   - Uses **tab navigation** for the main areas:
-     - **Hub** – today’s featured events and quick filters(used by both locals and businesses).
-     - **Map** – shows events as markers on a map for the selected date.
-     - **Post Event** – lets business users create new events (locals see the tab differently or cannot post events ).
-     - **Community** – highway conditions, ride shares, and event buddy posts(read/write for logged-in users).
-     - **Account** – profile info, role (local or business), town, theme settings, and auth actions (login/logout).
-   - Global state is handled via:
-     - `AuthContext` – stores the logged-in user and JWT, handles login/logout, and exposes the user’s role ("local" or "business") so the UI can change behavior based on permissions.
-     - `ThemeContext` – controls light/dark/other themes across the app, so all screens share a consistent look.
-   - Network calls are isolated in **service files** (e.g. `eventsApi.js`) so screens don’t know about low-level fetch details.
-   - Role-based UI logic:
-     - The AuthContext provides the user object (including role), and screens/components use that to:
-     - Show or hide business-only actions (like creating or editing events).
-     - Let locals users only create/join community posts.
-   - Network calls are isolated in service files (e.g. eventsApi.js, communityApi.js), so screens don’t deal with raw fetch details. This keeps components focused on rendering and interaction logic.
+#### API Route Structure
 
-2. **API Server (Node.js + Express)**
+Route Group Description
+/api/auth Register, login, get current user
+/api/events Event CRUD + My Events
+/api/community Posts, replies, likes
+/api/users Update profile, upgrade to business
 
-   - The backend is built using Express and exposes a REST API under `/api`.
-   - The architecture follows a **controller → middleware → model** pattern for clarity and maintainability.
+#### Authentication
 
-     **Routes** are grouped by function:
+- JWT-based
 
-     - `/api/auth`
-       – user registration and login (returns JWT tokens for both locals and businesses)
-     - `/api/events`
-       – event CRUD for business users
-       - `GET /api/events` – list events (for all logged-in users to browse).
-       - `POST /api/events` – create events (**business-only**, protected by role middleware).
-       - `PUT /api/events/:id` / `DELETE /api/events/:id` – update/remove events created by a business user.
-     - `/api/community` – create/read community posts and replies.
-       - `GET /api/community` – fetch community posts, filterable by type and town.
-       - `POST /api/community` – create a new community post (available to logged-in locals and business users).
-       - **Replies** – endpoint(s) to add replies to a specific post (e.g. `POST /api/community/:postId/replies`).
-       - **Likes** – endpoint(s) to like or unlike a post (e.g. `POST` or `PATCH /api/community/:postId/like`), updating the post’s `likes` field.
+- authMiddleware validates token & attaches req.user
 
-   - **Middleware** is used to enforce security and business rules:
+- isBusiness restricts event creation/editing
 
-     - `authMiddleware` – verifies JWT tokens and attaches the authenticated user to `req.user`
-     - `isBusiness` – checks that req.user.role === "business" before allowing event creation/editing routes to proceed.
+#### Controllers
 
-   - **Controllers** handle the actual logic for each route
-     (e.g., `eventsController.js`, `communityController.js`) and return
-     structured JSON responses with appropriate HTTP status codes.
+Handled through structured controller files:
 
-   - **Models (MongoDB + Mongoose)** define the database structure:
+- eventController.js
 
-     - `User`, `Event`, and `CommunityPost`
-     - Relationships use features like `populate()` so the frontend receives meaningful objects (e.g., post includes user name and town).
+- communityController.js
 
-   - This setup ensures the backend is **secure, modular, and scalable**, matching industry-standard Node/Express architecture patterns.
+#### Models (Mongoose)
 
-3. **Database (MongoDB + Mongoose)**
+- User
+
+- Event
+
+- CommunityPost
+
+1. **Database (MongoDB + Mongoose)**
    - Hosted in MongoDB.
    - Main collections:
      - `User` – stores user accounts (name, email, password hash, role "local" or "business", town, avatar, etc.).
@@ -274,77 +258,23 @@ SummitSceneMobileApp/
 5. If the user creates a new post, the app sends `POST /api/community` with the body, type, and town plus the user’s JWT.
 6. `authMiddleware` checks the token, attaches the `userId`, and the controller saves a new `CommunityPost` linked to that user.
 
-## Tech Stack
-
-### Frontend (Mobile Client)
-
-- **React Native** with **Expo**
-  - Cross-platform mobile app targeting Android and iOS.
-- **React Navigation**
-  - Bottom tab navigator for the main sections: Hub, Map, Post, Community, Account.
-  - Stack navigation for deeper screens (event details, edit screens, etc.).
-- **Context API**
-  - `AuthContext` for storing the logged-in user, JWT, and role (`"local"` or `"business"`).
-  - `ThemeContext` for light/dark/other themes shared across the app.
-- **Reusable Components**
-  - Event cards, community post cards, modals (e.g. time picker, profile modal), buttons, and filters.
-- **Styling**
-  - React Native `StyleSheet` with a shared `colors` theme file to keep the visual design consistent.
-
-### Backend (API Server)
-
-- **Node.js** + **Express**
-  - RESTful API under `/api`.
-  - Route groups for `auth`, `events`, and `community`.
-- **Authentication & Authorization**
-  - **JSON Web Tokens (JWT)** for stateless authentication.
-  - `authMiddleware` to protect routes and attach the authenticated user to `req.user`.
-  - `isBusiness` middleware to restrict event creation/editing to business accounts only.
-- **Security & Best Practices**
-  - Passwords hashed with **bcrypt** before being stored.
-  - Sensitive values (e.g., JWT secret, database URL) loaded from environment variables via `dotenv`.
-
-### Database
-
-- **MongoDB** (e.g., MongoDB Atlas)
-  - Document database for events, users, and community posts.
-- **Mongoose**
-  - Schemas and models for:
-    - `User` (name, email, password hash, role, town, etc.)
-    - `Event` (title, category, date/time, town, description, createdBy)
-    - `CommunityPost` (type, town, body, user, replies, likes, timestamps)
-  - Uses `populate()` to attach user information to posts when needed.
-
 ## Testing
 
-The backend is tested using **Mocha**, **Chai**, and **Supertest**.
+Backend tests use Mocha, Chai, and Supertest.
 
-### What is covered
+#### Covered Areas
 
-The test suite includes integration tests for the most important API features:
+- Authentication (register/login)
 
-- **Authentication**
-  - Registers a new user
-  - Logs the user in and returns a JWT
-- **Events**
-  - Fetches all events (`GET /api/events`)
-  - Ensures only business users can create events (authorization check)
-- **Community**
-  - Fetches community posts (`GET /api/community`)
-  - Authenticated users can create a community post (or receive validation feedback)
+- Event retrieval
 
-### Why these tests matter
+- Business-only protections
 
-- Confirms JWT authentication and middleware function correctly
-- Verifies route structure, error handling, and authorization logic
-- Ensures consistent server responses for major user flows
-- Demonstrates debugging and test-driven thinking
+- Community post creation + validation
 
-### Running the tests
-
-In the `server` folder run:
-
-`npm test`
+Run Tests
+`cd server
+npm test`
 
 ### Deployment
 
@@ -356,21 +286,6 @@ In the `server` folder run:
   - The app is configured to talk to the deployed Render API rather than a local IP.
 - This setup allows the instructor to:
   - Install Expo Go, open the app link, and use SummitScene against the live backend.
-
-### Development Tools & Workflow
-
-- **Git & GitHub** for version control and collaboration.
-- **Thunder Client** for manually testing and debugging API routes.
-- **npm** scripts for running the backend server, tests, and development tools.
-- A **devlog** (linked below) documents weekly progress, debugging steps, and key design decisions.
-
-## Deployment
-
-SummitScene is fully deployed with a **live backend** on Render and a **mobile client** published with Expo. This allows the application to be tested on any device without requiring local server setup.
-
-### Backend Deployment (Node.js + Express)
-
-The backend API is deployed as a Render Web Service:
 
 **Live API Base URL:**
 `https://summit-scene-backend.onrender.com`
@@ -410,7 +325,7 @@ This project includes two detailed development logs documenting the full evoluti
 
 ### Phase 2 — Upgrades & Polishing
 
-**Sprints 9–13 & Final UI/UX/Theming Improvements**  
+**Sprints 9–15 & Final UI/UX/Theming Improvements**  
 [View DevLog Part 2 (Upgrades & Polishing)](./devlogs/DEVLOG-Part2-UpgradesAndPolishing.md)
 
 Each DevLog includes:
@@ -421,4 +336,22 @@ Each DevLog includes:
 - Photos, screenshots, and commits
 - Technical learnings
 
+## Final Notes
 
+SummitScene is a full-stack, production-ready mobile app demonstrating:
+
+- Real authentication
+ 
+- Role-based permissions
+
+- CRUD features
+
+- Interactive map
+
+- Community system
+
+- Theming & custom avatars
+
+- Professional backend architecture
+
+- Clean code, clean logs, and exhaustive documentation

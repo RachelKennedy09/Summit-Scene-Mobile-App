@@ -1,5 +1,8 @@
 // screens/PostEventScreen.js
 // Create a new event (Business only)
+// - Uses shared date/time pickers and SelectModal
+// - Validates required fields an sends a POST request via createEvent()
+// - Only business accounts (role=business) are allowed to publish events.
 
 import React, { useState } from "react";
 import {
@@ -20,7 +23,7 @@ import { useAuth } from "../../context/AuthContext.js";
 import { createEvent } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
 
-// Shared components
+// Shared components (reused across screens for a consistent UX)
 import DatePickerModal from "../../components/events/DatePickerModal.js";
 import TimePickerModal from "../../components/events/TimePickerModal.js";
 import SelectModal from "../../components/common/SelectModal";
@@ -47,6 +50,7 @@ export default function PostEventScreen() {
   const { token, logout } = useAuth();
   const { theme } = useTheme();
 
+  // Basic event fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [town, setTown] = useState(TOWNS[0]); // default to Banff
@@ -54,15 +58,19 @@ export default function PostEventScreen() {
 
   // Date + Time state
   const [dateObj, setDateObj] = useState(new Date()); // Date object for picker
-  const [date, setDate] = useState(""); // "YYYY-MM-DD"
+  const [date, setDate] = useState(""); // formatted "YYYY-MM-DD"
 
   const [timeObj, setTimeObj] = useState(new Date());
-  const [time, setTime] = useState(""); // "7:00 PM"
+  const [time, setTime] = useState(""); // formatted "7:00 PM"
 
-  const [endTimeObj, setEndTimeObj] = useState(new Date()); // end time object
-  const [endTime, setEndTime] = useState(""); // "9:00 PM"
+  const [endTimeObj, setEndTimeObj] = useState(new Date());
+  const [endTime, setEndTime] = useState(""); // formatted "9:00 PM"
 
   const [location, setLocation] = useState("");
+
+  // Hero image URL (optional). Used on EventDetailScreen hero image.
+  const [imageUrl, setImageUrl] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   // Picker visibility toggles
@@ -74,6 +82,7 @@ export default function PostEventScreen() {
 
   // --- Helpers for formatting dates/times ---
 
+  // Convert a JS Date object into a "YYYY-MM-DD" string for the API + filters.
   const applyDateFromDateObj = (jsDate) => {
     const year = jsDate.getFullYear();
     const month = String(jsDate.getMonth() + 1).padStart(2, "0");
@@ -81,6 +90,7 @@ export default function PostEventScreen() {
     setDate(`${year}-${month}-${day}`);
   };
 
+  // Format a JS Date as a user-friendly "h:mm AM/PM" string.
   const formatTime = (selectedTime) => {
     let hours = selectedTime.getHours();
     const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
@@ -90,6 +100,11 @@ export default function PostEventScreen() {
 
     return `${displayHours}:${minutes} ${suffix}`;
   };
+
+  // Handle form submission and call the backend createEvent API.
+  // Includes explicit handling for:
+  // - 401 -> expired/invalid token -> force logout
+  // - 403 -> non-business users trying to post
   const handleSubmit = async () => {
     if (!title || !date) {
       Alert.alert("Missing info", "Please add at least a title and a date.");
@@ -114,6 +129,7 @@ export default function PostEventScreen() {
           time,
           endTime,
           location,
+          imageUrl: imageUrl || undefined,
         },
         token
       );
@@ -142,13 +158,13 @@ export default function PostEventScreen() {
         return;
       }
 
-      // Other errors
+      // Other errors from the server
       if (!ok) {
         Alert.alert("Error", data?.message || "Failed to create event.");
         return;
       }
 
-      // Success
+      // Success: clear the form and send the user to "MyEvents"
       Alert.alert("Success", "Your event has been posted!", [
         {
           text: "OK",
@@ -165,6 +181,7 @@ export default function PostEventScreen() {
             setDateObj(new Date());
             setTimeObj(new Date());
             setEndTimeObj(new Date());
+            setImageUrl("");
 
             navigation.navigate("MyEvents");
           },
@@ -182,6 +199,7 @@ export default function PostEventScreen() {
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.background }]}
     >
+      {/* KeyboardAvoidingView keeps the inputs visible when the keyboard is open on iOS. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -270,7 +288,7 @@ export default function PostEventScreen() {
             </View>
           </Pressable>
 
-          {/* Start Time */}
+          {/* Start Time (Optional)*/}
           <Text style={[styles.label, { color: theme.textMuted }]}>
             Start time (optional)
           </Text>
@@ -294,7 +312,7 @@ export default function PostEventScreen() {
             </View>
           </Pressable>
 
-          {/* End Time */}
+          {/* End Time (optional) */}
           <Text style={[styles.label, { color: theme.textMuted }]}>
             End time (optional)
           </Text>
@@ -336,6 +354,27 @@ export default function PostEventScreen() {
             placeholderTextColor={theme.textMuted}
             value={location}
             onChangeText={setLocation}
+          />
+
+          {/* Image URL */}
+          <Text style={[styles.label, { color: theme.textMuted }]}>
+            Image URL (optional)
+          </Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.card,
+                color: theme.text,
+                borderColor: theme.border,
+                borderWidth: 1,
+              },
+            ]}
+            placeholder="https://example.com/your-image.jpg"
+            placeholderTextColor={theme.textMuted}
+            value={imageUrl}
+            onChangeText={setImageUrl}
+            autoCapitalize="none"
           />
 
           {/* Description */}
