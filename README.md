@@ -1,3 +1,104 @@
+# SummitScene – The Story & Purpose Behind the App
+
+## The Mission
+
+Small mountain towns like Banff, Canmore, and Lake Louise are vibrant, creative, and full of life — but their event discovery is scattered everywhere.
+
+Locals hear about events from:
+
+- Instagram Stories that disappear after 24 hours
+
+- Posters taped to coffee shop windows
+
+- Word-of-mouth that never reaches the right people
+
+- Crowded Discords and Facebook groups
+
+- Random tourism websites that aren’t geared to locals at all
+
+SummitScene was built to solve this.
+
+## What SummitScene Really Is
+
+SummitScene isn’t “just an events app.”
+It’s designed to be the digital heartbeat of small mountain communities — a single place where:
+
+- locals
+
+- seasonal workers
+
+- artists
+
+- musicians
+
+- small businesses
+
+- guides
+
+- and mountain-loving travelers
+
+can connect, share, and discover what’s happening in their backyard.
+
+It's an app created for the mountains, by someone who lives in them.
+
+## The Why
+
+Because connection is what keeps small towns alive.
+
+Because creativity deserves a platform.
+
+Because a community scattered across 10 apps, posters, and inboxes deserves better.
+
+Because locals should know what’s happening before the tourists do.
+
+Because business owners shouldn’t have to rely on the algorithm to reach the people who live right down the street.
+
+_And because I believe every mountain community deserves a modern, beautiful, inclusive digital space that celebrates local life._
+
+SummitScene also supports a bigger goal:
+
+**Helping mountain towns balance tourism + local needs.**
+
+When events are easy to find:
+
+- tourists spread out instead of crowding the same spaces
+
+- businesses get fair exposure
+
+- small venues get discovered
+
+- people find activities that truly fit their vibe
+
+- locals reclaim ownership of their community’s culture
+
+Everyone wins.
+
+## What It Will Become
+
+SummitScene is already a fully functioning full-stack application, but the long-term vision is even bigger:
+
+- A hyperlocal events + community hub
+
+- A map-first discovery experience
+
+- Easy posting tools for small businesses
+
+- Community boards for rideshares, event buddies, and conditions
+
+- Push notifications for real-time updates
+
+- A future blog + storytelling space for local creators
+
+- SEO-driven content so events reach people beyond social media
+
+SummitScene aims to become the place where:
+
+“What’s happening tonight?” → becomes one tap away.
+
+“Who’s around?” → becomes easy to answer.
+
+“How do I share this?” → becomes frictionless.
+
 # SummitScene — Mobile Events, Community, & Map App
 
 A full-stack React Native mobile application for Banff, Canmore, and Lake Louise.
