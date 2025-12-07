@@ -99,6 +99,9 @@ SummitScene aims to become the place where:
 
 “How do I share this?” → becomes frictionless.
 
+---
+
+
 # SummitScene — Mobile Events, Community, & Map App
 
 A full-stack React Native mobile application for Banff, Canmore, and Lake Louise.
