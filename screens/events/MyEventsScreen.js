@@ -33,7 +33,7 @@ export default function MyEventsScreen({ navigation }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch events owned by teh current business user.
+  // Fetch events owned by the current business user.
   // This is separate from the general Hub fetch because the endpoint is /events/mine.
   const fetchMyEvents = useCallback(async () => {
     try {
@@ -123,7 +123,8 @@ export default function MyEventsScreen({ navigation }) {
   const pastEvents = events.filter(
     (event) => event.date && event.date < todayStr
   );
-  // Build a user-friendly "date + time" label based on which fields are pressed
+
+  // Build a user-friendly "date + time" label based on which fields are present
   function buildDateTimeLabel(item) {
     const hasDate = Boolean(item.date);
     const hasStartTime = Boolean(item.time);
@@ -147,7 +148,7 @@ export default function MyEventsScreen({ navigation }) {
   }
 
   function handleEdit(event) {
-    // Navigate tot he shared EditEvent screen, passing the event to pre-fill the form.
+    // Navigate to the shared EditEvent screen, passing the event to pre-fill the form.
     navigation.navigate("EditEvent", { event });
   }
 
@@ -324,6 +325,39 @@ export default function MyEventsScreen({ navigation }) {
     );
   }
 
+  // ---- Build single FlatList data with section headers ----
+  const listData = [];
+
+  if (upcomingEvents.length > 0) {
+    listData.push({
+      type: "heading",
+      id: "heading-upcoming",
+      title: "My Upcoming Events",
+    });
+    upcomingEvents.forEach((event) => {
+      listData.push({
+        type: "event",
+        id: event._id,
+        event,
+      });
+    });
+  }
+
+  if (pastEvents.length > 0) {
+    listData.push({
+      type: "heading",
+      id: "heading-past",
+      title: "My Past Events",
+    });
+    pastEvents.forEach((event) => {
+      listData.push({
+        type: "event",
+        id: event._id,
+        event,
+      });
+    });
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Text style={[styles.screenTitle, { color: theme.text }]}>My Events</Text>
@@ -347,49 +381,32 @@ export default function MyEventsScreen({ navigation }) {
         </Pressable>
       )}
 
-      {/* Upcoming Events */}
-      {upcomingEvents.length > 0 && (
-        <>
-          <Text style={[styles.sectionHeading, { color: theme.text }]}>
-            My Upcoming Events
-          </Text>
-          <FlatList
-            data={upcomingEvents}
-            keyExtractor={(item) => item._id}
-            renderItem={renderEventItem}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefreshing}
-                onRefresh={onRefresh}
-                tintColor={theme.accent}
-              />
-            }
-          />
-        </>
-      )}
+      <FlatList
+        data={listData}
+        keyExtractor={(item) =>
+          item.type === "heading" ? item.id : item.event._id
+        }
+        renderItem={({ item }) => {
+          if (item.type === "heading") {
+            return (
+              <Text style={[styles.sectionHeading, { color: theme.text }]}>
+                {item.title}
+              </Text>
+            );
+          }
 
-      {/* Past Events */}
-      {pastEvents.length > 0 && (
-        <>
-          <Text style={[styles.sectionHeading, { color: theme.text }]}>
-            My Past Events
-          </Text>
-          <FlatList
-            data={pastEvents}
-            keyExtractor={(item) => item._id}
-            renderItem={renderEventItem}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefreshing}
-                onRefresh={onRefresh}
-                tintColor={theme.accent}
-              />
-            }
+          // item.type === "event"
+          return renderEventItem({ item: item.event });
+        }}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.accent}
           />
-        </>
-      )}
+        }
+      />
     </View>
   );
 }
