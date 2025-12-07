@@ -17,7 +17,6 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { deleteEvent } from "../../services/eventsApi";
 import { useTheme } from "../../context/ThemeContext";
-
 // Use same base URL as the rest of app (Expo env var with fallback)
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ||

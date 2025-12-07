@@ -24,7 +24,7 @@ import MemberProfileModal from "../../components/account/MemberProfileModal";
 
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import AppLogoHeader from "../../components/AppLogoHeader";
 import { useAuth } from "../../context/AuthContext";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
@@ -162,6 +162,7 @@ export default function CommunityScreen({ navigation }) {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
+       <AppLogoHeader />
       {/* Header */}
       <View style={styles.headerRow}>
         <View style={{ flex: 1 }}>

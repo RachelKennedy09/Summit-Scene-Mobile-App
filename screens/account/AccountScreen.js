@@ -21,7 +21,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { colors } from "../../theme/colors";
 import { useTheme } from "../../context/ThemeContext";
-
+import AppLogoHeader from "../../components/AppLogoHeader";
 import AccountHeaderCard from "../../components/account/AccountHeaderCard";
 import ProfileCard from "../../components/account/ProfileCard";
 import ThemeSection from "../../components/account/ThemeSection";
@@ -99,6 +99,7 @@ function AccountScreen() {
         style={styles.container}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
+        <AppLogoHeader />
         <Text style={[styles.title, { color: theme.text }]}>Account</Text>
 
         {/* PROFILE HEADER CARD
@@ -203,7 +204,7 @@ export default AccountScreen;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primary, 
+    backgroundColor: colors.primary,
   },
   container: {
     flex: 1,

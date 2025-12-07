@@ -17,6 +17,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
+import AppLogoHeader from "../../components/AppLogoHeader";
+
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -268,6 +270,7 @@ export default function HubScreen() {
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.background }]}
     >
+      <AppLogoHeader />
       <View style={[styles.container, { backgroundColor: theme.background }]}>
         <FlatList
           data={eventsToShow}

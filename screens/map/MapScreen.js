@@ -17,6 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker } from "react-native-maps";
 import { useNavigation } from "@react-navigation/native";
 
+import AppLogoHeader from "../../components/AppLogoHeader";
+
 import { fetchEvents as fetchEventsFromApi } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
 import MapFilters from "../../components/map/MapFilters";
@@ -258,6 +260,7 @@ export default function MapScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
+      <AppLogoHeader />
       {/* Filters header and summary (reused logic from Hub in a shared MapFilters component) */}
       <MapFilters
         selectedTown={selectedTown}

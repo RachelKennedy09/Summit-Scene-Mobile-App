@@ -16,9 +16,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTheme } from "../../context/ThemeContext";
-
+import DatePickerModal from "../../components/events/DatePickerModal";
+import AppLogoHeader from "../../components/AppLogoHeader";
 // Board + town options are defined as config arrays,
 // so it’s easy to add more types/towns later without changing the JSX.
 const POST_TYPES = [
@@ -97,7 +97,6 @@ export default function CommunityPostScreen({ navigation }) {
         title: title.trim(),
         body: body.trim(),
         targetDate: targetDate.toISOString(),
-        
       };
 
       const res = await fetch(`${API_BASE_URL}/api/community`, {
@@ -149,6 +148,7 @@ export default function CommunityPostScreen({ navigation }) {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
+          <AppLogoHeader />
           <Text style={[styles.heading, { color: theme.text }]}>
             New Community Post
           </Text>
@@ -240,25 +240,31 @@ export default function CommunityPostScreen({ navigation }) {
             ]}
           >
             <Text style={{ color: theme.text }}>
-              {targetDate.toLocaleDateString()}
+              {targetDate ? targetDate.toLocaleDateString() : "Select a date"}
             </Text>
           </Pressable>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={targetDate}
-              mode="date"
-              display={Platform.OS === "android" ? "calendar" : "spinner"}
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
+          {/* Quick "Today" shortcut */}
+          <Pressable
+            onPress={() => setTargetDate(new Date())}
+            style={{ marginTop: 4 }}
+          >
+            <Text style={{ fontSize: 12, color: theme.accent }}>Use today</Text>
+          </Pressable>
 
-                if (event.type === "dismissed") return;
-                if (selectedDate) {
-                  setTargetDate(selectedDate);
-                }
-              }}
-            />
-          )}
+          {/* Reuse the same modal as Event posting */}
+          <DatePickerModal
+            visible={showDatePicker}
+            initialDate={targetDate}
+            title="Select date"
+            onCancel={() => setShowDatePicker(false)}
+            onConfirm={(selected) => {
+              setShowDatePicker(false);
+              if (selected) {
+                setTargetDate(selected);
+              }
+            }}
+          />
 
           {/* Title */}
           <Text style={[styles.label, { color: theme.textMuted }]}>Title</Text>

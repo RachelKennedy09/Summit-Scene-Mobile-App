@@ -201,6 +201,44 @@ SummitSceneMobileApp/
 - Manage their event listings under My Events
 - Role-based permissions are enforced in both UI and backend.
 
+## Demo Accounts (for grading)
+
+The deployed SummitScene app is backed by a MongoDB Atlas database.  
+To make it easy to explore without creating new users, the following demo accounts are pre-created in the production database:
+
+### Business Demo Account
+
+- **Email:** `rockies.coffee.banff@test.com`
+- **Password:** `Password123!`
+- **Role:** Business
+- **Town:** Banff
+
+**What you can test with this account:**
+
+- Create, edit, and delete events from the **Post** tab.
+- View your events in the **Account → View My Events** screen (split into Upcoming / Past).
+- Confirm that business-created events appear in:
+  - The **Hub** feed
+  - The **Map** tab as pins
+  - The **My Events** management screen
+
+### Local Demo Account
+
+- **Email:** `rachel.local@test.com`
+- **Password:** `Password123!`
+- **Role:** Local
+- **Town:** Lake Louise
+
+**What you can test with this account:**
+
+- Create new posts on the **Community** tab for:
+  - Highway conditions
+  - Ride share
+  - Event buddy
+- See how local accounts differ from business accounts (no My Events / event posting).
+
+> The Hub and Community tabs are public once the app is running, so you can also browse events and posts without logging in. Logging in as the demo users unlocks account-specific features like “My Events” and posting to the community boards.
+
 ## Tech Stack
 
 ### 1. Mobile Client (React Native + Expo)

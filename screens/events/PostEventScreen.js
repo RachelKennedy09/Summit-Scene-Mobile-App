@@ -19,6 +19,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
+import AppLogoHeader from "../../components/AppLogoHeader";
+
 import { useAuth } from "../../context/AuthContext.js";
 import { createEvent } from "../../services/eventsApi.js";
 import { useTheme } from "../../context/ThemeContext";
@@ -199,6 +201,7 @@ export default function PostEventScreen() {
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: theme.background }]}
     >
+      <AppLogoHeader />
       {/* KeyboardAvoidingView keeps the inputs visible when the keyboard is open on iOS. */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
