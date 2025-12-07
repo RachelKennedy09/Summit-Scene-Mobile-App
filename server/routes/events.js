@@ -33,11 +33,6 @@ const router = express.Router();
 //   - Can later support query params for filtering by date, town, category, etc.
 router.get("/", getAllEvents);
 
-// GET /api/events/:id
-//   Return detailed info for a single event.
-//   Used when the user taps into an event details screen.
-router.get("/:id", getEventById);
-
 // -------------------------------------------
 // AUTHENTICATED ROUTES
 // -------------------------------------------
@@ -47,6 +42,14 @@ router.get("/:id", getEventById);
 //   Used by "My Events" so businesses can manage their own events.
 //   - Requires a valid JWT (authMiddleware).
 router.get("/mine", authMiddleware, getMyEvents);
+
+// -------------------------------------------
+// PUBLIC SINGLE EVENT ROUTE
+// -------------------------------------------
+// GET /api/events/:id
+//   Return detailed info for a single event.
+//   Used when the user taps into an event details screen.
+router.get("/:id", getEventById);
 
 // -------------------------------------------
 // BUSINESS-ONLY ROUTES (CREATE / UPDATE / DELETE)

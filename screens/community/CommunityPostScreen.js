@@ -97,6 +97,7 @@ export default function CommunityPostScreen({ navigation }) {
         title: title.trim(),
         body: body.trim(),
         targetDate: targetDate.toISOString(),
+        
       };
 
       const res = await fetch(`${API_BASE_URL}/api/community`, {

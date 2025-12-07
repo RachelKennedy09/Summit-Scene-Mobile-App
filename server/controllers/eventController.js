@@ -137,6 +137,7 @@ export async function createEvent(req, res) {
 // -------------------------------------------
 export async function getEventById(req, res) {
   try {
+    console.log("🔥 getEventById hit with id =", req.params.id);
     const { id } = req.params;
 
     const event = await Event.findById(id).populate(
@@ -267,6 +268,7 @@ export async function deleteEvent(req, res) {
 // -------------------------------------------
 export async function getMyEvents(req, res) {
   try {
+    console.log("🌲 getMyEvents hit for user =", req.user?.userId);
     const userId = req.user?.userId;
 
     if (!userId) {

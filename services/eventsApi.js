@@ -39,6 +39,32 @@ export async function fetchEvents() {
   }
 }
 
+//    FETCH MY EVENTS
+//    GET /api/mine
+
+export async function fetchMyEvents(token) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/events/mine`, {
+      headers: buildHeaders(token),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const message =
+        data.message ||
+        data.error ||
+        `Failed to fetch my events (${res.status})`;
+      throw new Error(message);
+    }
+
+    return data; // array of events
+  } catch (error) {
+    console.error("fetchMyEvents error:", error);
+    throw error;
+  }
+}
+
 //    CREATE EVENT (Business only)
 //    POST /api/events
 //    Body: eventData

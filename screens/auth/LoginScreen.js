@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Image,
+  ScrollView,
 } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
@@ -61,105 +62,112 @@ function LoginScreen() {
       style={[styles.container, { backgroundColor: theme.background }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* Dismiss keyboard when tapping outside inputs */}
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          {/* App logo */}
-          <View style={styles.logoContainer}>
-            <Image source={Logo} style={styles.logo} resizeMode="contain" />
-          </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Dismiss keyboard when tapping outside inputs */}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.inner}>
+            {/* App logo */}
+            <View style={styles.logoContainer}>
+              <Image source={Logo} style={styles.logo} resizeMode="contain" />
+            </View>
 
-          {/* Headline + intro text */}
-          <Text style={[styles.title, { color: theme.text }]}>
-            Welcome To Summit Scene Hub!
-          </Text>
-          <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-            Log in to see and post local events in Banff, Canmore and Lake
-            Louise.
-          </Text>
-
-          {/* EMAIL FIELD */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.text }]}>Email</Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
-              ]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor={theme.textMuted}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              autoCorrect={false}
-            />
-          </View>
-
-          {/* PASSWORD FIELD */}
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.text }]}>Password</Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
-              ]}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor={theme.textMuted}
-              secureTextEntry
-            />
-          </View>
-
-          {/* LOGIN BUTTON */}
-          <Pressable
-            style={[
-              styles.button,
-              {
-                backgroundColor: theme.accent,
-              },
-              (isSubmitting || isAuthLoading) && styles.buttonDisabled,
-            ]}
-            onPress={handleLogin}
-            disabled={isSubmitting || isAuthLoading}
-          >
-            <Text
-              style={[
-                styles.buttonText,
-                {
-                  // use theme.background so text is readable on accent
-                  color: theme.background,
-                },
-              ]}
-            >
-              {isSubmitting || isAuthLoading ? "Logging in..." : "Log In"}
+            {/* Headline + intro text */}
+            <Text style={[styles.title, { color: theme.text }]}>
+              Welcome To Summit Scene Hub!
             </Text>
-          </Pressable>
-
-          {/* LINK → REGISTER SCREEN */}
-          <Pressable onPress={() => navigation.navigate("Register")}>
-            <Text
-              style={[
-                styles.linkText,
-                {
-                  color: theme.accent,
-                },
-              ]}
-            >
-              Don't have an account? Sign up
+            <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+              Log in to see and post local events in Banff, Canmore and Lake
+              Louise.
             </Text>
-          </Pressable>
-        </View>
-      </TouchableWithoutFeedback>
+
+            {/* EMAIL FIELD */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: theme.text }]}>Email</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    color: theme.text,
+                  },
+                ]}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="you@example.com"
+                placeholderTextColor={theme.textMuted}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoCorrect={false}
+              />
+            </View>
+
+            {/* PASSWORD FIELD */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: theme.text }]}>
+                Password
+              </Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    color: theme.text,
+                  },
+                ]}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor={theme.textMuted}
+                secureTextEntry
+              />
+            </View>
+
+            {/* LOGIN BUTTON */}
+            <Pressable
+              style={[
+                styles.button,
+                {
+                  backgroundColor: theme.accent,
+                },
+                (isSubmitting || isAuthLoading) && styles.buttonDisabled,
+              ]}
+              onPress={handleLogin}
+              disabled={isSubmitting || isAuthLoading}
+            >
+              <Text
+                style={[
+                  styles.buttonText,
+                  {
+                    // use theme.background so text is readable on accent
+                    color: theme.background,
+                  },
+                ]}
+              >
+                {isSubmitting || isAuthLoading ? "Logging in..." : "Log In"}
+              </Text>
+            </Pressable>
+
+            {/* LINK → REGISTER SCREEN */}
+            <Pressable onPress={() => navigation.navigate("Register")}>
+              <Text
+                style={[
+                  styles.linkText,
+                  {
+                    color: theme.accent,
+                  },
+                ]}
+              >
+                Don't have an account? Sign up
+              </Text>
+            </Pressable>
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

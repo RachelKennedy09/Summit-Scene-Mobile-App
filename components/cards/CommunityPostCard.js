@@ -109,6 +109,18 @@ export default function CommunityPostCard({
     return postUserId === userId;
   })();
 
+  // ----- Role pill-----
+  const isBusiness = role === "business";
+
+  const roleBgColor =
+    theme.rolePillBg || (theme.accentSoft ? theme.accentSoft : colors.tealTint);
+
+  const roleTextColor =
+    theme.rolePillText ||
+    (isBusiness
+      ? theme.accent || colors.teal
+      : theme.textMain || colors.textLight);
+
   return (
     <View
       style={[
@@ -167,16 +179,17 @@ export default function CommunityPostCard({
             {town || "Rockies local"}
           </Text>
 
+          {/* Role Pill  */}
           <Text
             style={[
               styles.roleBadge,
               {
-                backgroundColor: theme.cardDark || colors.cardDark,
-                color: theme.textMain,
+                backgroundColor: roleBgColor,
+                color: roleTextColor,
               },
             ]}
           >
-            {role === "business" ? "Business host" : "Local member"}
+            {isBusiness ? "Business host" : "Local member"}
           </Text>
 
           {post.targetDate ? (
@@ -286,8 +299,6 @@ export default function CommunityPostCard({
   );
 }
 
-// ----- Styles -----
-// Styles moved over from CommunityScreen (card + likes).
 const styles = StyleSheet.create({
   sectionCard: {
     backgroundColor: colors.secondary,
@@ -296,21 +307,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-
   cardHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 10,
   },
-
   authorRow: {
     flexDirection: "row",
     alignItems: "center",
     flex: 1,
     marginRight: 8,
   },
-
   avatarCircle: {
     width: 34,
     height: 34,
@@ -320,123 +328,102 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 8,
   },
-
   avatarImage: {
     width: 34,
     height: 34,
     borderRadius: 17,
   },
-
   avatarInitial: {
     fontSize: 16,
     fontWeight: "700",
     color: colors.textLight,
   },
-
   authorTextCol: {
     flexShrink: 1,
   },
-
   authorNameText: {
     fontSize: 14,
     fontWeight: "600",
     color: colors.textLight,
   },
-
   authorEmailText: {
     fontSize: 11,
     color: colors.textMuted,
     marginTop: 2,
   },
-
   timestampText: {
     fontSize: 11,
     color: colors.textMuted,
     marginTop: 2,
   },
-
   badgeColumn: {
     alignItems: "flex-end",
     gap: 4,
   },
-
   townTag: {
     fontSize: 12,
     color: colors.textMuted,
   },
-
   roleBadge: {
     fontSize: 11,
-    color: colors.textLight,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: colors.cardDark,
+    overflow: "hidden",
   },
-
   dateBadge: {
     fontSize: 11,
     color: colors.textMuted,
   },
-
   ownerBadge: {
     fontSize: 11,
     color: colors.accent,
     fontWeight: "700",
   },
-
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
     color: colors.textLight,
     marginBottom: 4,
   },
-
   sectionText: {
     fontSize: 14,
     color: colors.textMuted,
   },
-
   ownerActionsRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 8,
     marginTop: 12,
   },
-
   editButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     backgroundColor: colors.accent,
   },
-
   editButtonText: {
     color: colors.textLight,
     fontWeight: "600",
     fontSize: 13,
   },
-
   deleteButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     backgroundColor: colors.danger,
   },
-
   deleteButtonText: {
     color: colors.textLight,
     fontWeight: "600",
     fontSize: 13,
   },
-
   profileRow: {
     marginTop: 8,
     marginBottom: 4,
     flexDirection: "row",
     justifyContent: "flex-start",
   },
-
   profileButton: {
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -444,27 +431,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.accent,
   },
-
   profileButtonText: {
     fontSize: 12,
     color: colors.accent,
     fontWeight: "600",
   },
-
   replyDivider: {
     height: 1,
     backgroundColor: colors.border,
     marginTop: 12,
     marginBottom: 8,
   },
-
   likesRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
     marginBottom: 4,
   },
-
   likeButton: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -473,13 +456,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     marginRight: 8,
   },
-
   likeButtonText: {
     fontSize: 12,
     fontWeight: "600",
     color: colors.textLight,
   },
-
   likesCountText: {
     fontSize: 12,
     color: colors.textMuted,
